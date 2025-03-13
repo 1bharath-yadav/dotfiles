@@ -1,0 +1,42 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Rofi Beats Config (compact) */
+
+@import "~/.config/rofi/config.rasi" 
+
+/* ---- Window ---- */
+window {
+  width: 45%;
+}
+
+/* ---- Mainbox ---- */
+mainbox {
+  children:
+    [ "inputbar", "listview"];
+}
+
+/* ---- Entry ---- */ 
+entry {
+  placeholder: " 📻 Choose Media or Stations to play";
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 2;
+  lines: 8;
+  fixed-height: false;
+  margin: 10px;
+}
+
+/* ---- Elements ---- */
+element {
+  orientation: horizontal;
+}
+
+element-icon {
+  size: 0%;
+}
+
+element-text {
+  horizontal-align: 0.0;
+  vertical-align: 0.5;
+}
