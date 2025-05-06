@@ -32,6 +32,7 @@ alias upd="sudo pacman -Syu"
 alias rsearch="pacman -Ss "
 alias lsearch="pacman -Qs "
 alias rp="sudo pacman -Rscun "
+alias nvimedit="nvim /home/archer/.config/nvim"
 alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
 alias supercd='cd "$(fzf --preview="if [ -d {} ]; then ls -la {}; else cat {}; fi" | xargs -r dirname)"'
@@ -57,6 +58,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/home/archer/.lmstudio/bin"
+export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
