@@ -12,6 +12,7 @@ export ZSH="$HOME/.oh-my-zsh"
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
+
 export EDITOR="nvim"
 export SUDO_EDITOR="$EDITOR"
 source ~/.env
@@ -68,5 +69,18 @@ unset __conda_setup
 
 # Added by LM Studio CLI (lms)
 export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
+
+
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+#Yazi Config
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
 
 
