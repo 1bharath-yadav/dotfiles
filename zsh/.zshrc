@@ -4,23 +4,7 @@ if [ -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt ]; then
 fi
 
 
-export EDITOR=nvim
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-eval "$(fnm env --use-on-cd --shell zsh)"
-export ZSH="$HOME/.oh-my-zsh"
-eval "$(starship init zsh)"
-eval "$(zoxide init zsh)"
 
-
-export EDITOR="nvim"
-export SUDO_EDITOR="$EDITOR"
-source ~/.env
-export DOCKER_HUB_USERNAME=bharathyadav1234
-
-
-bindkey '^P' history-beginning-search-backward
-bindkey '^N' history-beginning-search-forward
 plugins=(
     git
     archlinux
@@ -28,7 +12,51 @@ plugins=(
     zsh-syntax-highlighting
 )
 
+
+# If you come from bash you might have to change your $PATH.
+eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
+export ZSH="$HOME/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
+source <(fzf --zsh)
+source ~/.env
+
+#Yazi Config
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
+
+
+
+#keybindings
+
+bindkey '^[f' forward-word   # Alt+f to move forward by word
+bindkey '^[b' backward-word  # Alt+b to move backward by word
+ 
+bindkey '^[d' kill-word        # Alt+d deletes word forward
+bindkey '^W' backward-kill-word # Ctrl+w deletes word backward
+
+bindkey '^K' kill-line             # Ctrl+K kills to end of line
+bindkey '^[u' backward-kill-line   # Alt+u kills to beginning
+bindkey '^L' clear-screen  # Ctrl+L (already default for many)
+bindkey '^P' history-beginning-search-backward
+bindkey '^N' history-beginning-search-forward
+
+sudo-command-line() {
+  LBUFFER="sudo $LBUFFER"
+  zle reset-prompt
+}
+zle -N sudo-command-line
+bindkey '^[s' sudo-command-line
+
+
+###Aliases
 
 alias ts="trash"
 alias icat="kitten icat"
@@ -45,42 +73,29 @@ alias nvimedit="nvim /home/archer/.config/nvim"
 alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
 alias supercd='cd "$(fzf --preview="if [ -d {} ]; then ls -la {}; else cat {}; fi" | xargs -r dirname)"'
-source <(fzf --zsh)
+alias mail='neomutt'
+
+
+# Download high-quality audio for music
+alias youtube-audio='yt-dlp --extract-audio --audio-format opus --embed-thumbnail'
+# Download compressed audio for speech-to-text
+alias youtube-opus='yt-dlp --extract-audio --audio-format opus --embed-thumbnail --postprocessor-args "-c:a libopus -b:a 12k -ac 1 -application voip -vbr off -ar 8000 -cutoff 4000 -frame_duration 60 -compression_level 10"'
+# Download subtitles
+youtube-subtitles () {
+    curl -s "$(yt-dlp -q --skip-download --convert-subs srt --write-sub --sub-langs "en" --write-auto-sub --print "requested_subtitles.en.url" "$1")"
+}
+
 
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/archer/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/archer/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/archer/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/archer/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
-# Added by LM Studio CLI (lms)
 export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
-
-
 export PATH="$HOME/.npm-global/bin:$PATH"
-
-#Yazi Config
-
-function y() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	IFS= read -r -d '' cwd < "$tmp"
-	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-	rm -f -- "$tmp"
-}
-
+export EDITOR=nvim
+export EDITOR="nvim"
+export SUDO_EDITOR="$EDITOR"
+export DOCKER_HUB_USERNAME=bharathyadav1234
+export PATH=$HOME/bin:/usr/local/bin:$PATH
 
