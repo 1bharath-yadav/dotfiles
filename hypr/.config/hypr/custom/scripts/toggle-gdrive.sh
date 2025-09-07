@@ -21,3 +21,4 @@ else
         --vfs-fast-fingerprint
 fi
 
+#if authentication expired do 'rclone config reconnect gdrive:'
