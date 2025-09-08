@@ -109,6 +109,45 @@ export EDITOR="nvim"
 export SUDO_EDITOR="$EDITOR"
 export DOCKER_HUB_USERNAME=bharathyadav1234
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+export DOTFILES_DIR="$HOME/.dotfiles"
 
+
+# 🅻🅾🅰🅳🅴🆁🆂 - Concatenate dotfiles into a single cache
+_DOTFILES_CACHE="${HOME}/.zsh_dotfiles_cache"
+_DOTFILES_CACHE_TIME=86400  # 24 hours in seconds
+DOTFILES_DIR="${HOME}/.dotfiles"
+load_dotfiles() {
+  local load_from_cache=0
+
+  # Check if cache exists and is recent
+  if [[ -f "${_DOTFILES_CACHE}" ]]; then
+    local cache_time=$(stat -c %Y "${_DOTFILES_CACHE}" 2>/dev/null || stat -f %m "${_DOTFILES_CACHE}" 2>/dev/null)
+    local current_time=$(date +%s)
+    if (( current_time - cache_time < _DOTFILES_CACHE_TIME )); then
+      load_from_cache=1
+    fi
+  fi
+
+  if (( load_from_cache )); then
+    source "${_DOTFILES_CACHE}"
+  else
+    # Generate new cache: concatenate everything into one big file
+    {
+      echo "# Auto-generated dotfiles cache - $(date)"
+      for loader in "${DOTFILES_DIR}"/shell-sources/**/*.sh; do
+        if [[ -f "$loader" ]]; then
+          echo "# Source: $loader"
+          cat "$loader"
+          echo ""   # ensure newline between files
+        fi
+      done
+    } > "${_DOTFILES_CACHE}"
+
+    source "${_DOTFILES_CACHE}"
+  fi
+}
+
+
+load_dotfiles
 
 
