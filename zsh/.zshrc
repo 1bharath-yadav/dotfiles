@@ -69,11 +69,22 @@ alias upd="sudo pacman -Syu"
 alias rsearch="pacman -Ss "
 alias lsearch="pacman -Qs "
 alias rp="sudo pacman -Rscun "
+alias pc='yay -Sc' # remove all cached packages
+alias po='yay -Qtdq | sudo pacman -Rns -' # remove orphaned packages
 alias nvimedit="nvim /home/archer/.config/nvim"
 alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
 alias supercd='cd "$(fzf --preview="if [ -d {}; then ls -la {}; else cat {}; fi" | xargs -r dirname)"'
 alias mail='neomutt'
+
+# tmux shortcuts
+alias t='tmux'
+alias tl='tmux list-sessions'
+alias tns='tmux new-session -s'
+alias ta='tmux attach-session'
+alias tksa='tmux kill-session -a'
+alias to='tmux attach-session -t'  #attach to specific session name
+alias tn='tmux new-session -A -s "$(basename \"$PWD\")"'   #session name based on pwd
 
 
 # Download high-quality audio for music
@@ -100,56 +111,4 @@ export DOCKER_HUB_USERNAME=bharathyadav1234
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 
-
-# Terminal Session Logger for .zshrc
-# Creates JSONL logs in ~/logs/terminal-sessions/
-
-# Create logs directory
-mkdir -p ~/logs/terminal-sessions
-
-# Generate session ID and log file
-SESSION_ID="session_$(date +%Y%m%d_%H%M%S)_$$"
-LOG_DIR="$HOME/logs/terminal-sessions"
-RAW_LOG="$LOG_DIR/${SESSION_ID}.raw"
-JSONL_LOG="$LOG_DIR/${SESSION_ID}.jsonl"
-
-# Function to convert script output to JSONL
-convert_to_jsonl() {
-    if [[ -f "$RAW_LOG" ]]; then
-        {
-            echo "{\"session_id\":\"$SESSION_ID\",\"start_time\":\"$(date -Iseconds)\",\"type\":\"session_start\"}"
-            
-            # Process the raw log and convert to JSONL format
-            while IFS= read -r line; do
-                # Escape quotes and backslashes for JSON
-                escaped_line=$(echo "$line" | sed 's/\\/\\\\/g; s/"/\\"/g')
-                timestamp=$(date -Iseconds)
-                echo "{\"session_id\":\"$SESSION_ID\",\"timestamp\":\"$timestamp\",\"type\":\"output\",\"content\":\"$escaped_line\"}"
-            done < "$RAW_LOG"
-            
-            echo "{\"session_id\":\"$SESSION_ID\",\"end_time\":\"$(date -Iseconds)\",\"type\":\"session_end\"}"
-        } > "$JSONL_LOG"
-        
-        # Remove raw log after conversion
-        rm -f "$RAW_LOG"
-    fi
-}
-
-# Start script recording if not already running and not in a script session
-if [[ -z "$SCRIPT_RUNNING" && -z "$TERM_SESSION_ID" ]]; then
-    export SCRIPT_RUNNING=1
-    export TERM_SESSION_ID="$SESSION_ID"
-    
-    # Use script to record session
-    exec script -f -q "$RAW_LOG" -c "SCRIPT_RUNNING=1 TERM_SESSION_ID=$SESSION_ID zsh"
-fi
-
-# Cleanup function to convert logs on exit
-cleanup_session() {
-    convert_to_jsonl
-    trap - EXIT
-}
-
-# Set trap to cleanup on shell exit
-trap cleanup_session EXIT
 

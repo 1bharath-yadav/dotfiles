@@ -753,6 +753,10 @@
       "description": "Simple OpenCL application that enumerates all available platform and device properties"
     },
     {
+      "name": "quickshell-git",
+      "description": "Simple and flexbile QtQuick based desktop shell toolkit"
+    },
+    {
       "name": "rclone-browser",
       "description": "Simple cross-platform GUI for rclone"
     },
