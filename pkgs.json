@@ -25,6 +25,10 @@
       "description": "A collection of common network programs"
     },
     {
+      "name": "bind",
+      "description": "A complete, highly portable implementation of the DNS protocol"
+    },
+    {
       "name": "libcamera",
       "description": "A complex camera support library for Linux, Android, and ChromeOS"
     },
@@ -983,32 +987,84 @@
   ],
   "aur": [
     {
-      "name": "blackarch-keyring",
-      "description": "BlackArch Linux PGP keyring."
+      "name": "neofetch",
+      "description": "A CLI system information tool written in BASH that supports displaying images."
     },
     {
-      "name": "darkly-bin",
-      "description": "Fork of Lightly (A modern style for Qt applications)"
+      "name": "pamac-aur",
+      "description": "A Gtk frontend, Package Manager based on libalpm with AUR and Appstream support"
     },
     {
-      "name": "epapirus-icon-theme",
-      "description": "Papirus icon theme"
+      "name": "vesktop-bin",
+      "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
     },
     {
-      "name": "fnm-bin",
-      "description": "Fast and simple Node.js version manager, built in Rust"
+      "name": "urlview",
+      "description": "A curses URL parser for text files"
     },
     {
-      "name": "github-desktop-bin",
-      "description": "GUI for managing Git and GitHub."
+      "name": "openrefine",
+      "description": "A free, open source power tool for working with messy data and improving it"
+    },
+    {
+      "name": "matugen-bin",
+      "description": "A material you color generation tool with templates"
+    },
+    {
+      "name": "obsidian-bin",
+      "description": "A powerful knowledge base that works on top of a local folder of plain text Markdown files (Official binary package with bundled Electron)"
     },
     {
       "name": "google-gemini-cli",
       "description": "An open-source AI agent that brings the power of Gemini directly into your terminal."
     },
     {
+      "name": "blackarch-keyring",
+      "description": "BlackArch Linux PGP keyring."
+    },
+    {
+      "name": "pay-respects",
+      "description": "Command suggestions, command-not-found and thefuck replacement written in Rust (All modules)"
+    },
+    {
       "name": "hf",
       "description": "Cross-platform hidden file library and utility"
+    },
+    {
+      "name": "pyprland",
+      "description": "Customize your Hyprland with scratchpads, menus, easy monitor layout and other extensions"
+    },
+    {
+      "name": "illogical-impulse-microtex-git-debug",
+      "description": "Detached debugging symbols for illogical-impulse-microtex-git"
+    },
+    {
+      "name": "ncurses5-compat-libs-debug",
+      "description": "Detached debugging symbols for ncurses5-compat-libs"
+    },
+    {
+      "name": "mutt-wizard",
+      "description": "Easily auto-configure neomutt and isync/mpop with safe passwords (IMAP/POP3/SMTP)"
+    },
+    {
+      "name": "rate-mirrors-bin",
+      "description": "Everyday-use client-side map-aware mirror ranking tool - pre-built with musl"
+    },
+    {
+      "name": "fnm-bin",
+      "description": "Fast and simple Node.js version manager, built in Rust"
+    },
+    {
+      "name": "darkly-bin",
+      "description": "Fork of Lightly (A modern style for Qt applications)"
+    },
+    {
+      "name": "github-desktop-bin",
+      "description": "GUI for managing Git and GitHub."
+    },
+    {
+      "name": "wl-screenrec",
+      "description": "High performance hardware accelerated wlroots screen recorder"
     },
     {
       "name": "illogical-impulse-audio",
@@ -1023,12 +1079,12 @@
       "description": "Illogical Impulse Basic Dependencies"
     },
     {
-      "name": "illogical-impulse-bibata-modern-classic-bin",
-      "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
-    },
-    {
       "name": "illogical-impulse-fonts-themes",
       "description": "Illogical Impulse Fonts and Theming Dependencies"
+    },
+    {
+      "name": "illogical-impulse-toolkit",
+      "description": "Illogical Impulse GTK/Qt Dependencies"
     },
     {
       "name": "illogical-impulse-hyprland",
@@ -1039,18 +1095,6 @@
       "description": "Illogical Impulse KDE Dependencies"
     },
     {
-      "name": "illogical-impulse-microtex-git",
-      "description": "MicroTeX for illogical-impulse dotfiles."
-    },
-    {
-      "name": "illogical-impulse-microtex-git-debug",
-      "description": "Detached debugging symbols for illogical-impulse-microtex-git"
-    },
-    {
-      "name": "illogical-impulse-portal",
-      "description": "Illogical Impulse XDG Desktop Portals"
-    },
-    {
       "name": "illogical-impulse-python",
       "description": "Illogical Impulse Python Dependencies"
     },
@@ -1059,84 +1103,48 @@
       "description": "Illogical Impulse Screenshot and Recording Dependencies"
     },
     {
-      "name": "illogical-impulse-toolkit",
-      "description": "Illogical Impulse GTK/Qt Dependencies"
-    },
-    {
       "name": "illogical-impulse-widgets",
       "description": "Illogical Impulse Widget Dependencies"
+    },
+    {
+      "name": "illogical-impulse-portal",
+      "description": "Illogical Impulse XDG Desktop Portals"
     },
     {
       "name": "intel-ivsc-firmware",
       "description": "Intel Vision Sensing Controller firmware"
     },
     {
-      "name": "kvantum-theme-catppuccin-git",
-      "description": "Soothing pastel theme for Kvantum"
+      "name": "illogical-impulse-bibata-modern-classic-bin",
+      "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
     },
     {
-      "name": "matugen-bin",
-      "description": "A material you color generation tool with templates"
+      "name": "illogical-impulse-microtex-git",
+      "description": "MicroTeX for illogical-impulse dotfiles."
     },
     {
-      "name": "mutt-wizard",
-      "description": "Easily auto-configure neomutt and isync/mpop with safe passwords (IMAP/POP3/SMTP)"
-    },
-    {
-      "name": "ncurses5-compat-libs-debug",
-      "description": "Detached debugging symbols for ncurses5-compat-libs"
-    },
-    {
-      "name": "neofetch",
-      "description": "A CLI system information tool written in BASH that supports displaying images."
+      "name": "epapirus-icon-theme",
+      "description": "Papirus icon theme"
     },
     {
       "name": "nerd-dictation-git",
       "description": "Simple, hackable offline speech to text - using the VOSK-API."
     },
     {
-      "name": "obsidian-bin",
-      "description": "A powerful knowledge base that works on top of a local folder of plain text Markdown files (Official binary package with bundled Electron)"
-    },
-    {
-      "name": "openrefine",
-      "description": "A free, open source power tool for working with messy data and improving it"
+      "name": "kvantum-theme-catppuccin-git",
+      "description": "Soothing pastel theme for Kvantum"
     },
     {
       "name": "pam-gnupg",
       "description": "Unlock GnuPG keys on login"
     },
     {
-      "name": "pamac-aur",
-      "description": "A Gtk frontend, Package Manager based on libalpm with AUR and Appstream support"
-    },
-    {
-      "name": "pyprland",
-      "description": "Customize your Hyprland with scratchpads, menus, easy monitor layout and other extensions"
-    },
-    {
-      "name": "rate-mirrors-bin",
-      "description": "Everyday-use client-side map-aware mirror ranking tool - pre-built with musl"
-    },
-    {
-      "name": "urlview",
-      "description": "A curses URL parser for text files"
-    },
-    {
-      "name": "vesktop-bin",
-      "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
-    },
-    {
-      "name": "wallust",
-      "description": "generate colors from an image"
-    },
-    {
       "name": "warp-terminal-bin",
       "description": "Warp is the intelligent terminal with AI and your dev team's knowledge built-in."
     },
     {
-      "name": "wl-screenrec",
-      "description": "High performance hardware accelerated wlroots screen recorder"
+      "name": "wallust",
+      "description": "generate colors from an image"
     }
   ]
 }

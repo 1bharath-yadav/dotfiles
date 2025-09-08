@@ -15,6 +15,7 @@ plugins=(
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
+eval "$(pay-respects zsh --alias)"
 export ZSH="$HOME/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 source <(fzf --zsh)
@@ -55,35 +56,49 @@ bindkey '^[s' sudo-command-line
 
 
 ###Aliases
-
+alias sourcezsh="source ~/.zshrc"
 alias ts="trash"
 alias icat="kitten icat"
+alias f="$(pay-respects zsh)"
 # Set-up icons for files/folders in terminal
 alias ls='eza --icons'
 alias ll='eza -al --icons'
 alias lt='eza -a --tree --level=1 --icons'
 # alias i="sudo pacman -S "
-alias i='pkg-log.sh'
+alias i='~/.dotfiles/bin/bin/pkg-log.sh'
 alias upd="sudo pacman -Syu"
-alias rsearch="pacman -Ss "
-alias lsearch="pacman -Qs "
-alias rp="sudo pacman -Rscun "
+# Pacman aliases
+alias pSyu='sudo pacman -Syu'              # Sync, refresh, and upgrade system
+alias pS='sudo pacman -S'                  # Install package(s)
+alias pR='sudo pacman -R'                  # Remove package(s)
+alias pRs='sudo pacman -Rs'                # Remove package(s) + unused dependencies
+alias pQ='pacman -Q'                       # Query installed packages
+alias pQs='pacman -Qs'                     # Search installed & repo packages
+alias pQe='pacman -Qe'                     # List explicitly installed packages
+alias pQdt='pacman -Qdt'                   # List orphaned packages
+alias pU='sudo pacman -U'                  # Install local package file
+alias pSc='sudo pacman -Sc'                # Remove old package caches (safe)
+alias pScc='sudo pacman -Scc'              # Clear ALL caches (danger: no rollback)
+alias pFiles='pacman -Ql'                  # List files owned by a package
+# Yay aliases (AUR helper)
+alias ySyu='yay -Syu'                      # Sync & upgrade system (repos + AUR)
+alias yS='yay -S'                          # Install package(s) from repo or AUR
+alias yR='yay -R'                          # Remove package(s)
+alias yRs='yay -Rs'                        # Remove + deps
+alias ySs='yay -Ss'                        # Search repos + AUR
+alias ySi='yay -Si'                        # Show package info (repo or AUR)
+alias yQi='yay -Qi'                        # Show installed package info
+alias yQe='yay -Qe'                        # List explicitly installed packages
+alias yQdt='yay -Qdt'                      # List orphans
+alias yG='yay -G'                          # Get PKGBUILD from AUR
+
 alias pc='yay -Sc' # remove all cached packages
 alias po='yay -Qtdq | sudo pacman -Rns -' # remove orphaned packages
-alias nvimedit="nvim /home/archer/.config/nvim"
+alias nvimedit="nvim ~/.dotfiles/nvim/.config/nvim"
 alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)
 alias supercd='cd "$(fzf --preview="if [ -d {}; then ls -la {}; else cat {}; fi" | xargs -r dirname)"'
 alias mail='neomutt'
-
-# tmux shortcuts
-alias t='tmux'
-alias tl='tmux list-sessions'
-alias tns='tmux new-session -s'
-alias ta='tmux attach-session'
-alias tksa='tmux kill-session -a'
-alias to='tmux attach-session -t'  #attach to specific session name
-alias tn='tmux new-session -A -s "$(basename \"$PWD\")"'   #session name based on pwd
 
 
 # Download high-quality audio for music

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # pkg-log.sh
-PKGS_JSON="$HOME/dotfiles/pkgs.json"
+PKGS_JSON="$HOME/.dotfiles/pkgs.json"
 
 # Initialize JSON file if it doesn't exist
 if [[ ! -f "$PKGS_JSON" ]]; then
@@ -18,7 +18,7 @@ for pkg in "$@"; do
         repo="aur"
         desc=$(yay -Si "$pkg" | awk -F': ' '/^Description/ {print $2; exit}')
         echo "Installing $pkg from AUR..."
-        yay -S "$pkg"
+        yay s "$pkg"
     else
         echo "Package $pkg not found in official or AUR repos"
         continue
