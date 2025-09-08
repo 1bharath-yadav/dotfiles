@@ -1,81 +1,66 @@
 #!/usr/bin/env bash
 
 ################################################################################
-# 🅳🅾🆃🅵🅸🅻🅴🆂 - Python Development Environment Configuration
+# 🅳🅾🆃🅵🅸🅻🅴🆂 - Python Development Environment Configuration (uv version)
 # Made with ♥ in London, UK by Sebastien Rousseau
-# Copyright (c) 2015-2025. All rights reserved
+# Modified for uv package manager by Bharath
 # License: MIT
 #
 # Description:
-#   Configuration file for Python development environment, including aliases,
-#   environment variables, and utility functions for common Python tasks.
-#
+#   Configuration file for Python development environment using uv.
+#   Includes aliases, environment variables, and utility functions for common
+#   Python + uv tasks.
 ################################################################################
 
 # Environment Variables
-export PYTHONIOENCODING='UTF-8'           # Set UTF-8 encoding for Python I/O
-export PYTHONUTF8=1                       # Enable UTF-8 mode for Python
-export PYTHONDONTWRITEBYTECODE=1          # Prevent Python from writing .pyc files
-export PYTHONUNBUFFERED=1                 # Force Python output to be unbuffered
-export PYENV_VIRTUALENV_DISABLE_PROMPT=1   # Disable virtualenv prompt modification
-
-# Frameworks and Applications
-# Add Python 3.12 or the Homebrew Python to PATH
-if command -v /opt/homebrew/bin/python3 >/dev/null; then
-    export PATH="/opt/homebrew/bin:${PATH}"
-elif command -v /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 >/dev/null; then
-    export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:${PATH}"
-fi
+export PYTHONIOENCODING='UTF-8'
+export PYTHONUTF8=1
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONUNBUFFERED=1
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 if command -v 'python3' >/dev/null; then
-    # Python Version Management
+    # Python wrapper
     python() {
         command python3 "$@"
     }
 
-    pip() {
-        command pip3 "$@"
-    }
-
     # Basic Python Commands
-    alias py='python'                     # Quick Python access
-    alias ipy='ipython'                   # Interactive Python shell
-    alias pyv='python --version'          # Show Python version
-    alias pydoc='python -m pydoc'         # Python documentation
+    alias py='python'
+    alias ipy='ipython'
+    alias pyv='python --version'
+    alias pydoc='python -m pydoc'
 
-    # Package Management
-    alias pipi='pip install'              # Install packages
-    alias pipl='pip list'                 # List installed packages
-    alias pipup='pip install --upgrade'    # Upgrade packages
-    alias pipun='pip uninstall -y'        # Uninstall packages
-    alias pipf='pip freeze'               # Show frozen requirements
-    alias pipr='pip install -r'           # Install from requirements
-    alias pipout='pip freeze > requirements.txt'  # Save requirements
+    # Package Management via uv
+    alias uvi='uv add'                    # Install dependencies (like pip install)
+    alias uvr='uv run'                    # Run with uv (isolated env)
+    alias uvx='uvx'                       # Run ephemeral tools (like npx)
+    alias uvl='uv pip list'               # List installed packages
+    alias uvup='uv lock --upgrade'        # Upgrade dependencies in pyproject.toml
+    alias uvun='uv remove'                # Uninstall dependency
+    alias uvf='uv pip freeze'             # Show frozen requirements
+    alias uvout='uv pip freeze > requirements.txt'  # Export requirements
+    alias uvin='uv sync'                  # Sync project deps (from lock)
 
-    # Development Tools
-    alias pep8='autopep8'                 # Code formatting
-    alias lint='pylint'                   # Code linting
-    alias black='python -m black'         # Code formatting with black
-    alias mypy='python -m mypy'           # Static type checking
-    alias ruff='python -m ruff'           # Fast Python linter
+    # Development Tools (run inside uv environments)
+    alias black='uv run black'
+    alias ruff='uv run ruff'
+    alias mypy='uv run mypy'
+    alias lint='uv run pylint'
+    alias pytest='uv run pytest'
+    alias pytestv='uv run pytest -v'
+    alias pytestc='uv run pytest --cov'
 
-    # Testing
-    alias pytest='python -m pytest'        # Run tests
-    alias pytestv='pytest -v'             # Verbose test output
-    alias pytestc='pytest --cov'          # Test coverage
-    alias unittest='python -m unittest'    # Run unittest
-
-    # Virtual Environment Management
-    alias venv='python -m venv'           # Create virtual environment
-    alias mkvenv='python -m venv ./venv'  # Create venv in current directory
-    alias venva='source ./venv/bin/activate'  # Activate venv
-    alias deact='deactivate'              # Deactivate venv
-    alias rmvenv='rm -rf ./venv'          # Remove venv
+    # Virtual Environment Management (uv handles isolation, but keep some helpers)
+    alias mkvenv='uv venv ./venv'         # Create venv in current dir
+    alias venva='source ./venv/bin/activate'
+    alias deact='deactivate'
+    alias rmvenv='rm -rf ./venv'
 
     # Cleanup
-    alias rmpyc="find . -type f -name '*.pyc' -delete"  # Remove .pyc files
-    alias rmpyo="find . -type f -name '*.pyo' -delete"  # Remove .pyo files
-    alias rmpyall="find . -type f -name '*.py[cod]' -delete && find . -type d -name __pycache__ -delete"  # Remove all
+    alias rmpyc="find . -type f -name '*.pyc' -delete"
+    alias rmpyo="find . -type f -name '*.pyo' -delete"
+    alias rmpyall="find . -type f -name '*.py[cod]' -delete && find . -type d -name __pycache__ -delete"
 
     # Utility Functions
     python_speed() {
@@ -83,7 +68,7 @@ if command -v 'python3' >/dev/null; then
             echo "Usage: python_speed 'Python code here'"
             return 1
         fi
-        python -m timeit -s "$1"
+        uv run python -m timeit -s "$1"
     }
 
     python_profile() {
@@ -91,7 +76,7 @@ if command -v 'python3' >/dev/null; then
             echo "Usage: python_profile script.py"
             return 1
         fi
-        python -m cProfile "$1"
+        uv run python -m cProfile "$1"
     }
 
     python_debug() {
@@ -99,36 +84,20 @@ if command -v 'python3' >/dev/null; then
             echo "Usage: python_debug script.py"
             return 1
         fi
-        python -m pdb "$1"
+        uv run python -m pdb "$1"
     }
 
     python_serve() {
         local port="${1:-8000}"
-        python -m http.server "$port"
-    }
-
-    # Project Templates
-    python_new_project() {
-        if [ $# -eq 0 ]; then
-            echo "Usage: python_new_project project_name"
-            return 1
-        fi
-        local project_name="$1"
-        mkdir -p "$project_name"/{src,tests,docs}
-        touch "$project_name/README.md"
-        touch "$project_name/requirements.txt"
-        touch "$project_name/setup.py"
-        touch "$project_name/src/__init__.py"
-        touch "$project_name/tests/__init__.py"
-        echo "Created new Python project structure in ./$project_name"
+        uv run python -m http.server "$port"
     }
 
     # Environment Information
     python_info() {
         echo "Python Version:"
-        python --version
-        echo -e "\nPip Version:"
-        pip --version
+        uv run python --version
+        echo -e "\nuv Version:"
+        uv --version
         echo -e "\nVirtual Environment:"
         if [ -n "$VIRTUAL_ENV" ]; then
             echo "Active: $VIRTUAL_ENV"
@@ -136,6 +105,6 @@ if command -v 'python3' >/dev/null; then
             echo "None active"
         fi
         echo -e "\nInstalled Packages:"
-        pip list
+        uv pip list
     }
 fi

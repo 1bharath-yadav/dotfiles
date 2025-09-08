@@ -19,20 +19,23 @@ if command -v 'tmux' >/dev/null; then
     fi
   } # Start tmux
 
-  alias tma='tmux attach-session'     # Attach to last session
-  alias tmat='tmux attach-session -t' # Attach to specific session
+  alias ta='tmux attach-session'     # Attach to last session
+  alias tat='tmux attach-session -t' # Attach to specific session
 
   # Session management
-  alias tmks='tmux kill-session -a'   # Kill all sessions except current
-  alias tmka='tmux kill-server'       # Kill all sessions (server)
-  alias tml='tmux list-sessions'      # List all sessions
+  alias tks='tmux kill-session -a'   # Kill all sessions except current
+  alias tka='tmux kill-server'       # Kill all sessions (server)
+  alias tl='tmux list-sessions'      # List all sessions
 
   # Creating sessions
   alias tmn='tmux new-session'        # New unnamed session
-  alias tms='tmux new-session -s'     # New named session
+  alias ts='tmux new-session -s'     # New named session
 
   # Configuration
-  alias tmr='tmux source ~/.dotfiles/lib/configurations/tmux/tmux' # Reload config
+  alias tr='tmux source ~/.tmux.conf' # Reload config
+
+  alias tn='tmux new-session -A -s "$(basename \"$PWD\")"'   #session name based on pwd
+
 
   # Windows and panes
   alias tmls='tmux list-windows'      # List windows
@@ -41,3 +44,6 @@ if command -v 'tmux' >/dev/null; then
   # Status information
   alias tmi='tmux info'               # Show tmux info
 fi
+
+
+
