@@ -5,3 +5,4 @@ PREFIX=$(wl-paste 2>/dev/null | head -c 7); if [[ "$PREFIX" == "file://" ]]; the
 TMP="/tmp/kdeconnect_clipboard_$(date +%Y%m%d_%H%M%S)"; wl-paste > "$TMP"
 EXT=$(file --mime-type -b "$TMP" | sed 's|.*/||;s|+.*||'); mv "$TMP" "$TMP.$EXT"
 kdeconnect-cli --device "$DEVICE" --share "$TMP.$EXT" & disown; echo "sent $TMP.$EXT"
+#make sure no -(hyphens) are present between file or foldername

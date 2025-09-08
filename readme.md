@@ -23,7 +23,6 @@ Each directory in this repo (e.g., `nvim/`, `zsh/`, `kitty/`, etc.) contains con
    ```
    (You can also run `stow <folder>` for each config you want.)mos
 
-## Notes
 - If you need to remove symlinks, use:
     ```zsh
     stow -D <folder>

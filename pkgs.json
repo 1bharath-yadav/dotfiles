@@ -1,0 +1,1138 @@
+{
+  "official": [
+    {
+      "name": "epiphany",
+      "description": "A GNOME web browser based on the WebKit rendering engine"
+    },
+    {
+      "name": "tlpui",
+      "description": "A GTK user interface for TLP written in Python"
+    },
+    {
+      "name": "gparted",
+      "description": "A Partition Magic clone, frontend to GNU Parted"
+    },
+    {
+      "name": "reflector",
+      "description": "A Python 3 module and script to retrieve and filter the latest Pacman mirror list."
+    },
+    {
+      "name": "python-croniter",
+      "description": "A Python module to provide iteration for datetime object."
+    },
+    {
+      "name": "inetutils",
+      "description": "A collection of common network programs"
+    },
+    {
+      "name": "libcamera",
+      "description": "A complex camera support library for Linux, Android, and ChromeOS"
+    },
+    {
+      "name": "python-libcamera",
+      "description": "A complex camera support library for Linux, Android, and ChromeOS - Python integration"
+    },
+    {
+      "name": "libcamera-tools",
+      "description": "A complex camera support library for Linux, Android, and ChromeOS - tools"
+    },
+    {
+      "name": "tree",
+      "description": "A directory listing program displaying a depth indented list of files"
+    },
+    {
+      "name": "dvisvgm",
+      "description": "A fast DVI, EPS, and PDF to SVG converter"
+    },
+    {
+      "name": "grimblast-git",
+      "description": "A helper for screenshots within Hyprland."
+    },
+    {
+      "name": "octave",
+      "description": "A high-level language, primarily intended for numerical computations"
+    },
+    {
+      "name": "python-pyquery",
+      "description": "A jquery-like library for python."
+    },
+    {
+      "name": "vc",
+      "description": "A library to ease explicit vectorization of C++ code"
+    },
+    {
+      "name": "python-fonttools",
+      "description": "A library to manipulate font files from Python"
+    },
+    {
+      "name": "msmtp",
+      "description": "A mini smtp client"
+    },
+    {
+      "name": "btop",
+      "description": "A monitor of system resources, bpytop ported to C++"
+    },
+    {
+      "name": "audacity",
+      "description": "A program that lets you manipulate digital audio waveforms"
+    },
+    {
+      "name": "ttf-lato",
+      "description": "A sanserif typeface family bearing the Polish name of \"Summer\""
+    },
+    {
+      "name": "podman-compose",
+      "description": "A script to run docker-compose.yml using podman"
+    },
+    {
+      "name": "direnv",
+      "description": "A shell extension that manages your environment"
+    },
+    {
+      "name": "parallel",
+      "description": "A shell tool for executing jobs in parallel"
+    },
+    {
+      "name": "lazydocker",
+      "description": "A simple terminal UI for docker and docker-compose, written in Go with the gocui library."
+    },
+    {
+      "name": "lshw",
+      "description": "A small tool to provide detailed information on the hardware configuration of the machine."
+    },
+    {
+      "name": "zoxide",
+      "description": "A smarter cd command for your terminal"
+    },
+    {
+      "name": "uwsm",
+      "description": "A standalone Wayland session manager"
+    },
+    {
+      "name": "lynx",
+      "description": "A text browser for the World Wide Web"
+    },
+    {
+      "name": "flex",
+      "description": "A tool for generating text-scanning programs"
+    },
+    {
+      "name": "cpio",
+      "description": "A tool to copy files into or out of a cpio or tar archive"
+    },
+    {
+      "name": "ngrok",
+      "description": "A tunneling, reverse proxy for developing and understanding networked, HTTP services"
+    },
+    {
+      "name": "man-db",
+      "description": "A utility for reading man pages"
+    },
+    {
+      "name": "neomutt",
+      "description": "A version of mutt with added features"
+    },
+    {
+      "name": "zsh",
+      "description": "A very advanced and programmable command interpreter (shell) for UNIX"
+    },
+    {
+      "name": "yt-dlp",
+      "description": "A youtube-dl fork with additional features and fixes"
+    },
+    {
+      "name": "libvirt",
+      "description": "API for controlling virtualization engines (openvz,kvm,qemu,virtualbox,xen,etc)"
+    },
+    {
+      "name": "zsh-completions",
+      "description": "Additional completion definitions for Zsh"
+    },
+    {
+      "name": "kdeconnect",
+      "description": "Adds communication between KDE and your smartphone"
+    },
+    {
+      "name": "alsa-utils",
+      "description": "Advanced Linux Sound Architecture - Utilities"
+    },
+    {
+      "name": "httrack",
+      "description": "An easy-to-use offline browser utility"
+    },
+    {
+      "name": "imagemagick",
+      "description": "An image viewing/manipulation program"
+    },
+    {
+      "name": "containerd",
+      "description": "An open and reliable container runtime"
+    },
+    {
+      "name": "android-sdk-cmdline-tools-latest",
+      "description": "Android SDK Command-line Tools (latest)"
+    },
+    {
+      "name": "android-tools",
+      "description": "Android platform tools"
+    },
+    {
+      "name": "tor",
+      "description": "Anonymizing overlay network."
+    },
+    {
+      "name": "network-manager-applet",
+      "description": "Applet for managing network connections"
+    },
+    {
+      "name": "ark",
+      "description": "Archiving Tool"
+    },
+    {
+      "name": "downgrade",
+      "description": "Bash script for downgrading one or more packages to a version in your cache or the A.L.A."
+    },
+    {
+      "name": "base-devel",
+      "description": "Basic tools to build Arch Linux packages"
+    },
+    {
+      "name": "yazi",
+      "description": "Blazing fast terminal file manager written in Rust, based on async I/O"
+    },
+    {
+      "name": "btrfs-progs",
+      "description": "Btrfs filesystem utilities"
+    },
+    {
+      "name": "root",
+      "description": "C++ data analysis framework and interpreter from CERN"
+    },
+    {
+      "name": "bat",
+      "description": "Cat clone with syntax highlighting and git integration"
+    },
+    {
+      "name": "chaotic-keyring",
+      "description": "Chaotic-AUR PGP keyring"
+    },
+    {
+      "name": "chaotic-mirrorlist",
+      "description": "Chaotic-AUR mirrorlist to use with Pacman"
+    },
+    {
+      "name": "tldr",
+      "description": "Command line client for tldr, a collection of simplified man pages."
+    },
+    {
+      "name": "speedtest-cli",
+      "description": "Command line interface for testing internet bandwidth using speedtest.net"
+    },
+    {
+      "name": "trash-cli",
+      "description": "Command line trashcan (recycle bin) interface"
+    },
+    {
+      "name": "cloudflared",
+      "description": "Command-line client for Cloudflare Tunnel"
+    },
+    {
+      "name": "fzf",
+      "description": "Command-line fuzzy finder"
+    },
+    {
+      "name": "nyx",
+      "description": "Command-line status monitor for tor"
+    },
+    {
+      "name": "pdftk",
+      "description": "Command-line tool for working with PDFs"
+    },
+    {
+      "name": "pngquant",
+      "description": "Command-line utility to quantize PNGs down to 8-bit paletted PNGs"
+    },
+    {
+      "name": "llvm",
+      "description": "Compiler infrastructure"
+    },
+    {
+      "name": "plasma-browser-integration",
+      "description": "Components necessary to integrate browsers into the Plasma Desktop"
+    },
+    {
+      "name": "zip",
+      "description": "Compressor/archiver for creating and modifying zipfiles"
+    },
+    {
+      "name": "pacman-contrib",
+      "description": "Contributed scripts and tools for pacman systems"
+    },
+    {
+      "name": "smartmontools",
+      "description": "Control and monitor S.M.A.R.T. enabled ATA and SCSI Hard Drives"
+    },
+    {
+      "name": "xmlto",
+      "description": "Convert xml to many other formats"
+    },
+    {
+      "name": "ollama",
+      "description": "Create, run and share large language models (LLMs)"
+    },
+    {
+      "name": "python-wxpython",
+      "description": "Cross-platform GUI toolkit"
+    },
+    {
+      "name": "dunst",
+      "description": "Customizable and lightweight notification-daemon"
+    },
+    {
+      "name": "dosfstools",
+      "description": "DOS filesystem utilities"
+    },
+    {
+      "name": "bluez",
+      "description": "Daemons for the bluetooth protocol stack"
+    },
+    {
+      "name": "bluez-utils",
+      "description": "Development and debugging utilities for the bluetooth protocol stack"
+    },
+    {
+      "name": "ncdu",
+      "description": "Disk usage analyzer with an ncurses interface"
+    },
+    {
+      "name": "scrcpy",
+      "description": "Display and control your Android device"
+    },
+    {
+      "name": "zenity",
+      "description": "Display graphical dialog boxes from shell scripts"
+    },
+    {
+      "name": "okular",
+      "description": "Document Viewer"
+    },
+    {
+      "name": "dkms",
+      "description": "Dynamic Kernel Modules System"
+    },
+    {
+      "name": "betterbird-bin",
+      "description": "EN-US // Betterbird is a fine-tuned version of Mozilla Thunderbird, Thunderbird on steroids, if you will."
+    },
+    {
+      "name": "ffmpegthumbs",
+      "description": "FFmpeg-based thumbnail creator for video files"
+    },
+    {
+      "name": "sshfs",
+      "description": "FUSE client based on the SSH File Transfer Protocol"
+    },
+    {
+      "name": "fuse-overlayfs",
+      "description": "FUSE implementation of overlayfs"
+    },
+    {
+      "name": "docker-compose",
+      "description": "Fast, isolated development environments using Docker"
+    },
+    {
+      "name": "7zip",
+      "description": "File archiver for extremely high compression"
+    },
+    {
+      "name": "linux-firmware-intel",
+      "description": "Firmware files for Linux - Firmware for Intel devices"
+    },
+    {
+      "name": "unzip",
+      "description": "For extracting and viewing files in .zip archives"
+    },
+    {
+      "name": "neovim",
+      "description": "Fork of Vim aiming to improve user experience, plugins, and GUIs"
+    },
+    {
+      "name": "vlc",
+      "description": "Free and open source cross-platform multimedia player and framework"
+    },
+    {
+      "name": "dbeaver",
+      "description": "Free universal SQL Client for developers and database administrators (community edition)"
+    },
+    {
+      "name": "obs-studio",
+      "description": "Free, open source software for live streaming and recording"
+    },
+    {
+      "name": "inxi",
+      "description": "Full featured CLI system information tool"
+    },
+    {
+      "name": "grub",
+      "description": "GNU GRand Unified Bootloader (2)"
+    },
+    {
+      "name": "gimp",
+      "description": "GNU Image Manipulation Program"
+    },
+    {
+      "name": "make",
+      "description": "GNU make utility to maintain groups of programs"
+    },
+    {
+      "name": "libgepub",
+      "description": "GObject-based library for handling and rendering epub documents"
+    },
+    {
+      "name": "nvtop",
+      "description": "GPUs process monitoring for AMD, Intel and NVIDIA"
+    },
+    {
+      "name": "nwg-look",
+      "description": "GTK settings editor adapted to work on wlroots-based compositors"
+    },
+    {
+      "name": "gtk-engine-murrine",
+      "description": "GTK2 engine to make your desktop look like a 'murrina', an italian word meaning the art glass works done by Venicians glass blowers."
+    },
+    {
+      "name": "ttf-droid",
+      "description": "General-purpose fonts released by Google as part of Android"
+    },
+    {
+      "name": "qgis",
+      "description": "Geographic Information System (GIS) that supports vector, raster & database formats"
+    },
+    {
+      "name": "git-lfs",
+      "description": "Git extension for versioning large files"
+    },
+    {
+      "name": "sudo",
+      "description": "Give certain users the ability to run some commands as root"
+    },
+    {
+      "name": "noto-fonts-emoji",
+      "description": "Google Noto Color Emoji font"
+    },
+    {
+      "name": "noto-fonts",
+      "description": "Google Noto TTF fonts"
+    },
+    {
+      "name": "ttf-roboto",
+      "description": "Google's signature family of fonts"
+    },
+    {
+      "name": "qt5-graphicaleffects",
+      "description": "Graphical effects for use with Qt Quick 2"
+    },
+    {
+      "name": "elfutils",
+      "description": "Handle ELF object files and DWARF debugging information (utilities)"
+    },
+    {
+      "name": "linux-zen-headers",
+      "description": "Headers and scripts for building modules for the Linux ZEN kernel"
+    },
+    {
+      "name": "linux-headers",
+      "description": "Headers and scripts for building modules for the Linux kernel"
+    },
+    {
+      "name": "ttf-nerd-fonts-symbols-mono",
+      "description": "High number of extra glyphs from popular 'iconic fonts' (monospace)"
+    },
+    {
+      "name": "speech-dispatcher",
+      "description": "High-level device independent layer for speech synthesis interface"
+    },
+    {
+      "name": "z3",
+      "description": "High-performance theorem prover"
+    },
+    {
+      "name": "isync",
+      "description": "IMAP and MailDir mailbox synchronizer"
+    },
+    {
+      "name": "otf-font-awesome",
+      "description": "Iconic font designed for Bootstrap - otf format"
+    },
+    {
+      "name": "intel-media-driver",
+      "description": "Intel Media Driver for VAAPI — Broadwell+ iGPUs"
+    },
+    {
+      "name": "libva-utils",
+      "description": "Intel VA-API Media Applications and Scripts for libva"
+    },
+    {
+      "name": "intel-compute-runtime",
+      "description": "Intel(R) Graphics Compute Runtime for oneAPI Level Zero and OpenCL(TM) Driver"
+    },
+    {
+      "name": "htop",
+      "description": "Interactive process viewer"
+    },
+    {
+      "name": "john",
+      "description": "John the Ripper password cracker"
+    },
+    {
+      "name": "konsole",
+      "description": "KDE terminal emulator"
+    },
+    {
+      "name": "aircrack-ng",
+      "description": "Key cracker for the 802.11 WEP and WPA-PSK protocols"
+    },
+    {
+      "name": "libreoffice-still",
+      "description": "LibreOffice maintenance branch"
+    },
+    {
+      "name": "ffmpegthumbnailer",
+      "description": "Lightweight video thumbnailer that can be used by file managers"
+    },
+    {
+      "name": "dnsmasq",
+      "description": "Lightweight, easy to configure DNS forwarder and DHCP server"
+    },
+    {
+      "name": "lld",
+      "description": "Linker from the LLVM project"
+    },
+    {
+      "name": "tlp",
+      "description": "Linux Advanced Power Management"
+    },
+    {
+      "name": "tlp-rdw",
+      "description": "Linux Advanced Power Management - Radio Device Wizard"
+    },
+    {
+      "name": "flatpak",
+      "description": "Linux application sandboxing and distribution framework (formerly xdg-app)"
+    },
+    {
+      "name": "efibootmgr",
+      "description": "Linux user-space application to modify the EFI Boot Manager"
+    },
+    {
+      "name": "glib2-devel",
+      "description": "Low level core library - development files"
+    },
+    {
+      "name": "pipewire-alsa",
+      "description": "Low-latency audio/video router and processor - ALSA configuration"
+    },
+    {
+      "name": "pipewire-jack",
+      "description": "Low-latency audio/video router and processor - JACK replacement"
+    },
+    {
+      "name": "pipewire-libcamera",
+      "description": "Low-latency audio/video router and processor - Libcamera support"
+    },
+    {
+      "name": "pipewire-pulse",
+      "description": "Low-latency audio/video router and processor - PulseAudio replacement"
+    },
+    {
+      "name": "mpv-mpris",
+      "description": "MPRIS plugin for mpv"
+    },
+    {
+      "name": "stow",
+      "description": "Manage installation of multiple softwares in the same directory tree"
+    },
+    {
+      "name": "electron",
+      "description": "Meta package providing the latest available stable Electron build"
+    },
+    {
+      "name": "base",
+      "description": "Minimal package set to define a basic Arch Linux installation"
+    },
+    {
+      "name": "libxcrypt-compat",
+      "description": "Modern library for one-way hashing of passwords - legacy API functions"
+    },
+    {
+      "name": "satty",
+      "description": "Modern screenshot annotation tool, inspired by Swappy and Flameshot"
+    },
+    {
+      "name": "terminus-font",
+      "description": "Monospace bitmap font (for X11 and console)"
+    },
+    {
+      "name": "ttf-fira-code",
+      "description": "Monospaced font with programming ligatures"
+    },
+    {
+      "name": "ttf-fira-mono",
+      "description": "Mozilla's monospace typeface designed for Firefox OS"
+    },
+    {
+      "name": "ttf-fira-sans",
+      "description": "Mozilla's sans-serif typeface designed for Firefox OS"
+    },
+    {
+      "name": "gst-plugin-libcamera",
+      "description": "Multimedia graph framework - libcamera plugin"
+    },
+    {
+      "name": "gst-plugin-pipewire",
+      "description": "Multimedia graph framework - pipewire plugin"
+    },
+    {
+      "name": "gst-plugins-ugly",
+      "description": "Multimedia graph framework - ugly plugins"
+    },
+    {
+      "name": "ntfs-3g",
+      "description": "NTFS filesystem driver and utilities"
+    },
+    {
+      "name": "qt5-quickcontrols2",
+      "description": "Next generation user interface controls based on Qt Quick"
+    },
+    {
+      "name": "notmuch",
+      "description": "Notmuch is not much of an email program"
+    },
+    {
+      "name": "telegram-desktop",
+      "description": "Official Telegram Desktop client"
+    },
+    {
+      "name": "syncthing",
+      "description": "Open Source Continuous Replication / Cluster Synchronization Thing"
+    },
+    {
+      "name": "vulkan-intel",
+      "description": "Open-source Vulkan driver for Intel GPUs"
+    },
+    {
+      "name": "jdk-openjdk",
+      "description": "OpenJDK Java 24 development kit"
+    },
+    {
+      "name": "nwg-displays",
+      "description": "Output management utility for sway and Hyprland Wayland compositors"
+    },
+    {
+      "name": "docker",
+      "description": "Pack, ship and run any application as a lightweight container"
+    },
+    {
+      "name": "paraview",
+      "description": "Parallel Visualization application using VTK"
+    },
+    {
+      "name": "ttf-cascadia-code-nerd",
+      "description": "Patched font Cascadia Code (Caskaydia) from nerd fonts library"
+    },
+    {
+      "name": "ttf-cascadia-mono-nerd",
+      "description": "Patched font Cascadia Mono (Caskaydia) from nerd fonts library"
+    },
+    {
+      "name": "ttf-firacode-nerd",
+      "description": "Patched font Fira (Fura) Code from nerd fonts library"
+    },
+    {
+      "name": "ttf-iosevkaterm-nerd",
+      "description": "Patched font Iosevka Term from nerd fonts library"
+    },
+    {
+      "name": "ttf-iosevka-nerd",
+      "description": "Patched font Iosevka from nerd fonts library"
+    },
+    {
+      "name": "ttf-meslo-nerd",
+      "description": "Patched font Meslo LG from nerd fonts library"
+    },
+    {
+      "name": "zen-browser-bin",
+      "description": "Performance oriented Firefox-based web browser"
+    },
+    {
+      "name": "android-sdk-platform-tools",
+      "description": "Platform-Tools for Google Android SDK (adb and fastboot)"
+    },
+    {
+      "name": "qt5-imageformats",
+      "description": "Plugins for additional image formats: TIFF, MNG, TGA, WBMP"
+    },
+    {
+      "name": "logseq-desktop-bin",
+      "description": "Privacy-first, open-source platform for knowledge sharing and management"
+    },
+    {
+      "name": "dex",
+      "description": "Program to generate and execute DesktopEntry files of type Application"
+    },
+    {
+      "name": "proton-vpn-gtk-app",
+      "description": "ProtonVPN GTK app, Maintained by Community"
+    },
+    {
+      "name": "xsettingsd",
+      "description": "Provides settings to X11 applications via the XSETTINGS specification"
+    },
+    {
+      "name": "python-protobuf",
+      "description": "Python 3 bindings for Google Protocol Buffers"
+    },
+    {
+      "name": "python-requests",
+      "description": "Python HTTP for Humans"
+    },
+    {
+      "name": "nautilus-python",
+      "description": "Python bindings for the Nautilus Extension API"
+    },
+    {
+      "name": "python-pypubsub",
+      "description": "Python publish-subcribe library"
+    },
+    {
+      "name": "sddm",
+      "description": "QML based X11 and Wayland display manager"
+    },
+    {
+      "name": "qt6ct",
+      "description": "Qt 6 Configuration Utility"
+    },
+    {
+      "name": "asciinema",
+      "description": "Record and share terminal sessions"
+    },
+    {
+      "name": "udiskie",
+      "description": "Removable disk automounter using udisks"
+    },
+    {
+      "name": "qt5-quickcontrols",
+      "description": "Reusable Qt Quick based UI controls to create classic desktop-style user interfaces"
+    },
+    {
+      "name": "r-quick-share",
+      "description": "Rust implementation of NearbyShare/QuickShare from Android for Linux."
+    },
+    {
+      "name": "resvg",
+      "description": "SVG rendering library and CLI"
+    },
+    {
+      "name": "kvantum-qt5",
+      "description": "SVG-based theme engine for Qt5"
+    },
+    {
+      "name": "kvantum",
+      "description": "SVG-based theme engine for Qt6 (including config tool and extra themes)"
+    },
+    {
+      "name": "mokutil",
+      "description": "Shim.efi Machine Owner Key management tool"
+    },
+    {
+      "name": "guvcview",
+      "description": "Simple GTK+ interface for capturing and viewing video from v4l2 devices"
+    },
+    {
+      "name": "clinfo",
+      "description": "Simple OpenCL application that enumerates all available platform and device properties"
+    },
+    {
+      "name": "rclone-browser",
+      "description": "Simple cross-platform GUI for rclone"
+    },
+    {
+      "name": "hyprpolkitagent",
+      "description": "Simple polkit authentication agent for Hyprland, written in QT/QML"
+    },
+    {
+      "name": "lazygit",
+      "description": "Simple terminal UI for git commands"
+    },
+    {
+      "name": "f3",
+      "description": "Simple tool that tests flash cards capacity and performance to see if they live up to claimed specifications"
+    },
+    {
+      "name": "fd",
+      "description": "Simple, fast and user-friendly alternative to find"
+    },
+    {
+      "name": "postgresql",
+      "description": "Sophisticated object-relational DBMS"
+    },
+    {
+      "name": "sof-firmware",
+      "description": "Sound Open Firmware"
+    },
+    {
+      "name": "rclone",
+      "description": "Sync files to and from Google Drive, S3, Swift, Cloudfiles, Dropbox and Google Cloud Storage"
+    },
+    {
+      "name": "ncurses5-compat-libs",
+      "description": "System V Release 4.0 curses emulation library, ABI 5"
+    },
+    {
+      "name": "texlive-fontsextra",
+      "description": "TeX Live - Additional fonts"
+    },
+    {
+      "name": "texlive-bibtexextra",
+      "description": "TeX Live - BibTeX additional styles"
+    },
+    {
+      "name": "texlive-latexextra",
+      "description": "TeX Live - LaTeX additional packages"
+    },
+    {
+      "name": "texlive-fontsrecommended",
+      "description": "TeX Live - Recommended fonts"
+    },
+    {
+      "name": "tmux",
+      "description": "Terminal multiplexer"
+    },
+    {
+      "name": "abook",
+      "description": "Text-based addressbook designed for use with Mutt"
+    },
+    {
+      "name": "gcc",
+      "description": "The GNU Compiler Collection - C and C++ frontends"
+    },
+    {
+      "name": "bison",
+      "description": "The GNU general-purpose parser generator"
+    },
+    {
+      "name": "github-cli",
+      "description": "The GitHub CLI"
+    },
+    {
+      "name": "linux-zen",
+      "description": "The Linux ZEN kernel and modules"
+    },
+    {
+      "name": "linux",
+      "description": "The Linux kernel and modules"
+    },
+    {
+      "name": "python-pip",
+      "description": "The PyPA recommended tool for installing Python packages"
+    },
+    {
+      "name": "spyder",
+      "description": "The Scientific Python Development Environment"
+    },
+    {
+      "name": "sox",
+      "description": "The Swiss Army knife of sound processing tools"
+    },
+    {
+      "name": "google-chrome",
+      "description": "The popular web browser by Google (Stable Channel)"
+    },
+    {
+      "name": "tumbler",
+      "description": "Thumbnail service implementing the thumbnail management D-Bus specification"
+    },
+    {
+      "name": "podman",
+      "description": "Tool and library for running OCI-based containers in pods"
+    },
+    {
+      "name": "binwalk",
+      "description": "Tool for searching a given binary image for embedded files"
+    },
+    {
+      "name": "kde-cli-tools",
+      "description": "Tools based on KDE Frameworks to better interact with the system"
+    },
+    {
+      "name": "ebook-tools",
+      "description": "Tools for accessing and converting various ebook file formats"
+    },
+    {
+      "name": "pyright",
+      "description": "Type checker for the Python language"
+    },
+    {
+      "name": "ttf-jetbrains-mono",
+      "description": "Typeface for developers, by JetBrains"
+    },
+    {
+      "name": "slirp4netns",
+      "description": "User-mode networking for unprivileged network namespaces"
+    },
+    {
+      "name": "ethtool",
+      "description": "Utility for controlling network drivers and hardware"
+    },
+    {
+      "name": "nmap",
+      "description": "Utility for network discovery and security auditing"
+    },
+    {
+      "name": "libva-intel-driver",
+      "description": "VA-API implementation for Intel G45 and HD Graphics family"
+    },
+    {
+      "name": "vim",
+      "description": "Vi Improved, a highly configurable, improved version of the vi text editor"
+    },
+    {
+      "name": "zoom",
+      "description": "Video Conferencing and Web Conferencing Service"
+    },
+    {
+      "name": "filelight",
+      "description": "View disk usage information"
+    },
+    {
+      "name": "xpdf",
+      "description": "Viewer for Portable Document Format (PDF) files"
+    },
+    {
+      "name": "gvfs",
+      "description": "Virtual filesystem implementation for GIO"
+    },
+    {
+      "name": "gvfs-google",
+      "description": "Virtual filesystem implementation for GIO - Google Drive backend"
+    },
+    {
+      "name": "gvfs-mtp",
+      "description": "Virtual filesystem implementation for GIO - MTP backend (Android, media player)"
+    },
+    {
+      "name": "gvfs-onedrive",
+      "description": "Virtual filesystem implementation for GIO - Microsoft OneDrive backend"
+    },
+    {
+      "name": "visual-studio-code-bin",
+      "description": "Visual Studio Code (vscode): Editor for building and debugging modern web and cloud applications (official binary version)"
+    },
+    {
+      "name": "visualvm",
+      "description": "Visual tool integrating several commandline JDK tools and lightweight profiling capabilities"
+    },
+    {
+      "name": "webkit2gtk",
+      "description": "Web content engine for GTK"
+    },
+    {
+      "name": "yay",
+      "description": "Yet another yogurt. Pacman wrapper and AUR helper written in go."
+    },
+    {
+      "name": "fcrackzip",
+      "description": "Zip file password cracker"
+    },
+    {
+      "name": "mpv",
+      "description": "a free, open source, and cross-platform media player"
+    },
+    {
+      "name": "aquamarine",
+      "description": "a very light linux rendering backend library"
+    },
+    {
+      "name": "expac",
+      "description": "alpm data (pacman database) extraction utility"
+    },
+    {
+      "name": "httpie",
+      "description": "human-friendly CLI HTTP client for the API era"
+    },
+    {
+      "name": "openresolv",
+      "description": "resolv.conf management framework (resolvconf)"
+    },
+    {
+      "name": "git",
+      "description": "the fast distributed version control system"
+    },
+    {
+      "name": "v4l2loopback-dkms",
+      "description": "v4l2-loopback device – module sources"
+    },
+    {
+      "name": "v4l2loopback-utils",
+      "description": "v4l2-loopback device – utilities only"
+    }
+  ],
+  "aur": [
+    {
+      "name": "blackarch-keyring",
+      "description": "BlackArch Linux PGP keyring."
+    },
+    {
+      "name": "darkly-bin",
+      "description": "Fork of Lightly (A modern style for Qt applications)"
+    },
+    {
+      "name": "epapirus-icon-theme",
+      "description": "Papirus icon theme"
+    },
+    {
+      "name": "fnm-bin",
+      "description": "Fast and simple Node.js version manager, built in Rust"
+    },
+    {
+      "name": "github-desktop-bin",
+      "description": "GUI for managing Git and GitHub."
+    },
+    {
+      "name": "google-gemini-cli",
+      "description": "An open-source AI agent that brings the power of Gemini directly into your terminal."
+    },
+    {
+      "name": "hf",
+      "description": "Cross-platform hidden file library and utility"
+    },
+    {
+      "name": "illogical-impulse-audio",
+      "description": "Illogical Impulse Audio Dependencies"
+    },
+    {
+      "name": "illogical-impulse-backlight",
+      "description": "Illogical Impulse Backlight Dependencies"
+    },
+    {
+      "name": "illogical-impulse-basic",
+      "description": "Illogical Impulse Basic Dependencies"
+    },
+    {
+      "name": "illogical-impulse-bibata-modern-classic-bin",
+      "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
+    },
+    {
+      "name": "illogical-impulse-fonts-themes",
+      "description": "Illogical Impulse Fonts and Theming Dependencies"
+    },
+    {
+      "name": "illogical-impulse-hyprland",
+      "description": "Illogical Impulse Hyprland relatated packages"
+    },
+    {
+      "name": "illogical-impulse-kde",
+      "description": "Illogical Impulse KDE Dependencies"
+    },
+    {
+      "name": "illogical-impulse-microtex-git",
+      "description": "MicroTeX for illogical-impulse dotfiles."
+    },
+    {
+      "name": "illogical-impulse-microtex-git-debug",
+      "description": "Detached debugging symbols for illogical-impulse-microtex-git"
+    },
+    {
+      "name": "illogical-impulse-portal",
+      "description": "Illogical Impulse XDG Desktop Portals"
+    },
+    {
+      "name": "illogical-impulse-python",
+      "description": "Illogical Impulse Python Dependencies"
+    },
+    {
+      "name": "illogical-impulse-screencapture",
+      "description": "Illogical Impulse Screenshot and Recording Dependencies"
+    },
+    {
+      "name": "illogical-impulse-toolkit",
+      "description": "Illogical Impulse GTK/Qt Dependencies"
+    },
+    {
+      "name": "illogical-impulse-widgets",
+      "description": "Illogical Impulse Widget Dependencies"
+    },
+    {
+      "name": "intel-ivsc-firmware",
+      "description": "Intel Vision Sensing Controller firmware"
+    },
+    {
+      "name": "kvantum-theme-catppuccin-git",
+      "description": "Soothing pastel theme for Kvantum"
+    },
+    {
+      "name": "matugen-bin",
+      "description": "A material you color generation tool with templates"
+    },
+    {
+      "name": "mutt-wizard",
+      "description": "Easily auto-configure neomutt and isync/mpop with safe passwords (IMAP/POP3/SMTP)"
+    },
+    {
+      "name": "ncurses5-compat-libs-debug",
+      "description": "Detached debugging symbols for ncurses5-compat-libs"
+    },
+    {
+      "name": "neofetch",
+      "description": "A CLI system information tool written in BASH that supports displaying images."
+    },
+    {
+      "name": "nerd-dictation-git",
+      "description": "Simple, hackable offline speech to text - using the VOSK-API."
+    },
+    {
+      "name": "obsidian-bin",
+      "description": "A powerful knowledge base that works on top of a local folder of plain text Markdown files (Official binary package with bundled Electron)"
+    },
+    {
+      "name": "openrefine",
+      "description": "A free, open source power tool for working with messy data and improving it"
+    },
+    {
+      "name": "pam-gnupg",
+      "description": "Unlock GnuPG keys on login"
+    },
+    {
+      "name": "pamac-aur",
+      "description": "A Gtk frontend, Package Manager based on libalpm with AUR and Appstream support"
+    },
+    {
+      "name": "pyprland",
+      "description": "Customize your Hyprland with scratchpads, menus, easy monitor layout and other extensions"
+    },
+    {
+      "name": "rate-mirrors-bin",
+      "description": "Everyday-use client-side map-aware mirror ranking tool - pre-built with musl"
+    },
+    {
+      "name": "urlview",
+      "description": "A curses URL parser for text files"
+    },
+    {
+      "name": "vesktop-bin",
+      "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
+    },
+    {
+      "name": "wallust",
+      "description": "generate colors from an image"
+    },
+    {
+      "name": "warp-terminal-bin",
+      "description": "Warp is the intelligent terminal with AI and your dev team's knowledge built-in."
+    },
+    {
+      "name": "wl-screenrec",
+      "description": "High performance hardware accelerated wlroots screen recorder"
+    }
+  ]
+}

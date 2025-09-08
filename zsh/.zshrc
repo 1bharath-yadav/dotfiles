@@ -63,7 +63,8 @@ alias icat="kitten icat"
 alias ls='eza --icons'
 alias ll='eza -al --icons'
 alias lt='eza -a --tree --level=1 --icons'
-alias i="sudo pacman -S "
+# alias i="sudo pacman -S "
+alias i='pkg-log.sh'
 alias upd="sudo pacman -Syu"
 alias rsearch="pacman -Ss "
 alias lsearch="pacman -Qs "
