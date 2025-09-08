@@ -13,7 +13,7 @@ return {
       })
 
       -- Uncomment to use Tokyo Night as the default colorscheme
-      --vim.cmd("colorscheme tokyonight")
+      -- vim.cmd("colorscheme tokyonight")
     end,
   },
 
