@@ -1,15 +1,12 @@
 #!/bin/bash
 
-# pkg-log.sh
 PKGS_JSON="$HOME/.dotfiles/pkgs.json"
 
-# Initialize JSON file if it doesn't exist
-if [[ ! -f "$PKGS_JSON" ]]; then
-    echo '{"official": [], "aur": []}' > "$PKGS_JSON"
-fi
+# Ensure JSON exists
+[[ -f "$PKGS_JSON" ]] || echo '{"official": [], "aur": []}' > "$PKGS_JSON"
 
-for pkg in "$@"; do
-    # Check if package exists in official repos
+install_pkg() {
+    local pkg="$1" repo desc
     if pacman -Si "$pkg" &>/dev/null; then
         repo="official"
         desc=$(pacman -Si "$pkg" | awk -F': ' '/^Description/ {print $2; exit}')
@@ -17,17 +14,40 @@ for pkg in "$@"; do
     elif yay -Si "$pkg" &>/dev/null; then
         repo="aur"
         desc=$(yay -Si "$pkg" | awk -F': ' '/^Description/ {print $2; exit}')
-        echo "Installing $pkg from AUR..."
-        yay s "$pkg"
+        yay -S "$pkg"
     else
-        echo "Package $pkg not found in official or AUR repos"
-        continue
+        echo "❌ $pkg not found in official or AUR repos"
+        return
     fi
 
-    # Add package to JSON using jq
+    # Update JSON
     jq --arg name "$pkg" --arg desc "$desc" --arg repo "$repo" \
-        '. + {($repo): (.[$repo] + [{"name": $name, "description": $desc}]) | unique}' \
+       '.[$repo] += [{"name": $name, "description": $desc}] | .[$repo] |= unique' \
+       "$PKGS_JSON" > "${PKGS_JSON}.tmp" && mv "${PKGS_JSON}.tmp" "$PKGS_JSON"
+
+    echo "✅ Installed: $pkg — $desc"
+}
+
+remove_pkg() {
+    local pkg="$1"
+    if pacman -Qi "$pkg" &>/dev/null; then
+        sudo pacman -Rns "$pkg"
+    elif yay -Qi "$pkg" &>/dev/null; then
+        yay -Rns "$pkg"
+    else
+        echo "⚠️ $pkg not installed (removing only from JSON)"
+    fi
+
+    jq --arg name "$pkg" '
+        .official |= map(select(.name != $name)) |
+        .aur      |= map(select(.name != $name))' \
         "$PKGS_JSON" > "${PKGS_JSON}.tmp" && mv "${PKGS_JSON}.tmp" "$PKGS_JSON"
-    
-    echo "Installed and added $pkg to $repo"
-done
+
+    echo "🗑 Removed: $pkg"
+}
+
+case "$1" in
+    i)  shift; for pkg in "$@"; do install_pkg "$pkg"; done ;;
+    rp) shift; for pkg in "$@"; do remove_pkg "$pkg"; done ;;
+    *)  echo "Usage: $0 {i|rp} pkg1 [pkg2 ...]"; exit 1 ;;
+esac

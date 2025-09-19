@@ -1,8 +1,8 @@
 {
   "official": [
     {
-      "name": "epiphany",
-      "description": "A GNOME web browser based on the WebKit rendering engine"
+      "name": "google-earth-pro",
+      "description": "3D interface to explore the globe, terrain, streets, buildings and other planets (Pro version)"
     },
     {
       "name": "tlpui",
@@ -41,12 +41,24 @@
       "description": "A complex camera support library for Linux, Android, and ChromeOS - tools"
     },
     {
+      "name": "google-cloud-cli",
+      "description": "A core set of command-line tools for the Google Cloud Platform. Includes only gcloud core (with beta and alpha commands), gcloud-crc32c and man pages"
+    },
+    {
       "name": "tree",
       "description": "A directory listing program displaying a depth indented list of files"
     },
     {
       "name": "dvisvgm",
       "description": "A fast DVI, EPS, and PDF to SVG converter"
+    },
+    {
+      "name": "gwenview",
+      "description": "A fast and easy to use image viewer"
+    },
+    {
+      "name": "blender",
+      "description": "A fully integrated 3D graphics creation suite"
     },
     {
       "name": "grimblast-git",
@@ -75,6 +87,10 @@
     {
       "name": "btop",
       "description": "A monitor of system resources, bpytop ported to C++"
+    },
+    {
+      "name": "kdenlive",
+      "description": "A non-linear video editor for Linux using the MLT video framework"
     },
     {
       "name": "audacity",
@@ -139,6 +155,10 @@
     {
       "name": "zsh",
       "description": "A very advanced and programmable command interpreter (shell) for UNIX"
+    },
+    {
+      "name": "kamoso",
+      "description": "A webcam recorder from KDE community"
     },
     {
       "name": "yt-dlp",
@@ -255,10 +275,6 @@
     {
       "name": "pngquant",
       "description": "Command-line utility to quantize PNGs down to 8-bit paletted PNGs"
-    },
-    {
-      "name": "llvm",
-      "description": "Compiler infrastructure"
     },
     {
       "name": "plasma-browser-integration",
@@ -379,10 +395,6 @@
     {
       "name": "grub",
       "description": "GNU GRand Unified Bootloader (2)"
-    },
-    {
-      "name": "gimp",
-      "description": "GNU Image Manipulation Program"
     },
     {
       "name": "make",
@@ -693,6 +705,10 @@
       "description": "Provides settings to X11 applications via the XSETTINGS specification"
     },
     {
+      "name": "pamixer",
+      "description": "Pulseaudio command-line mixer like amixer"
+    },
+    {
       "name": "python-protobuf",
       "description": "Python 3 bindings for Google Protocol Buffers"
     },
@@ -715,6 +731,10 @@
     {
       "name": "qt6ct",
       "description": "Qt 6 Configuration Utility"
+    },
+    {
+      "name": "git-filter-repo",
+      "description": "Quickly rewrite git repository history (filter-branch replacement)"
     },
     {
       "name": "asciinema",
@@ -765,6 +785,10 @@
       "description": "Simple cross-platform GUI for rclone"
     },
     {
+      "name": "pinta",
+      "description": "Simple image editor written in Gtk# for drawing and painting"
+    },
+    {
       "name": "hyprpolkitagent",
       "description": "Simple polkit authentication agent for Hyprland, written in QT/QML"
     },
@@ -795,6 +819,10 @@
     {
       "name": "ncurses5-compat-libs",
       "description": "System V Release 4.0 curses emulation library, ABI 5"
+    },
+    {
+      "name": "cheese",
+      "description": "Take photos and videos with your webcam, with fun graphical effects"
     },
     {
       "name": "texlive-fontsextra",
@@ -905,10 +933,6 @@
       "description": "Vi Improved, a highly configurable, improved version of the vi text editor"
     },
     {
-      "name": "zoom",
-      "description": "Video Conferencing and Web Conferencing Service"
-    },
-    {
       "name": "filelight",
       "description": "View disk usage information"
     },
@@ -939,6 +963,10 @@
     {
       "name": "visualvm",
       "description": "Visual tool integrating several commandline JDK tools and lightweight profiling capabilities"
+    },
+    {
+      "name": "vulkan-tools",
+      "description": "Vulkan tools and utilities"
     },
     {
       "name": "webkit2gtk",
@@ -983,6 +1011,10 @@
     {
       "name": "v4l2loopback-utils",
       "description": "v4l2-loopback device – utilities only"
+    },
+    {
+      "name": "wtype",
+      "description": "xdotool type for wayland"
     }
   ],
   "aur": [
@@ -1019,8 +1051,24 @@
       "description": "An open-source AI agent that brings the power of Gemini directly into your terminal."
     },
     {
+      "name": "whispering-bin",
+      "description": "An open-source transcription application that provides global speech-to-text functionality, with options such as keyboard shortcuts and automatic copy and paste to make dictating as seamless as possible.(Prebuilt version)"
+    },
+    {
       "name": "blackarch-keyring",
       "description": "BlackArch Linux PGP keyring."
+    },
+    {
+      "name": "supabase-bin",
+      "description": "CLI for Supabase, an open source Firebase alternative"
+    },
+    {
+      "name": "claude-desktop-bin",
+      "description": "Claude AI Desktop Application (Official Binary - Linux Compatible)"
+    },
+    {
+      "name": "claude-desktop-appimage",
+      "description": "Claude Desktop for Linux - AppImage version from aaddrick/claude-desktop-debian"
     },
     {
       "name": "pay-respects",
@@ -1115,6 +1163,10 @@
       "description": "Intel Vision Sensing Controller firmware"
     },
     {
+      "name": "lightworks",
+      "description": "Lightworks is a professional video editing suite"
+    },
+    {
       "name": "illogical-impulse-bibata-modern-classic-bin",
       "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
     },
@@ -1127,12 +1179,20 @@
       "description": "Papirus icon theme"
     },
     {
+      "name": "whisper.cpp-vulkan",
+      "description": "Port of OpenAI's Whisper model in C/C++ (with Vulkan optimizations)"
+    },
+    {
       "name": "nerd-dictation-git",
       "description": "Simple, hackable offline speech to text - using the VOSK-API."
     },
     {
       "name": "kvantum-theme-catppuccin-git",
       "description": "Soothing pastel theme for Kvantum"
+    },
+    {
+      "name": "opencode-bin",
+      "description": "The AI coding agent built for the terminal."
     },
     {
       "name": "pam-gnupg",

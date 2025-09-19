@@ -1,29 +1,20 @@
 #!/usr/bin/env bash
 
 
-
-
-
-# Script: dig.aliases.sh
-# Version: 0.2.470
-
-
 # 🅳🅸🅶 🅰🅻🅸🅰🆂🅴🆂
 if command -v dig &>/dev/null; then
-  # d: Run the dig command with the default options.
-  alias d='$(which dig)'
 
   # d4: Perform a DNS lookup for an IPv4 address.
-  alias d4='$(which dig) +short -4'
+  alias dig4='$(which dig) +short -4'
 
   # d6: Perform a DNS lookup for an IPv6 address.
-  alias d6='$(which dig) +short -6'
+  alias dig6='$(which dig) +short -6'
 
   # dga: Perform a DNS lookup for all records.
-  alias dga='$(which dig) +all ANY'
+  alias diga='$(which dig) +all ANY'
 
   # dgs: Perform a DNS lookup for a short answer.
-  alias dgs='$(which dig) +short'
+  alias digs='$(which dig) +short'
 
   # digg: Dig with Google's DNS.
   alias digg='$(which dig) @8.8.8.8 +nocmd any +multiline +noall +answer'

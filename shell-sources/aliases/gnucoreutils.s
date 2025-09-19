@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-
-
-# Copyright (c)' 2015-2023. All rights reserved
-
-
-# 🅶🅽🆄 🅲🅾🆁🅴🆄🆃🅸🅻🆂 🅰🅻🅸🅰🆂🅴🆂
-
 if command -v 'gdate' >/dev/null; then
 
   # Strip directory and suffix from filenames.
@@ -146,5 +139,18 @@ if command -v 'gdate' >/dev/null; then
 
   # Encode or decode base64, base32,
   alias basenc=basenc
+
+  webpall () {
+    for file in *.png; do
+        /c/Apps/libwebp/bin/cwebp -short -lossless -o "${file%.png}.webp" "$file"
+    done
+  }
+
+  keyframes () {
+    filename="${1%.*}"
+    # Select all keyframes ensuring a max gap of 1 second. Fit to a 512x512 bounding box. Compress JPEG. Don't reduce quality (no-benefit)
+    # ffmpeg -i "$1" -vf "select='key+isnan(prev_selected_t)+gte(t-prev_selected_t\,1)',showinfo,scale='if(gt(a,1),512,-2)':'if(gt(a,1),-2,512)'" -vsync vfr -compression_level 10 "$filename-%03d.jpg" 2>&1 | grep 'pts_time' | sed 's/.*pts_time:\([0-9.]*\).*/\1/' > "$filename-timestamps.txt"
+    ffmpeg -i "$1" -vf "select='key',showinfo,scale='if(gt(a,1),512,-2)':'if(gt(a,1),-2,512)'" -vsync vfr -compression_level 10 "$filename-%03d.jpg" 2>&1 | grep 'pts_time' | sed 's/.*pts_time:\([0-9.]*\).*/\1/' > "$filename-timestamps.txt"
+  }
 
 fi

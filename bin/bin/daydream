@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# Daydream for research ideas. https://gwern.net/ai-daydreaming
+
+# -e exit on any command error
+# -u error on unset variables
+# -o pipefail pipeline fails if any segment fails
+set -euo pipefail
+
+# Parse command line arguments
+mode="generate" # Default mode
+goal="useful innovative idea"
+declare -a concept_terms=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        # --random shows a random row
+        --random) mode="random"; shift ;;
+        # --latest n shows the nth latest row
+        --latest)
+            mode="latest"
+            shift
+            n=${1:-1}  # Default to 1 if no number provided
+            [[ "$n" =~ ^[0-9]+$ ]] && shift || n=1  # Shift only if it was a number
+            ;;
+        -c|--concept)
+            shift
+            concept_terms+=("$1")
+            shift
+            ;;
+        -*) echo "Unknown parameter: $1"; exit 1 ;;
+        *)
+            if [[ -z "$goal" ]]; then
+                goal="$1"
+                shift
+            else
+                echo "Unknown parameter: $1"; exit 1
+            fi
+            ;;
+    esac
+done
+
+if [[ "$mode" == "random" ]]; then
+    # Show a random daydream
+    shuf -n1 ~/Dropbox/notes/daydream.jsonl | jq -r '.concept1, "", .concept2, "", .idea, "\n\(.novel) NOVEL: \(.novel_why)", "\n\(.coherent) LOGIC: \(.coherent_why)", "\n\(.impactful) IMPACT: \(.impactful_why)", "\n\(.feasible) EASE: \(.feasible_why)"' | glow
+    exit 0
+fi
+
+if [[ "$mode" == "latest" ]]; then
+    # Show the nth latest daydream
+    tail -n"$n" ~/Dropbox/notes/daydream.jsonl | head -n1 | jq -r '.concept1, "", .concept2, "", .idea, "\n\(.novel) NOVEL: \(.novel_why)", "\n\(.coherent) LOGIC: \(.coherent_why)", "\n\(.impactful) IMPACT: \(.impactful_why)", "\n\(.feasible) EASE: \(.feasible_why)"' | glow
+    exit 0
+fi
+
+# 1. Fetch concepts
+# concept_terms holds recall prompts; concepts holds retrieved text
+while ((${#concept_terms[@]} < 2)); do
+    concept_terms+=("llms til core-concepts claude-code-uses")
+done
+
+declare -a concepts=()
+for t in "${concept_terms[@]}"; do
+    concepts+=("$(recall $t --no-source --decay=0)")
+done
+
+# 2. Build multiline prompt
+CONCEPTS="<GOAL>${goal}</GOAL>"
+for c in "${concepts[@]}"; do
+    CONCEPTS+=$'\n<CONCEPT>\n'"$c"$'\n</CONCEPT>'
+done
+
+# 3. Show it
+echo "$CONCEPTS"
+
+# 4. Generate idea (stream + capture)
+IDEA=$(llm --model o4-mini --system "You are a radical concept synthesiser hired to astound even experts.
+
+GOAL: Generate one radically non-obvious <GOAL>-aligned idea fusing provided <CONCEPT>s with concrete next steps.
+
+THINK:
+1. Generate 5+ candidate links using these lenses: Inversion, Mechanism-transplant, Constraint-violation, Scale-jump, Oblique strategies, Any other radical angle
+2. Score for Novelty x Utility (1-5 each); select the highest-scoring fusion
+3. Converge: stress-test for edge-cases; refine language.
+
+OUTPUT FORMAT
+INSIGHT: 1-2 sentences ≤ 30 words.
+MECHANISM: Explain the HOW ≤ 40 words.
+HOW TO TEST: 3 bullets, each ≤ 15 words, doable within 1 month.
+WHAT'S SUPRISING: What convention does this challenge?
+CRITIQUE: 2 sentences: biggest risk & mitigation
+
+RULES:
+
+- Ban shallow overlaps and clichés; delete if detected.
+- No hedging / fillers: obvious, simply, just, might, could, perhaps, ...
+- Use vivid, non-trivial metaphors, concrete numbers, named precedents.
+- Write in active voice, maximum compression
+- No chain-of-thought or scoring in output
+" "$CONCEPTS" | tee /dev/tty)
+
+# 5. Evaluate idea (stream + capture)
+EVAL=$(llm --model o4-mini --system "
+You are a skeptical, unsentimental reviewer.
+Return a JSON object with keys novel, coherent, feasible, impactful **and** keys novel_why, ….
+
+NOVEL (2-5):
+- 5: Challenges core assumptions, would shock experts, no existing precedent (e.g. peer-reviewed paper, blog, conference talk)
+- 4: Significant departure from current practice, would surprise most experts
+- 3: Interesting twist on known approaches, some experts would find it noteworthy
+- 2: Minor variation on existing ideas, predictable to experts
+
+COHERENT (2-5):
+- 5: Rigorous logic (every sentence follows from the previous), addresses obvious objections, internally consistent
+- 4: Generally sound reasoning with minor gaps
+- 3: Basic logic holds but some hand-waving
+- 2: Significant logical flaws or missing steps
+
+FEASIBLE (2-5):
+- 5: Clear implementation path, reasonable resource requirements, existing tech. 1 can prototype in a month.
+- 4: Challenging but achievable with current technology. 2 can prototype in 3 months
+- 3: Possible but requires significant breakthroughs or resources
+- 2: Major technical/economic barriers
+
+IMPACTFUL (2-5):
+- 5: Transformative potential, affects millions, enables new industries
+- 4: Significant competitive advantage or efficiency gain
+- 3: Useful improvement, clear value proposition
+- 2: Modest benefit, limited scope
+
+For each rating, provide a _why:
+- Score justification (≤30 words)
+- Specific weakness (≤20 words)
+- Existing alternatives (≤20 words, what already solves this?)
+
+CRITICAL: If you can't identify significant weaknesses or alternatives, you're being too generous. Most ideas score 2-3 on most dimensions.
+" --schema 'novel int, novel_why, coherent int, coherent_why, feasible int, feasible_why, impactful int, impactful_why' "$IDEA" | tee /dev/tty)
+
+# 6. Merge into one JSON line and append
+json=$(printf '%s' "$EVAL" \
+  | jq -c \
+      --argjson concepts "$(printf '%s\0' "${concepts[@]}" | jq -Rs 'split("\u0000")[:-1]')" \
+      --arg goal "$goal" \
+      --arg idea "$IDEA" \
+      --arg timestamp "$(date -Iseconds)" \
+    '. + {
+        concepts:$concepts,
+        goal:$goal,
+        idea:$idea,
+        timestamp:$timestamp
+      }'
+)
+
+echo "$json" >> ~/code/til-live/daydream.jsonl

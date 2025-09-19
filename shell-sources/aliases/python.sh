@@ -26,9 +26,6 @@ if command -v 'python3' >/dev/null; then
     }
 
     # Basic Python Commands
-    alias py='python'
-    alias ipy='ipython'
-    alias pyv='python --version'
     alias pydoc='python -m pydoc'
 
     # Package Management via uv

@@ -64,36 +64,7 @@ alias f="$(pay-respects zsh)"
 alias ls='eza --icons'
 alias ll='eza -al --icons'
 alias lt='eza -a --tree --level=1 --icons'
-# alias i="sudo pacman -S "
-alias i='~/.dotfiles/bin/bin/pkg-log.sh'
-alias upd="sudo pacman -Syu"
-# Pacman aliases
-alias pSyu='sudo pacman -Syu'              # Sync, refresh, and upgrade system
-alias pS='sudo pacman -S'                  # Install package(s)
-alias pR='sudo pacman -R'                  # Remove package(s)
-alias pRs='sudo pacman -Rs'                # Remove package(s) + unused dependencies
-alias pQ='pacman -Q'                       # Query installed packages
-alias pQs='pacman -Qs'                     # Search installed & repo packages
-alias pQe='pacman -Qe'                     # List explicitly installed packages
-alias pQdt='pacman -Qdt'                   # List orphaned packages
-alias pU='sudo pacman -U'                  # Install local package file
-alias pSc='sudo pacman -Sc'                # Remove old package caches (safe)
-alias pScc='sudo pacman -Scc'              # Clear ALL caches (danger: no rollback)
-alias pFiles='pacman -Ql'                  # List files owned by a package
-# Yay aliases (AUR helper)
-alias ySyu='yay -Syu'                      # Sync & upgrade system (repos + AUR)
-alias yS='yay -S'                          # Install package(s) from repo or AUR
-alias yR='yay -R'                          # Remove package(s)
-alias yRs='yay -Rs'                        # Remove + deps
-alias ySs='yay -Ss'                        # Search repos + AUR
-alias ySi='yay -Si'                        # Show package info (repo or AUR)
-alias yQi='yay -Qi'                        # Show installed package info
-alias yQe='yay -Qe'                        # List explicitly installed packages
-alias yQdt='yay -Qdt'                      # List orphans
-alias yG='yay -G'                          # Get PKGBUILD from AUR
 
-alias pc='yay -Sc' # remove all cached packages
-alias po='yay -Qtdq | sudo pacman -Rns -' # remove orphaned packages
 alias nvimedit="nvim ~/.dotfiles/nvim/.config/nvim"
 alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
 # Set-up FZF key bindings (CTRL R for fuzzy history finder)

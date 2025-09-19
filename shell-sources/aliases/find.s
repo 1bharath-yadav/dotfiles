@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 
 
-
-
-
-# Script: find.aliases.sh
-# Version: 0.2.470
-
-
 # 🅵🅸🅽🅳 🅰🅻🅸🅰🆂🅴🆂
 
 if command -v fd &>/dev/null; then
@@ -54,7 +47,6 @@ if command -v fd &>/dev/null; then
   # Execute a command for each search result.
   alias fdx='fd --exec'
 
-  # Use fd as a replacement for find.
-  alias find='fd'
+  alias duplicate='find -not -empty -type f -printf "%s\n" | sort -rn | uniq -d | xargs -I{} -n1 find -type f -size {}c -print0 | xargs -0 md5sum | sort | uniq -w32 --all-repeated=separate'
 
 fi

@@ -1,5 +1,6 @@
 --target=~/.config
 --ignore=.stowrc
---ignore=DS_Store
---ignore=atuin/*
 --ignore=pkgs.json
+--shell-sources/
+--ignore=README.md
+--ignore=Setup.md

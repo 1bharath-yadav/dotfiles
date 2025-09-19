@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-
-# Description: Sets Disk Usage Aliases
-
-# Script: du.aliases.sh
-# Version: 0.2.470
-
-
-# 🅳🅸🆂🅺 🆄🆂🅰🅶🅴 🅰🅻🅸🅰🆂🅴🆂
-
 if command -v 'du' >/dev/null; then
 
   # Display the disk usage of the current directory.

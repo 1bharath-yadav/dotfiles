@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
+#***************   DEFAULT PATHS   ******************
+
+# System paths
+export PATH=/usr/local/bin:"${PATH}"
+export PATH=/usr/local/sbin:"${PATH}"
+export PATH=/usr/bin:"${PATH}"
+export PATH=/bin:"${PATH}"
+export PATH=/sbin:"${PATH}"
 
 
 
+#**************   CUSTOM PATHS   *********************
 
-
-## 🅿🅰🆃🅷🆂
+# Add specific virtualenv paths
+export PATH="$HOME/apps/datasette/.venv/bin:$PATH"
+export PATH="$HOME/apps/llm/.venv/bin:$PATH"
+export PATH="$HOME/apps/openwebui/.venv/bin:$PATH"
+export PATH="$HOME/apps/gramex/.venv/bin:$PATH"
 
 # System paths
 # Adding essential system directories to PATH
 export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/sbin:${PATH}"
-
-# Frameworks and Applications
-# Add Apple binaries and TeX Live to PATH
-export PATH="/Library/Apple/usr/bin:/Library/TeX/texbin:${PATH}"
 
 # Add Cargo binaries to PATH (check version with: cargo --version)
 export PATH="${HOME}/.cargo/bin:${PATH}"
@@ -23,9 +31,6 @@ export PATH="${HOME}/go/bin:${PATH}"
 
 # Add Node.js global modules binaries to PATH (check version with: node --version)
 export PATH="${HOME}/.node_modules/bin:${PATH}"
-
-# Application-specific paths
-export PATH="/Applications/Topaz\ Photo\ AI.app/Contents/Resources/bin:/Applications/Little\ Snitch.app/Contents/Components:/Applications/iTerm.app/Contents/Resources/utilities:${PATH}"
 
 # Deduplicate PATH entries
 deduplicate_path() {
@@ -38,3 +43,6 @@ PATH=$(echo "$PATH" | awk -v RS=':' '!seen[$0]++ {ORS=(NR>1?":":"")} {print}')
 export PATH
 
 deduplicate_path
+
+
+

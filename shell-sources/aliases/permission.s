@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-
-
-
-# 🅿🅴🆁🅼🅸🆂🆂🅸🅾🅽 🅰🅻🅸🅰🆂🅴🆂
-
 if command -v chmod &>/dev/null; then
 
   # Set permissions to no read, write, or execute for user, group, and
