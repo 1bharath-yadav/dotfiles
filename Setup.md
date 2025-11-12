@@ -18,3 +18,5 @@ source apps
 
     - https://github.com/Elleo/pied
   
+
+To link selective folders only,we first create directory and add other wanted nonlink folders and then stow.
