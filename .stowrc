@@ -1,6 +1,6 @@
---target=~/.config
---ignore=.stowrc
---ignore=pkgs.json
---shell-sources/
---ignore=README.md
---ignore=Setup.md
+--target=$HOME
+--ignore=\.stowrc
+--ignore=^pkgs\.json$
+--ignore=^shell-sources$
+--ignore=^README\.md$
+--ignore=^Setup\.md$
