@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+echo "[*] Switching to DEFAULT mode: RAM ONLY (no swap, no zram)..."
+
+# 1. Turn off ALL swap: zram + swapfile + anything else
+sudo swapoff -a || true
+
+# 2. Stop zram setup service if it exists
+sudo systemctl stop systemd-zram-setup@zram0.service 2>/dev/null || true
+
+# 3. Reset zram device if it exists
+if [ -e /dev/zram0 ]; then
+  echo 1 | sudo tee /sys/block/zram0/reset >/dev/null
+fi
+
+# 4. Remove zram generator config so it does NOT recreate on next restart (optional but clean)
+sudo rm -f /etc/systemd/zram-generator.conf
+
+echo "[✓] Default mode applied: RAM-only. No zram, no swap."
+

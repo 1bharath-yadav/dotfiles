@@ -49,10 +49,10 @@ if command -v 'python3' >/dev/null; then
     alias pytestc='uv run pytest --cov'
 
     # Virtual Environment Management (uv handles isolation, but keep some helpers)
-    alias mkvenv='uv venv ./venv'         # Create venv in current dir
-    alias venva='source ./venv/bin/activate'
+    alias mkvenv='uv venv .venv'         # Create venv in current dir
+    alias venva='source .venv/bin/activate'
     alias deact='deactivate'
-    alias rmvenv='rm -rf ./venv'
+    alias rmvenv='rm -rf .venv'
 
     # Cleanup
     alias rmpyc="find . -type f -name '*.pyc' -delete"

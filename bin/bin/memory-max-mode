@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+echo "[*] Switching to MEMORY_MAX mode: zram (2 * RAM) + swapfile..."
+
+# 1. Recreate zram-generator config for big zram
+sudo tee /etc/systemd/zram-generator.conf >/dev/null <<'EOF'
+[zram0]
+zram-size = ram * 2
+compression-algorithm = zstd
+EOF
+
+# 2. Reload systemd config
+sudo systemctl daemon-reload
+
+# 3. Make sure any old zram swap is off before reconfig
+sudo swapoff /dev/zram0 2>/dev/null || true
+
+# 4. Restart zram setup (this will create /dev/zram0, mkswap, and swapon)
+sudo systemctl restart systemd-zram-setup@zram0.service
+
+# 5. Enable swapfile (assuming it exists and is in /etc/fstab)
+if [ -f /swapfile ]; then
+  sudo swapon /swapfile || true
+fi
+
+echo "[✓] Memory_Max mode applied: zram + swapfile active."
+

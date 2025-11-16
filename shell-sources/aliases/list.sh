@@ -48,7 +48,7 @@ if command -v eza >/dev/null 2>&1; then
     # @brief Long format, including hidden files, sorted by modification date
     # @description Uses `--long -a --sort=modified`.
     # @example llm
-    alias llm='eza --long -a --sort=modified'
+    # alias llsmod='eza --long -a --sort=modified'
 
     # @name la
     # @brief Show all files, directories listed first

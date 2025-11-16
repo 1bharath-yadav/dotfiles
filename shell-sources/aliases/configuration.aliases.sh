@@ -11,7 +11,7 @@
 
 
 # Set default text editor
-EDITOR="${EDITOR:-vi}"
+EDITOR="${EDITOR:-nvim}"
 
 # Apache aliases
 # ------------------------------------------------------------------------------
@@ -53,16 +53,28 @@ alias edit_git_ignore='${EDITOR} $HOME/.gitignore'
 # ------------------------------------------------------------------------------
 
 # Open hosts file in default text editor
-alias edit_hosts='${EDITOR} /etc/hosts'
+; alias edit_hosts='${EDITOR} /etc/hosts'
 
 # Open Nginx configuration file in default text editor
-alias edit_nginx_config='${EDITOR} /etc/nginx/nginx.conf'
+; alias edit_nginx_config='${EDITOR} /etc/nginx/nginx.conf'
 
 # Open SSH configuration file in default text editor
 alias edit_ssh_config='${EDITOR} $HOME/.ssh/config'
 
 # Open Zsh configuration file in default text editor
 alias edit_zshrc='${EDITOR} $HOME/.zshrc'
+
+# Dotfiles aliases
+alias edit_dotfiles='${EDITOR} $HOME/.dotfiles'
+
+# Hyprland aliases
+alias edit_hypr='${EDITOR} $HOME/.config/hypr/hyprland.conf'
+
+# quickshell aliases
+alias edit_quickshell='${EDITOR} $HOME/.config/quickshell'
+
+# Illogical Impulse aliases
+alias edit_iiconfig='${EDITOR} /home/archer/.config/illogical-impulse/config.json'
 
 # Open Zsh profile in default text editor
 alias edit_zsh_profile='${EDITOR} $HOME/.zsh_profile'

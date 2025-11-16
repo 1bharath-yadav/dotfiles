@@ -9,16 +9,16 @@
       "description": "A GTK user interface for TLP written in Python"
     },
     {
+      "name": "partitionmanager",
+      "description": "A KDE utility that allows you to manage disks, partitions, and file systems"
+    },
+    {
       "name": "gparted",
       "description": "A Partition Magic clone, frontend to GNU Parted"
     },
     {
       "name": "reflector",
       "description": "A Python 3 module and script to retrieve and filter the latest Pacman mirror list."
-    },
-    {
-      "name": "python-croniter",
-      "description": "A Python module to provide iteration for datetime object."
     },
     {
       "name": "inetutils",
@@ -57,16 +57,16 @@
       "description": "A fast and easy to use image viewer"
     },
     {
+      "name": "fastfetch",
+      "description": "A feature-rich and performance oriented neofetch like system information tool"
+    },
+    {
       "name": "blender",
       "description": "A fully integrated 3D graphics creation suite"
     },
     {
       "name": "grimblast-git",
       "description": "A helper for screenshots within Hyprland."
-    },
-    {
-      "name": "octave",
-      "description": "A high-level language, primarily intended for numerical computations"
     },
     {
       "name": "python-pyquery",
@@ -123,6 +123,10 @@
     {
       "name": "zoxide",
       "description": "A smarter cd command for your terminal"
+    },
+    {
+      "name": "kodi",
+      "description": "A software media player and entertainment hub for digital media (gl renderer)"
     },
     {
       "name": "uwsm",
@@ -297,10 +301,6 @@
       "description": "Convert xml to many other formats"
     },
     {
-      "name": "ollama",
-      "description": "Create, run and share large language models (LLMs)"
-    },
-    {
       "name": "python-wxpython",
       "description": "Cross-platform GUI toolkit"
     },
@@ -387,6 +387,10 @@
     {
       "name": "obs-studio",
       "description": "Free, open source software for live streaming and recording"
+    },
+    {
+      "name": "xh",
+      "description": "Friendly and fast tool for sending HTTP requests"
     },
     {
       "name": "inxi",
@@ -481,8 +485,20 @@
       "description": "Iconic font designed for Bootstrap - otf format"
     },
     {
+      "name": "chafa",
+      "description": "Image-to-text converter supporting a wide range of symbols and palettes, transparency, animations, etc."
+    },
+    {
+      "name": "openvino-intel-gpu-plugin",
+      "description": "Intel GPU plugin for OpenVINO"
+    },
+    {
       "name": "intel-media-driver",
       "description": "Intel Media Driver for VAAPI — Broadwell+ iGPUs"
+    },
+    {
+      "name": "openvino-intel-npu-plugin",
+      "description": "Intel NPU plugin for OpenVINO"
     },
     {
       "name": "libva-utils",
@@ -535,6 +551,10 @@
     {
       "name": "flatpak",
       "description": "Linux application sandboxing and distribution framework (formerly xdg-app)"
+    },
+    {
+      "name": "touchegg",
+      "description": "Linux multi-touch gesture recognizer"
     },
     {
       "name": "efibootmgr",
@@ -873,10 +893,6 @@
       "description": "The PyPA recommended tool for installing Python packages"
     },
     {
-      "name": "spyder",
-      "description": "The Scientific Python Development Environment"
-    },
-    {
       "name": "sox",
       "description": "The Swiss Army knife of sound processing tools"
     },
@@ -1019,10 +1035,6 @@
   ],
   "aur": [
     {
-      "name": "neofetch",
-      "description": "A CLI system information tool written in BASH that supports displaying images."
-    },
-    {
       "name": "pamac-aur",
       "description": "A Gtk frontend, Package Manager based on libalpm with AUR and Appstream support"
     },
@@ -1035,24 +1047,20 @@
       "description": "A curses URL parser for text files"
     },
     {
-      "name": "openrefine",
-      "description": "A free, open source power tool for working with messy data and improving it"
-    },
-    {
       "name": "matugen-bin",
       "description": "A material you color generation tool with templates"
     },
     {
-      "name": "obsidian-bin",
-      "description": "A powerful knowledge base that works on top of a local folder of plain text Markdown files (Official binary package with bundled Electron)"
+      "name": "jan-bin",
+      "description": "An open source alternative to ChatGPT that runs 100% offline on your computer. Multiple engine support (llama.cpp, TensorRT-LLM).(Prebuilt version)"
     },
     {
       "name": "google-gemini-cli",
       "description": "An open-source AI agent that brings the power of Gemini directly into your terminal."
     },
     {
-      "name": "whispering-bin",
-      "description": "An open-source transcription application that provides global speech-to-text functionality, with options such as keyboard shortcuts and automatic copy and paste to make dictating as seamless as possible.(Prebuilt version)"
+      "name": "kde-material-you-colors",
+      "description": "Automatic Material You Colors Generator from your wallpaper for the Plasma Desktop"
     },
     {
       "name": "blackarch-keyring",
@@ -1085,10 +1093,6 @@
     {
       "name": "illogical-impulse-microtex-git-debug",
       "description": "Detached debugging symbols for illogical-impulse-microtex-git"
-    },
-    {
-      "name": "ncurses5-compat-libs-debug",
-      "description": "Detached debugging symbols for ncurses5-compat-libs"
     },
     {
       "name": "mutt-wizard",
@@ -1159,8 +1163,8 @@
       "description": "Illogical Impulse XDG Desktop Portals"
     },
     {
-      "name": "intel-ivsc-firmware",
-      "description": "Intel Vision Sensing Controller firmware"
+      "name": "llama.cpp-vulkan-bin",
+      "description": "LLM inference in C/C++ (with Vulkan GPU optimizations) (precompiled Linux binaries)"
     },
     {
       "name": "lightworks",
@@ -1179,8 +1183,16 @@
       "description": "Papirus icon theme"
     },
     {
-      "name": "whisper.cpp-vulkan",
-      "description": "Port of OpenAI's Whisper model in C/C++ (with Vulkan optimizations)"
+      "name": "python-croniter",
+      "description": "Parses cron schedules to iterate over datetime objects."
+    },
+    {
+      "name": "llama.cpp-vulkan",
+      "description": "Port of Facebook's LLaMA model in C/C++ (with Vulkan GPU optimizations)"
+    },
+    {
+      "name": "whisper.cpp-git",
+      "description": "Port of OpenAI's Whisper model in C/C++"
     },
     {
       "name": "nerd-dictation-git",
@@ -1195,12 +1207,16 @@
       "description": "The AI coding agent built for the terminal."
     },
     {
-      "name": "pam-gnupg",
-      "description": "Unlock GnuPG keys on login"
+      "name": "linux-xanmod-linux-bin-x64v3",
+      "description": "The Linux kernel and modules with Xanmod patches - Current Stable (MAIN) - Prebuilt version - x64v3"
     },
     {
-      "name": "warp-terminal-bin",
-      "description": "Warp is the intelligent terminal with AI and your dev team's knowledge built-in."
+      "name": "linux-xanmod-linux-headers-bin-x64v3",
+      "description": "The Linux kernel and modules with Xanmod patches - Current Stable (MAIN) - Prebuilt version - x64v3"
+    },
+    {
+      "name": "pam-gnupg",
+      "description": "Unlock GnuPG keys on login"
     },
     {
       "name": "wallust",
