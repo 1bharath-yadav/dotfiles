@@ -341,10 +341,6 @@
       "description": "Dynamic Kernel Modules System"
     },
     {
-      "name": "betterbird-bin",
-      "description": "EN-US // Betterbird is a fine-tuned version of Mozilla Thunderbird, Thunderbird on steroids, if you will."
-    },
-    {
       "name": "ffmpegthumbs",
       "description": "FFmpeg-based thumbnail creator for video files"
     },
@@ -1171,6 +1167,10 @@
       "description": "Lightworks is a professional video editing suite"
     },
     {
+      "name": "zoho-mail-desktop",
+      "description": "Lite desktop version of Zoho email client."
+    },
+    {
       "name": "illogical-impulse-bibata-modern-classic-bin",
       "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
     },
@@ -1217,6 +1217,10 @@
     {
       "name": "pam-gnupg",
       "description": "Unlock GnuPG keys on login"
+    },
+    {
+      "name": "arattai-deb-bin",
+      "description": "Unofficial Arch package for Arattai Desktop built from the official .deb (Zoho) – binary repack"
     },
     {
       "name": "wallust",
