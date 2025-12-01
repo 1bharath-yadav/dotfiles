@@ -69,6 +69,10 @@
       "description": "A helper for screenshots within Hyprland."
     },
     {
+      "name": "zed",
+      "description": "A high-performance, multiplayer code editor from the creators of Atom and Tree-sitter"
+    },
+    {
       "name": "python-pyquery",
       "description": "A jquery-like library for python."
     },
