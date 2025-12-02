@@ -65,6 +65,10 @@
       "description": "A fully integrated 3D graphics creation suite"
     },
     {
+      "name": "php",
+      "description": "A general-purpose scripting language that is especially suited to web development"
+    },
+    {
       "name": "grimblast-git",
       "description": "A helper for screenshots within Hyprland."
     },
@@ -131,6 +135,10 @@
     {
       "name": "kodi",
       "description": "A software media player and entertainment hub for digital media (gl renderer)"
+    },
+    {
+      "name": "xampp",
+      "description": "A stand-alone LAMPP distribution"
     },
     {
       "name": "uwsm",
@@ -1049,6 +1057,10 @@
     {
       "name": "matugen-bin",
       "description": "A material you color generation tool with templates"
+    },
+    {
+      "name": "antigravity",
+      "description": "An agentic development platform from Google, evolving the IDE into the agent-first era."
     },
     {
       "name": "jan-bin",

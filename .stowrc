@@ -1,6 +1,11 @@
---target=$HOME
---ignore=\.stowrc
---ignore=^pkgs\.json$
---ignore=^shell-sources$
---ignore=^README\.md$
---ignore=^Setup\.md$
+--target="$HOME"
+--verbose=1
+
+# Ignore the stowrc itself
+--ignore='\.*stowrc$'
+
+# Ignore specific directories/files in dotfiles repo
+--ignore='^shell-sources$'
+--ignore='^README\.md$'
+--ignore='^Setup\.md$'
+
