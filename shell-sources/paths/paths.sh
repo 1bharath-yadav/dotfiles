@@ -23,7 +23,7 @@ export PATH="$HOME/apps/scific/.venv/bin:$PATH"
 # System paths
 # Adding essential system directories to PATH
 export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/sbin:${PATH}"
-
+export PATH="/home/archer/.local/share/../bin:$PATH"
 # Add Cargo binaries to PATH (check version with: cargo --version)
 export PATH="${HOME}/.cargo/bin:${PATH}"
 

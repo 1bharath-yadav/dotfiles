@@ -21,6 +21,10 @@
       "description": "A Python 3 module and script to retrieve and filter the latest Pacman mirror list."
     },
     {
+      "name": "oryx",
+      "description": "A TUI for sniffing network traffic using eBPF"
+    },
+    {
       "name": "inetutils",
       "description": "A collection of common network programs"
     },
@@ -57,8 +61,16 @@
       "description": "A fast and easy to use image viewer"
     },
     {
+      "name": "systemctl-tui",
+      "description": "A fast, simple TUI for interacting with systemd services and their logs"
+    },
+    {
       "name": "fastfetch",
       "description": "A feature-rich and performance oriented neofetch like system information tool"
+    },
+    {
+      "name": "antiword",
+      "description": "A free MS Word reader for Linux and RISC OS"
     },
     {
       "name": "blender",
@@ -213,6 +225,10 @@
       "description": "An open and reliable container runtime"
     },
     {
+      "name": "goaccess",
+      "description": "An open source real-time web log analyzer and interactive viewer"
+    },
+    {
       "name": "android-sdk-cmdline-tools-latest",
       "description": "Android SDK Command-line Tools (latest)"
     },
@@ -245,12 +261,20 @@
       "description": "Blazing fast terminal file manager written in Rust, based on async I/O"
     },
     {
+      "name": "gitui",
+      "description": "Blazing fast terminal-ui for git written in Rust"
+    },
+    {
       "name": "btrfs-progs",
       "description": "Btrfs filesystem utilities"
     },
     {
       "name": "root",
       "description": "C++ data analysis framework and interpreter from CERN"
+    },
+    {
+      "name": "monolith",
+      "description": "CLI to save web pages as single HTML files"
     },
     {
       "name": "bat",
@@ -289,6 +313,10 @@
       "description": "Command-line status monitor for tor"
     },
     {
+      "name": "fx",
+      "description": "Command-line tool and terminal JSON viewer"
+    },
+    {
       "name": "pdftk",
       "description": "Command-line tool for working with PDFs"
     },
@@ -311,6 +339,10 @@
     {
       "name": "smartmontools",
       "description": "Control and monitor S.M.A.R.T. enabled ATA and SCSI Hard Drives"
+    },
+    {
+      "name": "pandoc-bin",
+      "description": "Conversion between documentation formats"
     },
     {
       "name": "xmlto",
@@ -347,6 +379,10 @@
     {
       "name": "okular",
       "description": "Document Viewer"
+    },
+    {
+      "name": "aria2",
+      "description": "Download utility that supports HTTP(S), FTP, BitTorrent, and Metalink"
     },
     {
       "name": "dkms",
@@ -545,6 +581,10 @@
       "description": "Lightweight, easy to configure DNS forwarder and DHCP server"
     },
     {
+      "name": "intelli-shell",
+      "description": "Like IntelliSense, but for shells"
+    },
+    {
       "name": "lld",
       "description": "Linker from the LLVM project"
     },
@@ -591,6 +631,10 @@
     {
       "name": "mpv-mpris",
       "description": "MPRIS plugin for mpv"
+    },
+    {
+      "name": "atuin",
+      "description": "Magical shell history"
     },
     {
       "name": "stow",
@@ -821,10 +865,6 @@
       "description": "Simple polkit authentication agent for Hyprland, written in QT/QML"
     },
     {
-      "name": "lazygit",
-      "description": "Simple terminal UI for git commands"
-    },
-    {
       "name": "f3",
       "description": "Simple tool that tests flash cards capacity and performance to see if they live up to claimed specifications"
     },
@@ -847,6 +887,10 @@
     {
       "name": "ncurses5-compat-libs",
       "description": "System V Release 4.0 curses emulation library, ABI 5"
+    },
+    {
+      "name": "lazyjournal",
+      "description": "TUI for journalctl, file system logs, as well Docker and Podman containers for quick viewing and filtering with fuzzy find and regex support"
     },
     {
       "name": "cheese",
@@ -923,6 +967,10 @@
     {
       "name": "binwalk",
       "description": "Tool for searching a given binary image for embedded files"
+    },
+    {
+      "name": "fq",
+      "description": "Tool, language and decoders for inspecting binary data"
     },
     {
       "name": "kde-cli-tools",
@@ -1059,8 +1107,16 @@
       "description": "A Python tool that lets you find and download torrents without leaving your CLI."
     },
     {
+      "name": "jqp-bin",
+      "description": "A TUI playground to experiment with jq"
+    },
+    {
       "name": "vesktop-bin",
       "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
+    },
+    {
+      "name": "lazysql-bin",
+      "description": "A cross-platform TUI database management tool written in Go"
     },
     {
       "name": "urlview",
@@ -1069,6 +1125,10 @@
     {
       "name": "matugen-bin",
       "description": "A material you color generation tool with templates"
+    },
+    {
+      "name": "youtube-tui-full-bin",
+      "description": "An aesthetically pleasing TUI frontend to browsing YouTube written in Rust. (Binary)"
     },
     {
       "name": "antigravity",
@@ -1121,6 +1181,10 @@
     {
       "name": "mutt-wizard",
       "description": "Easily auto-configure neomutt and isync/mpop with safe passwords (IMAP/POP3/SMTP)"
+    },
+    {
+      "name": "eget-bin",
+      "description": "Easily install prebuilt binaries from GitHub"
     },
     {
       "name": "rate-mirrors-bin",
@@ -1229,6 +1293,10 @@
     {
       "name": "kvantum-theme-catppuccin-git",
       "description": "Soothing pastel theme for Kvantum"
+    },
+    {
+      "name": "basalt-bin",
+      "description": "TUI Application to manage Obsidian vaults and notes directly from the terminal"
     },
     {
       "name": "opencode-bin",
