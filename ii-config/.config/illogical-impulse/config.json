@@ -170,7 +170,10 @@
     "workspaces": {
       "alwaysShowNumbers": false,
       "monochromeIcons": false,
-      "numberMap": ["1", "2"],
+      "numberMap": [
+        "1",
+        "2"
+      ],
       "showAppIcons": false,
       "showNumberDelay": 300,
       "shown": 5,
@@ -212,7 +215,10 @@
     "hoverToReveal": true,
     "ignoredAppRegexes": [],
     "monochromeIcons": true,
-    "pinnedApps": ["org.kde.dolphin", "kitty"],
+    "pinnedApps": [
+      "org.kde.dolphin",
+      "kitty"
+    ],
     "pinnedOnStartup": false
   },
   "enabledPanels": [
@@ -352,7 +358,9 @@
   },
   "search": {
     "engineBaseUrl": "https://www.google.com/search?q=",
-    "excludedSites": ["quora.com"],
+    "excludedSites": [
+      "quora.com"
+    ],
     "imageSearch": {
       "imageSearchEngineBaseUrl": "https://lens.google.com/uploadbyurl?url=",
       "useCircleSelection": false
@@ -467,7 +475,9 @@
     "filterPassive": true,
     "invertPinnedItems": true,
     "monochromeIcons": true,
-    "pinnedItems": ["Fcitx"],
+    "pinnedItems": [
+      "Fcitx"
+    ],
     "showItemId": false
   },
   "updates": {

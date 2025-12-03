@@ -145,6 +145,10 @@
       "description": "A standalone Wayland session manager"
     },
     {
+      "name": "pacseek",
+      "description": "A terminal user interface for searching and installing Arch Linux packages"
+    },
+    {
       "name": "lynx",
       "description": "A text browser for the World Wide Web"
     },
@@ -331,10 +335,6 @@
     {
       "name": "bluez-utils",
       "description": "Development and debugging utilities for the bluetooth protocol stack"
-    },
-    {
-      "name": "ncdu",
-      "description": "Disk usage analyzer with an ncurses interface"
     },
     {
       "name": "scrcpy",
@@ -905,6 +905,10 @@
       "description": "The Swiss Army knife of sound processing tools"
     },
     {
+      "name": "python-ipykernel",
+      "description": "The ipython kernel for Jupyter"
+    },
+    {
       "name": "google-chrome",
       "description": "The popular web browser by Google (Stable Channel)"
     },
@@ -935,6 +939,10 @@
     {
       "name": "ttf-jetbrains-mono",
       "description": "Typeface for developers, by JetBrains"
+    },
+    {
+      "name": "jackett",
+      "description": "Use many torrent trackers with software that supports torznab/potato feeds."
     },
     {
       "name": "slirp4netns",
@@ -1043,8 +1051,12 @@
   ],
   "aur": [
     {
-      "name": "pamac-aur",
-      "description": "A Gtk frontend, Package Manager based on libalpm with AUR and Appstream support"
+      "name": "lexy",
+      "description": "A CLI tool to fetch tutorials from Learn X in Y Minutes"
+    },
+    {
+      "name": "torrra-bin",
+      "description": "A Python tool that lets you find and download torrents without leaving your CLI."
     },
     {
       "name": "vesktop-bin",
