@@ -1251,10 +1251,6 @@
       "description": "Illogical Impulse XDG Desktop Portals"
     },
     {
-      "name": "llama.cpp-vulkan-bin",
-      "description": "LLM inference in C/C++ (with Vulkan GPU optimizations) (precompiled Linux binaries)"
-    },
-    {
       "name": "lightworks",
       "description": "Lightworks is a professional video editing suite"
     },
