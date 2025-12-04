@@ -349,6 +349,10 @@
       "description": "Convert xml to many other formats"
     },
     {
+      "name": "ollama-vulkan",
+      "description": "Create, run and share large language models (LLMs) with Vulkan"
+    },
+    {
       "name": "python-wxpython",
       "description": "Cross-platform GUI toolkit"
     },
@@ -725,24 +729,8 @@
       "description": "Parallel Visualization application using VTK"
     },
     {
-      "name": "ttf-cascadia-code-nerd",
-      "description": "Patched font Cascadia Code (Caskaydia) from nerd fonts library"
-    },
-    {
-      "name": "ttf-cascadia-mono-nerd",
-      "description": "Patched font Cascadia Mono (Caskaydia) from nerd fonts library"
-    },
-    {
       "name": "ttf-firacode-nerd",
       "description": "Patched font Fira (Fura) Code from nerd fonts library"
-    },
-    {
-      "name": "ttf-iosevkaterm-nerd",
-      "description": "Patched font Iosevka Term from nerd fonts library"
-    },
-    {
-      "name": "ttf-iosevka-nerd",
-      "description": "Patched font Iosevka from nerd fonts library"
     },
     {
       "name": "ttf-meslo-nerd",
@@ -1267,10 +1255,6 @@
       "description": "MicroTeX for illogical-impulse dotfiles."
     },
     {
-      "name": "epapirus-icon-theme",
-      "description": "Papirus icon theme"
-    },
-    {
       "name": "python-croniter",
       "description": "Parses cron schedules to iterate over datetime objects."
     },
@@ -1297,10 +1281,6 @@
     {
       "name": "opencode-bin",
       "description": "The AI coding agent built for the terminal."
-    },
-    {
-      "name": "linux-xanmod-linux-bin-x64v3",
-      "description": "The Linux kernel and modules with Xanmod patches - Current Stable (MAIN) - Prebuilt version - x64v3"
     },
     {
       "name": "linux-xanmod-linux-headers-bin-x64v3",

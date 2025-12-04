@@ -5,6 +5,9 @@ echo "[*] Switching to DEFAULT mode: RAM ONLY (no swap, no zram)..."
 
 # 1. Turn off ALL swap: zram + swapfile + anything else
 sudo swapoff -a || true
+sudo swapoff -v /swapfile
+sudo rm /swapfile
+
 
 # 2. Stop zram setup service if it exists
 sudo systemctl stop systemd-zram-setup@zram0.service 2>/dev/null || true
