@@ -16,7 +16,7 @@ export PATH=/sbin:"${PATH}"
 # Add specific virtualenv paths
 export PATH="$HOME/apps/datasette/.venv/bin:$PATH"
 export PATH="$HOME/apps/llm/.venv/bin:$PATH"
-export PATH="$HOME/apps/openwebui/.venv/bin:$PATH"
+export PATH="$HOME/projects/.venv/bin:$PATH"
 export PATH="$HOME/apps/gramex/.venv/bin:$PATH"
 export PATH="$HOME/apps/scific/.venv/bin:$PATH"
 # export PATH="$HOME/apps/marimo/.venv/bin:$PATH"
