@@ -1,6 +1,6 @@
 
 #!/usr/bin/env bash
-DEVICE="8d0842b1f41544afa56c0dfd720e9ee1"
+DEVICE="3946e91581b7467c829552415a561144"
 PREFIX=$(wl-paste 2>/dev/null | head -c 7); if [[ "$PREFIX" == "file://" ]]; then FILE=$(wl-paste 2>/dev/null); FILE="${FILE#file://}"; kdeconnect-cli --device "$DEVICE" --share "$FILE" & disown; exit 0; fi
 TMP="/tmp/kdeconnect_clipboard_$(date +%Y%m%d_%H%M%S)"; wl-paste > "$TMP"
 EXT=$(file --mime-type -b "$TMP" | sed 's|.*/||;s|+.*||'); mv "$TMP" "$TMP.$EXT"
