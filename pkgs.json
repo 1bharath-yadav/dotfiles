@@ -325,6 +325,10 @@
       "description": "Command-line utility to quantize PNGs down to 8-bit paletted PNGs"
     },
     {
+      "name": "ccache",
+      "description": "Compiler cache that speeds up recompilation by caching previous compilations"
+    },
+    {
       "name": "plasma-browser-integration",
       "description": "Components necessary to integrate browsers into the Plasma Desktop"
     },
