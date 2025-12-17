@@ -645,10 +645,6 @@
       "description": "MPRIS plugin for mpv"
     },
     {
-      "name": "atuin",
-      "description": "Magical shell history"
-    },
-    {
       "name": "stow",
       "description": "Manage installation of multiple softwares in the same directory tree"
     },
