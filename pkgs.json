@@ -377,6 +377,10 @@
       "description": "Development and debugging utilities for the bluetooth protocol stack"
     },
     {
+      "name": "dtc",
+      "description": "Device Tree Compiler"
+    },
+    {
       "name": "scrcpy",
       "description": "Display and control your Android device"
     },
