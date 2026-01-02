@@ -52,6 +52,7 @@
   },
   "apps": {
     "bluetooth": "kcmshell6 kcm_bluetooth",
+    "manageUser": "kcmshell6 kcm_users",
     "network": "plasmawindowed org.kde.plasma.networkmanagement",
     "networkEthernet": "kcmshell6 kcm_networkmanagement",
     "taskManager": "plasma-systemmonitor --page-name Processes",
@@ -223,7 +224,6 @@
   },
   "enabledPanels": [
     "iiBar",
-    "iiBackground",
     "iiLock",
     "iiNotificationPopup",
     "iiOnScreenDisplay",
@@ -235,8 +235,7 @@
     "iiSessionScreen",
     "iiSidebarLeft",
     "iiSidebarRight",
-    "iiVerticalBar",
-    "iiWallpaperSelector"
+    "iiVerticalBar"
   ],
   "hacks": {
     "arbitraryRaceConditionDelay": 20
