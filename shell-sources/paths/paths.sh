@@ -14,12 +14,10 @@ export PATH=/sbin:"${PATH}"
 #**************   CUSTOM PATHS   *********************
 
 # Add specific virtualenv paths
-export PATH="$HOME/apps/datasette/.venv/bin:$PATH"
-export PATH="$HOME/apps/llm/.venv/bin:$PATH"
-export PATH="$HOME/projects/.venv/bin:$PATH"
-export PATH="$HOME/apps/gramex/.venv/bin:$PATH"
-export PATH="$HOME/apps/scific/.venv/bin:$PATH"
-# export PATH="$HOME/apps/marimo/.venv/bin:$PATH"
+export PATH="$HOME/apps/global/.venv/bin:$PATH"
+export PATH="$HOME/apps/euphorie_env/.venv/bin:$PATH"
+export PATH="$HOME/apps/open-webui_env/.venv/bin:$PATH"
+
 # System paths
 # Adding essential system directories to PATH
 export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/sbin:${PATH}"

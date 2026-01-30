@@ -18,7 +18,7 @@ export PYTHONUTF8=1
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONUNBUFFERED=1
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-
+export UV_TORCH_BACKEND=auto
 if command -v 'python3' >/dev/null; then
     # Python wrapper
     python() {
