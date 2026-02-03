@@ -613,10 +613,6 @@
       "description": "Linux application sandboxing and distribution framework (formerly xdg-app)"
     },
     {
-      "name": "touchegg",
-      "description": "Linux multi-touch gesture recognizer"
-    },
-    {
       "name": "efibootmgr",
       "description": "Linux user-space application to modify the EFI Boot Manager"
     },
