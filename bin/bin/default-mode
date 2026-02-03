@@ -5,7 +5,7 @@ echo "[*] Switching to DEFAULT mode: RAM ONLY (no swap, no zram)..."
 
 # 1. Turn off ALL swap: zram + swapfile + anything else
 sudo swapoff -a || true
-sudo swapoff -v /swapfile
+# sudo swapoff -v /swapfile
 sudo rm /swapfile
 
 
