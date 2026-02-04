@@ -353,6 +353,10 @@
       "description": "Convert xml to many other formats"
     },
     {
+      "name": "ollama",
+      "description": "Create, run and share large language models (LLMs)"
+    },
+    {
       "name": "ollama-vulkan",
       "description": "Create, run and share large language models (LLMs) with Vulkan"
     },
