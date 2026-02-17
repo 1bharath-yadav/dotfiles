@@ -125,6 +125,10 @@
       "description": "A script to run docker-compose.yml using podman"
     },
     {
+      "name": "bitwarden",
+      "description": "A secure and free password manager for all of your devices"
+    },
+    {
       "name": "direnv",
       "description": "A shell extension that manages your environment"
     },
@@ -179,10 +183,6 @@
     {
       "name": "man-db",
       "description": "A utility for reading man pages"
-    },
-    {
-      "name": "neomutt",
-      "description": "A version of mutt with added features"
     },
     {
       "name": "zsh",
@@ -709,10 +709,6 @@
       "description": "Official Telegram Desktop client"
     },
     {
-      "name": "syncthing",
-      "description": "Open Source Continuous Replication / Cluster Synchronization Thing"
-    },
-    {
       "name": "vulkan-intel",
       "description": "Open-source Vulkan driver for Intel GPUs"
     },
@@ -1119,6 +1115,10 @@
       "description": "A material you color generation tool with templates"
     },
     {
+      "name": "bitwarden-bin",
+      "description": "A secure and free password manager for all of your devices."
+    },
+    {
       "name": "youtube-tui-full-bin",
       "description": "An aesthetically pleasing TUI frontend to browsing YouTube written in Rust. (Binary)"
     },
@@ -1169,10 +1169,6 @@
     {
       "name": "illogical-impulse-microtex-git-debug",
       "description": "Detached debugging symbols for illogical-impulse-microtex-git"
-    },
-    {
-      "name": "mutt-wizard",
-      "description": "Easily auto-configure neomutt and isync/mpop with safe passwords (IMAP/POP3/SMTP)"
     },
     {
       "name": "eget-bin",
@@ -1241,10 +1237,6 @@
     {
       "name": "illogical-impulse-portal",
       "description": "Illogical Impulse XDG Desktop Portals"
-    },
-    {
-      "name": "lightworks",
-      "description": "Lightworks is a professional video editing suite"
     },
     {
       "name": "zoho-mail-desktop",

@@ -137,3 +137,8 @@ load_dotfiles() {
 load_dotfiles
 
 
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+
+# OpenClaw Completion
+source "/home/archer/.openclaw/completions/openclaw.zsh"
