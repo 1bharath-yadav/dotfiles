@@ -149,10 +149,6 @@
       "description": "A smarter cd command for your terminal"
     },
     {
-      "name": "kodi",
-      "description": "A software media player and entertainment hub for digital media (gl renderer)"
-    },
-    {
       "name": "xampp",
       "description": "A stand-alone LAMPP distribution"
     },
@@ -881,10 +877,6 @@
       "description": "TUI for journalctl, file system logs, as well Docker and Podman containers for quick viewing and filtering with fuzzy find and regex support"
     },
     {
-      "name": "cheese",
-      "description": "Take photos and videos with your webcam, with fun graphical effects"
-    },
-    {
       "name": "texlive-fontsextra",
       "description": "TeX Live - Additional fonts"
     },
@@ -1103,10 +1095,6 @@
       "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
     },
     {
-      "name": "lazysql-bin",
-      "description": "A cross-platform TUI database management tool written in Go"
-    },
-    {
       "name": "urlview",
       "description": "A curses URL parser for text files"
     },
@@ -1239,10 +1227,6 @@
       "description": "Illogical Impulse XDG Desktop Portals"
     },
     {
-      "name": "zoho-mail-desktop",
-      "description": "Lite desktop version of Zoho email client."
-    },
-    {
       "name": "illogical-impulse-bibata-modern-classic-bin",
       "description": "Material Based Cursor Theme, installed for illogical-impulse dotfiles"
     },
@@ -1289,10 +1273,6 @@
     {
       "name": "payload-dumper-go-bin",
       "description": "an android OTA payload dumper written in Go.(Prebuilt version)"
-    },
-    {
-      "name": "wallust",
-      "description": "generate colors from an image"
     }
   ]
 }
