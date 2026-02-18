@@ -10,6 +10,8 @@ export PATH=/bin:"${PATH}"
 export PATH=/sbin:"${PATH}"
 
 
+export GOG_ACCOUNT=bat1batttt4@gmail.com
+
 
 #**************   CUSTOM PATHS   *********************
 

@@ -96,6 +96,7 @@ export SUDO_EDITOR="$EDITOR"
 export DOCKER_HUB_USERNAME=bharathyadav1234
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export DOTFILES_DIR="$HOME/.dotfiles"
+eval "$(direnv hook zsh)"
 
 
 # 🅻🅾🅰🅳🅴🆁🆂 - Concatenate dotfiles into a single cache

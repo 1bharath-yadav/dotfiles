@@ -721,10 +721,6 @@
       "description": "Pack, ship and run any application as a lightweight container"
     },
     {
-      "name": "paraview",
-      "description": "Parallel Visualization application using VTK"
-    },
-    {
       "name": "ttf-firacode-nerd",
       "description": "Patched font Fira (Fura) Code from nerd fonts library"
     },
@@ -927,6 +923,10 @@
     {
       "name": "sox",
       "description": "The Swiss Army knife of sound processing tools"
+    },
+    {
+      "name": "bitwarden-cli",
+      "description": "The command line vault"
     },
     {
       "name": "python-ipykernel",
