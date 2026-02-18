@@ -1,0 +1,28 @@
+# By default, theme management is done using a plugin ( yatline.yazi )
+# https://github.com/imsi32/yatline.yazi/wiki
+# https://github.com/yazi-rs/flavors
+
+#[flavor]
+#dark = "catppuccin-macchiato"
+#light = "catppuccin-latte"
+
+#[flavor]
+#dark = "catppuccin-frappe"
+
+#[flavor]
+#dark = "catppuccin-mocha"
+
+#[flavor]
+#light = "catppuccin-latte"
+
+#[flavor]
+#use = "tokyonight"
+
+#[flavor]
+#use = "onedark"
+
+#[flavor]
+#dark = "dracula"
+
+#[flavor]
+#dark = "rose-pine"

@@ -5,12 +5,28 @@ echo "[*] Switching to DEFAULT mode: RAM ONLY (no swap, no zram)..."
 
 # 1. Turn off ALL swap: zram + swapfile + anything else
 sudo swapoff -a || true
-# sudo swapoff -v /swapfile
-sudo rm /swapfile
+# ensure swapfile is turned off and removed
+if [ -f /swapfile ]; then
+  # make a safe backup (if present) and remove the file
+  sudo cp /swapfile /swapfile.default-mode.bak 2>/dev/null || true
+  sudo rm -f /swapfile
+fi
+
+# If /etc/fstab contains a /swapfile entry, comment it out so it won't be recreated on boot
+if sudo grep -q "/swapfile" /etc/fstab 2>/dev/null; then
+  sudo cp /etc/fstab /etc/fstab.default-mode.bak
+  sudo sed -i.bak 's|^\(/swapfile\)|#\1|' /etc/fstab || true
+fi
 
 
 # 2. Stop zram setup service if it exists
 sudo systemctl stop systemd-zram-setup@zram0.service 2>/dev/null || true
+# Disable and mask the zram setup unit so it does not start on reboot
+sudo systemctl disable systemd-zram-setup@zram0.service 2>/dev/null || true
+sudo systemctl mask systemd-zram-setup@zram0.service 2>/dev/null || true
+
+# Reload systemd to apply disable/mask
+sudo systemctl daemon-reload
 
 # 3. Reset zram device if it exists
 if [ -e /dev/zram0 ]; then
@@ -21,4 +37,3 @@ fi
 sudo rm -f /etc/systemd/zram-generator.conf
 
 echo "[✓] Default mode applied: RAM-only. No zram, no swap."
-

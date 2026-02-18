@@ -125,6 +125,10 @@
       "description": "A script to run docker-compose.yml using podman"
     },
     {
+      "name": "ripgrep",
+      "description": "A search tool that combines the usability of ag with the raw speed of grep"
+    },
+    {
       "name": "bitwarden",
       "description": "A secure and free password manager for all of your devices"
     },
@@ -151,10 +155,6 @@
     {
       "name": "xampp",
       "description": "A stand-alone LAMPP distribution"
-    },
-    {
-      "name": "uwsm",
-      "description": "A standalone Wayland session manager"
     },
     {
       "name": "pacseek",
@@ -297,6 +297,14 @@
       "description": "Command line trashcan (recycle bin) interface"
     },
     {
+      "name": "ueberzugpp",
+      "description": "Command line utility which allows to display images in the terminal, written in C++"
+    },
+    {
+      "name": "jq",
+      "description": "Command-line JSON processor"
+    },
+    {
       "name": "cloudflared",
       "description": "Command-line client for Cloudflare Tunnel"
     },
@@ -323,6 +331,10 @@
     {
       "name": "ccache",
       "description": "Compiler cache that speeds up recompilation by caching previous compilations"
+    },
+    {
+      "name": "ffmpeg",
+      "description": "Complete solution to record, convert and stream audio and video"
     },
     {
       "name": "plasma-browser-integration",
@@ -419,6 +431,10 @@
     {
       "name": "7zip",
       "description": "File archiver for extremely high compression"
+    },
+    {
+      "name": "file",
+      "description": "File type identification utility"
     },
     {
       "name": "linux-firmware-intel",
@@ -715,6 +731,10 @@
     {
       "name": "nwg-displays",
       "description": "Output management utility for sway and Hyprland Wayland compositors"
+    },
+    {
+      "name": "poppler",
+      "description": "PDF rendering library based on xpdf 3.0"
     },
     {
       "name": "docker",

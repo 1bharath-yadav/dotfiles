@@ -20,7 +20,6 @@ eval "$(intelli-shell init zsh)"
 export ZSH="$HOME/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 source <(fzf --zsh)
-source ~/.env
 
 #Yazi Config
 function y() {
@@ -143,3 +142,7 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 
 # OpenClaw Completion
 source "/home/archer/.openclaw/completions/openclaw.zsh"
+
+# GPG Secrets Manager
+export PATH="$HOME/.local/bin:$PATH"
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
