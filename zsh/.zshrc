@@ -30,7 +30,7 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-
+source ~/.env
 
 
 #keybindings
@@ -142,6 +142,28 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 
 # OpenClaw Completion
 source "/home/archer/.openclaw/completions/openclaw.zsh"
+
+# GPG Secrets Manager
+export PATH="$HOME/.local/bin:$PATH"
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+
+# GPG Secrets Manager
+export PATH="$HOME/.local/bin:$PATH"
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+
+# GPG Secrets Manager
+export PATH="$HOME/.local/bin:$PATH"
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+
+# GPG Secrets Manager
+export PATH="$HOME/.local/bin:$PATH"
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+
+# GPG Secrets Manager
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+
+# GPG Secrets Manager
+[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
 
 # GPG Secrets Manager
 export PATH="$HOME/.local/bin:$PATH"

@@ -365,10 +365,6 @@
       "description": "Create, run and share large language models (LLMs)"
     },
     {
-      "name": "ollama-vulkan",
-      "description": "Create, run and share large language models (LLMs) with Vulkan"
-    },
-    {
       "name": "python-wxpython",
       "description": "Cross-platform GUI toolkit"
     },
