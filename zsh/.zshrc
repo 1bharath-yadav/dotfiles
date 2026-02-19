@@ -147,24 +147,10 @@ source "/home/archer/.openclaw/completions/openclaw.zsh"
 export PATH="$HOME/.local/bin:$PATH"
 [[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
 
-# GPG Secrets Manager
-export PATH="$HOME/.local/bin:$PATH"
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
 
-# GPG Secrets Manager
-export PATH="$HOME/.local/bin:$PATH"
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
 
-# GPG Secrets Manager
-export PATH="$HOME/.local/bin:$PATH"
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+# Sarthak AI terminal capture hook
+source ~/projects/sarthak/scripts/zsh_hook.sh
 
-# GPG Secrets Manager
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
-
-# GPG Secrets Manager
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
-
-# GPG Secrets Manager
-export PATH="$HOME/.local/bin:$PATH"
-[[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
+# Sarthak AI hook
+source /home/archer/.sarthak_ai/scripts/zsh_hook.sh
