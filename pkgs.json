@@ -1033,6 +1033,10 @@
       "description": "Virtual filesystem implementation for GIO - Microsoft OneDrive backend"
     },
     {
+      "name": "chaotic-aur/visual-studio-code-bin",
+      "description": "Visual Studio Code (vscode)"
+    },
+    {
       "name": "visual-studio-code-bin",
       "description": "Visual Studio Code (vscode): Editor for building and debugging modern web and cloud applications (official binary version)"
     },
@@ -1109,6 +1113,10 @@
     {
       "name": "vesktop-bin",
       "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
+    },
+    {
+      "name": "lazysql-bin",
+      "description": "A cross-platform TUI database management tool written in Go"
     },
     {
       "name": "urlview",
