@@ -557,10 +557,6 @@
       "description": "Image-to-text converter supporting a wide range of symbols and palettes, transparency, animations, etc."
     },
     {
-      "name": "openvino-intel-gpu-plugin",
-      "description": "Intel GPU plugin for OpenVINO"
-    },
-    {
       "name": "intel-media-driver",
       "description": "Intel Media Driver for VAAPI — Broadwell+ iGPUs"
     },

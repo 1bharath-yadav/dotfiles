@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# whisper-hold: record while SUPER+H held, transcribe with whisper-cli, paste result.
+# Usage: whisper-hold start | stop
+
+PIDFILE="/tmp/whisper-hold.pid"
+WAVFILE="/tmp/whisper-hold.wav"
+MODEL="$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin"
+
+notify() { notify-send -t 2000 -i audio-input-microphone "Whisper" "$1"; }
+
+cmd_start() {
+  # Kill any stale recording
+  [[ -f "$PIDFILE" ]] && kill "$(cat "$PIDFILE")" 2>/dev/null
+
+  # Use ffmpeg to record from default PipeWire/PulseAudio mic
+  ffmpeg -y -f pulse -i default "$WAVFILE" &>/tmp/whisper-hold-ffmpeg.log &
+  echo $! > "$PIDFILE"
+}
+
+cmd_stop() {
+  [[ ! -f "$PIDFILE" ]] && exit 0
+
+  # Stop recording gracefully
+  kill "$(cat "$PIDFILE")" 2>/dev/null
+  rm -f "$PIDFILE"
+  sleep 0.3  # let ffmpeg flush
+
+
+  text=$(whisper-cli \
+    -m "$MODEL" \
+    -f "$WAVFILE" \
+    -nt -np \
+    --beam-size 1 \
+    --ov-e-device GPU \
+    2>/dev/null \
+    | sed 's/^[[:space:]]*//' | tr -d '\n')
+
+  if [[ -z "$text" ]]; then
+    notify "⚠ No speech detected"
+    exit 0
+  fi
+
+  # Type the text at cursor using wtype (Wayland), fallback to wl-copy
+  if command -v wtype &>/dev/null; then
+    wtype "$text"
+  else
+    printf '%s' "$text" | wl-copy
+  fi
+}
+
+case "$1" in
+  start) cmd_start ;;
+  stop)  cmd_stop  ;;
+  *) echo "Usage: whisper-hold start|stop" >&2; exit 1 ;;
+esac
