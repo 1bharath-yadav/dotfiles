@@ -365,6 +365,10 @@
       "description": "Create, run and share large language models (LLMs)"
     },
     {
+      "name": "ollama-vulkan",
+      "description": "Create, run and share large language models (LLMs) with Vulkan"
+    },
+    {
       "name": "python-wxpython",
       "description": "Cross-platform GUI toolkit"
     },
@@ -1049,6 +1053,10 @@
       "description": "Web content engine for GTK"
     },
     {
+      "name": "zapzap",
+      "description": "WhatsApp desktop application written in Pyqt6 + PyQt6-WebEngine"
+    },
+    {
       "name": "yay",
       "description": "Yet another yogurt. Pacman wrapper and AUR helper written in go."
     },
@@ -1105,10 +1113,6 @@
     {
       "name": "jqp-bin",
       "description": "A TUI playground to experiment with jq"
-    },
-    {
-      "name": "vesktop-bin",
-      "description": "A cross platform electron-based desktop app aiming to give you a snappier Discord experience with Vencord pre-installed.(Prebuilt version.Use system-wide electron)"
     },
     {
       "name": "lazysql-bin",
