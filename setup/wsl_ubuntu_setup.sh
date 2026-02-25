@@ -25,32 +25,14 @@ install_apt_pkgs() {
   log "Updating apt metadata"
   sudo apt-get update -y
 
-  # Curated CLI/core set derived from pkgs.json (no GUI / Hyprland).
-  # Some package names differ between Arch and Ubuntu; mappings are handled below.
-  local wanted_from_pkgs_json=(
-    git
-    zsh
-    stow
-    neovim
-    tmux
-    fzf
-    ripgrep
-    fd
-    bat
-    jq
-    direnv
-    zoxide
-    tree
-    htop
-    btop
-    man-db
-    python-pip
-    gcc
-    make
-    zip
-    unzip
-    file
-  )
+  # Ensure jq exists for reading pkgs.json.
+  if ! command -v jq >/dev/null 2>&1; then
+    log "Installing jq for pkgs.json parsing"
+    sudo apt-get install -y jq
+  fi
+
+  # Load common + ubuntu.apt packages from pkgs.json.
+  mapfile -t wanted_from_pkgs_json < <(jq -r '.common[].name, .ubuntu.apt[].name' "$PKGS_JSON")
 
   # Map Arch names to Ubuntu package names when they differ.
   declare -A map=(
@@ -93,15 +75,10 @@ install_npm_globals() {
   mkdir -p "$npm_prefix"
   npm config set prefix "$npm_prefix"
 
-  npm install -g \
-    @bitwarden/cli \
-    @marp-team/marp-cli \
-    @openai/codex \
-    htmlhint \
-    openclaw \
-    promptfoo \
-    reveal.js \
-    vercel
+  mapfile -t NPM_PKGS < <(jq -r '.npm[].name' "$PKGS_JSON")
+  if [[ "${#NPM_PKGS[@]}" -gt 0 ]]; then
+    npm install -g "${NPM_PKGS[@]}"
+  fi
 }
 
 main() {

@@ -35,13 +35,34 @@ install_pacman_base() {
     zsh
 }
 
+dedupe_keep_order() {
+  local -A seen=()
+  local item
+  for item in "$@"; do
+    if [[ -z "${seen[$item]:-}" ]]; then
+      printf '%s\0' "$item"
+      seen[$item]=1
+    fi
+  done
+}
+
 install_pacman_pkgs() {
   require_cmd jq
 
   log "Installing Arch official packages from pkgs.json"
-  mapfile -t OFFICIAL_PKGS < <(jq -r '.official[].name' "$PKGS_JSON")
+  mapfile -t OFFICIAL_PKGS < <(jq -r '.common[].name, .arch.official[].name' "$PKGS_JSON")
+  mapfile -t AUR_PKGS < <(jq -r '.arch.aur[].name' "$PKGS_JSON")
+
+  local filtered=()
+  local pkg
+  for pkg in "${OFFICIAL_PKGS[@]}"; do
+    if ! printf '%s\n' "${AUR_PKGS[@]}" | grep -qx "$pkg"; then
+      filtered+=("$pkg")
+    fi
+  done
+
   if [[ "${#OFFICIAL_PKGS[@]}" -gt 0 ]]; then
-    printf '%s\0' "${OFFICIAL_PKGS[@]}" | xargs -0 -r sudo pacman -S --needed
+    dedupe_keep_order "${filtered[@]}" | xargs -0 -r sudo pacman -S --needed
   fi
 }
 
@@ -62,7 +83,7 @@ install_aur_pkgs() {
   ensure_yay
 
   log "Installing AUR packages from pkgs.json"
-  mapfile -t AUR_PKGS < <(jq -r '.aur[].name' "$PKGS_JSON")
+  mapfile -t AUR_PKGS < <(jq -r '.arch.aur[].name' "$PKGS_JSON")
   if [[ "${#AUR_PKGS[@]}" -gt 0 ]]; then
     printf '%s\0' "${AUR_PKGS[@]}" | xargs -0 -r yay -S --needed
   fi
@@ -80,15 +101,10 @@ install_npm_globals() {
   mkdir -p "$npm_prefix"
   npm config set prefix "$npm_prefix"
 
-  npm install -g \
-    @bitwarden/cli \
-    @marp-team/marp-cli \
-    @openai/codex \
-    htmlhint \
-    openclaw \
-    promptfoo \
-    reveal.js \
-    vercel
+  mapfile -t NPM_PKGS < <(jq -r '.npm[].name' "$PKGS_JSON")
+  if [[ "${#NPM_PKGS[@]}" -gt 0 ]]; then
+    npm install -g "${NPM_PKGS[@]}"
+  fi
 }
 
 main() {
