@@ -8,8 +8,14 @@ launch_obsidian() {
   xdg-open "obsidian://" >/dev/null 2>&1 &
 }
 
-is_running() {
-  hyprctl clients | grep -q "class: ${obsidian_class}$"
+detect_class() {
+  local cls
+  cls="$(hyprctl clients | awk -F'class: ' '/class: /{print $2}' | sed 's/[[:space:]]*$//' | awk 'tolower($0)=="obsidian"{print $0; exit}')"
+  if [[ -n "$cls" ]]; then
+    obsidian_class="$cls"
+    return 0
+  fi
+  return 1
 }
 
 apply_rules() {
@@ -24,14 +30,14 @@ toggle_show() {
   hyprctl dispatch focuswindow "class:${obsidian_class}"
 }
 
-if is_running; then
+if detect_class; then
   apply_rules
   toggle_show
 else
   launch_obsidian
   for _ in {1..20}; do
     sleep 0.15
-    if is_running; then
+    if detect_class; then
       apply_rules
       toggle_show
       break
