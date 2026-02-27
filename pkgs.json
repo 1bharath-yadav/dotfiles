@@ -1405,5 +1405,11 @@
       "name": "vercel",
       "description": "npm global"
     }
+  ],
+  "aur": [
+    {
+      "name": "typora",
+      "description": "A minimal markdown editor and reader."
+    }
   ]
 }
