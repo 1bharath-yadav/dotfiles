@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "domain": "Data Science & AI Engineering",
+  "learner": "Learner",
+  "goal": "Mastery",
+  "started_at": "2026-03-01T10:16:39.710884+00:00",
+  "last_updated": "2026-03-01T10:16:39.711275+00:00",
+  "current_level": "novice",
+  "phases": [
+    {
+      "level": "novice",
+      "concepts": [
+        "Python basics: lists, dicts, functions, comprehensions",
+        "NumPy arrays and vectorized math",
+        "Pandas: DataFrames, groupby, merge",
+        "Matplotlib & Seaborn: visualizing distributions and relationships",
+        "Statistics: mean, variance, standard deviation, distributions",
+        "Probability: events, Bayes theorem, conditional probability"
+      ],
+      "completed": [],
+      "completion_pct": 0
+    },
+    {
+      "level": "beginner",
+      "concepts": [
+        "Linear algebra: vectors, dot product, matrix multiplication",
+        "Calculus: derivatives, chain rule, gradient intuition",
+        "Supervised learning: regression vs classification",
+        "Train/test split, cross-validation, overfitting/underfitting",
+        "scikit-learn: pipelines, fit/transform/predict pattern",
+        "Loss functions: MSE and cross-entropy — derived from first principles"
+      ],
+      "completed": [],
+      "completion_pct": 0
+    },
+    {
+      "level": "intermediate",
+      "concepts": [
+        "Gradient descent: batch, SGD, mini-batch — full derivation",
+        "Regularization: L1/L2 geometry in weight space",
+        "Decision trees and random forests: information gain, Gini impurity",
+        "SVMs: maximum margin, kernel trick",
+        "PCA: derivation via SVD, variance explained",
+        "Neural networks: forward pass + backpropagation in NumPy from scratch",
+        "SQL + DuckDB for analytical queries on large data",
+        "Experiment tracking: MLflow runs, metrics, artifact logging"
+      ],
+      "completed": [],
+      "completion_pct": 0
+    },
+    {
+      "level": "advanced",
+      "concepts": [
+        "CNNs, RNNs, attention mechanism — math to code",
+        "Transformers: self-attention derivation, positional encoding",
+        "Optimization: Adam, AdamW, cosine LR schedules",
+        "MLOps: model serving, versioning, drift detection",
+        "LLMs: fine-tuning, LoRA, RLHF fundamentals",
+        "Bayesian methods: MCMC, variational inference",
+        "Time series: ARIMA, Prophet, neural forecasting",
+        "Feature stores and online/offline serving architecture"
+      ],
+      "completed": [],
+      "completion_pct": 0
+    },
+    {
+      "level": "expert",
+      "concepts": [
+        "Custom CUDA kernels with Triton",
+        "Causal inference: do-calculus, instrumental variables",
+        "Reinforcement learning: policy gradients, PPO derivation",
+        "Research replication: reading and implementing NeurIPS/ICML papers",
+        "Production ML systems: real-time features, shadow deployment, canary"
+      ],
+      "completed": [],
+      "completion_pct": 0
+    }
+  ],
+  "milestones": [],
+  "sessions": [
+    {
+      "session_id": "s0001",
+      "timestamp": "2026-03-01T10:16:39.711195+00:00",
+      "concept": "Python basics: lists, dicts, functions, comprehensions",
+      "xp_earned": 8,
+      "mastered": false,
+      "tools_used": [
+        "anki",
+        "docker",
+        "duckdb",
+        "fastapi",
+        "git"
+      ],
+      "external_tools": [
+        "GitHub"
+      ],
+      "duration_minutes": 30,
+      "level": "novice"
+    }
+  ],
+  "tools_used": {
+    "anki": {
+      "first_used": "2026-03-01T10:16:39.711205+00:00",
+      "sessions_count": 1,
+      "category": "workspace"
+    },
+    "docker": {
+      "first_used": "2026-03-01T10:16:39.711211+00:00",
+      "sessions_count": 1,
+      "category": "workspace"
+    },
+    "duckdb": {
+      "first_used": "2026-03-01T10:16:39.711215+00:00",
+      "sessions_count": 1,
+      "category": "workspace"
+    },
+    "fastapi": {
+      "first_used": "2026-03-01T10:16:39.711219+00:00",
+      "sessions_count": 1,
+      "category": "workspace"
+    },
+    "git": {
+      "first_used": "2026-03-01T10:16:39.711222+00:00",
+      "sessions_count": 1,
+      "category": "workspace"
+    }
+  },
+  "external_tools": [
+    "GitHub"
+  ],
+  "projects": [],
+  "total_xp": 8,
+  "total_sessions": 1,
+  "streak_days": 0
+}
