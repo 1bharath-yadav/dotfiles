@@ -139,8 +139,6 @@ load_dotfiles
 
 
 
-# OpenClaw Completion
-source "/home/archer/.openclaw/completions/openclaw.zsh"
 
 # GPG Secrets Manager
 export PATH="$HOME/.local/bin:$PATH"
