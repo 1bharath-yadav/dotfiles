@@ -1412,5 +1412,10 @@
       "description": "A minimal markdown editor and reader."
     }
   ],
-  "official": []
+  "official": [
+    {
+      "name": "activitywatch-bin",
+      "description": "Track how you spend time on your computer. Simple, extensible, no third parties."
+    }
+  ]
 }
