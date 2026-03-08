@@ -1416,6 +1416,10 @@
     {
       "name": "activitywatch-bin",
       "description": "Track how you spend time on your computer. Simple, extensible, no third parties."
+    },
+    {
+      "name": "distrobox",
+      "description": "Use any linux distribution inside your terminal."
     }
   ]
 }
