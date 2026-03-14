@@ -1418,6 +1418,10 @@
   ],
   "official": [
     {
+      "name": "git-delta",
+      "description": "Syntax-highlighting pager for git and diff output"
+    },
+    {
       "name": "activitywatch-bin",
       "description": "Track how you spend time on your computer. Simple, extensible, no third parties."
     },
