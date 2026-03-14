@@ -1,147 +1,82 @@
-# if [ -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt ]; then
-#     cat ~/.local/state/quickshell/user/generated/terminal/sequences.txt
-# fi
-#
+# ~/.zshrc — shared config for Arch Linux & Ubuntu/WSL
+# Termux uses zsh-termux/.zshrc instead
+# Managed by stow: zsh package
 
-plugins=(
-    git
-    archlinux
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-)
+# ── Oh My Zsh ─────────────────────────────────────────────────────────────
+export ZSH="$HOME/.oh-my-zsh"
+plugins=(git archlinux zsh-autosuggestions zsh-syntax-highlighting)
+source "$ZSH/oh-my-zsh.sh"
 
-
-# If you come from bash you might have to change your $PATH.
+# ── Prompt & tools ─────────────────────────────────────────────────────────
+_has() { command -v "$1" >/dev/null 2>&1; }
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
-eval "$(pay-respects zsh --alias)"
-eval "$(intelli-shell init zsh)"
-export ZSH="$HOME/.oh-my-zsh"
-source $ZSH/oh-my-zsh.sh
+eval "$(direnv hook zsh)"
+_has pay-respects  && eval "$(pay-respects zsh --alias)"
+_has intelli-shell && eval "$(intelli-shell init zsh)"
 source <(fzf --zsh)
 
-#Yazi Config
-function y() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	IFS= read -r -d '' cwd < "$tmp"
-	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-	rm -f -- "$tmp"
+# ── Dotfiles cache loader ──────────────────────────────────────────────────
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+_DOTFILES_CACHE="$HOME/.zsh_dotfiles_cache"
+_CACHE_TTL=86400
+
+_load_dotfiles() {
+  local stale=1
+  if [[ -f "$_DOTFILES_CACHE" ]]; then
+    local ct; ct=$(stat -c %Y "$_DOTFILES_CACHE" 2>/dev/null || stat -f %m "$_DOTFILES_CACHE")
+    (( $(date +%s) - ct < _CACHE_TTL )) && stale=0
+  fi
+  if (( stale )); then
+    { echo "# dotfiles cache — $(date)"
+      for f in "$DOTFILES_DIR"/shell-sources/**/*.sh; do
+        [[ -f "$f" ]] && { echo "# ── $f"; cat "$f"; echo; }
+      done
+    } > "$_DOTFILES_CACHE"
+  fi
+  source "$_DOTFILES_CACHE"
+}
+_load_dotfiles
+
+# ── Yazi cd-on-exit wrapper ────────────────────────────────────────────────
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+  yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [[ -n "$cwd" && "$cwd" != "$PWD" ]] && cd -- "$cwd"
+  rm -f -- "$tmp"
 }
 
-source ~/.env
+# ── Key bindings ───────────────────────────────────────────────────────────
+bindkey '^[f' forward-word
+bindkey '^[b' backward-word
+bindkey '^[d' kill-word
+bindkey '^d'  backward-kill-word
+bindkey '^K'  kill-line
+bindkey '^[u' backward-kill-line
+bindkey '^P'  history-beginning-search-backward
+bindkey '^N'  history-beginning-search-forward
 
-
-#keybindings
-
-bindkey '^[f' forward-word   # Alt+f to move forward by word
-bindkey '^[b' backward-word  # Alt+b to move backward by word
- 
-bindkey '^[d' kill-word        # Alt+d deletes word forward
-bindkey '^d' backward-kill-word # Ctrl+w deletes word backward
-
-bindkey '^K' kill-line             # Ctrl+K kills to end of line
-bindkey '^[u' backward-kill-line   # Alt+u kills to beginning
-bindkey '^L' clear-screen  # Ctrl+L (already default for many)
-bindkey '^P' history-beginning-search-backward
-bindkey '^N' history-beginning-search-forward
-
-sudo-command-line() {
-  LBUFFER="sudo $LBUFFER"
-  zle reset-prompt
-}
+sudo-command-line() { LBUFFER="sudo $LBUFFER"; zle reset-prompt; }
 zle -N sudo-command-line
 bindkey '^[s' sudo-command-line
 
-
-###Aliases
-alias sourcezsh="source ~/.zshrc"
-alias ts="trash"
-alias icat="kitten icat"
-alias f="$(pay-respects zsh)"
-# Set-up icons for files/folders in terminal
-alias ls='eza --icons'
-alias ll='eza -al --icons'
-alias lt='eza -a --tree --level=1 --icons'
-
-alias nvimedit="nvim ~/.dotfiles/nvim/.config/nvim"
-alias fuzzy='fzf --preview="bat {}" | xargs -r nvim'
-# Set-up FZF key bindings (CTRL R for fuzzy history finder)
-alias supercd='cd "$(fzf --preview="if [ -d {}; then ls -la {}; else cat {}; fi" | xargs -r dirname)"'
-alias mail='neomutt'
-
-
-# Download high-quality audio for music
-alias youtube-audio='yt-dlp --extract-audio --audio-format opus --embed-thumbnail'
-# Download compressed audio for speech-to-text
-alias youtube-opus='yt-dlp --extract-audio --audio-format opus --embed-thumbnail --postprocessor-args "-c:a libopus -b:a 12k -ac 1 -application voip -vbr off -ar 8000 -cutoff 4000 -frame_duration 60 -compression_level 10"'
-# Download subtitles
-youtube-subtitles () {
-    curl -s "$(yt-dlp -q --skip-download --convert-subs srt --write-sub --sub-langs "en" --write-auto-sub --print "requested_subtitles.en.url" "$1")"
-}
-
-
+# ── History ────────────────────────────────────────────────────────────────
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-setopt appendhistory
+HISTSIZE=10000; SAVEHIST=10000
+setopt EXTENDED_HISTORY INC_APPEND_HISTORY SHARE_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS
 
-export PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin
-export PATH="$HOME/.npm-global/bin:$PATH"
+# ── Environment ────────────────────────────────────────────────────────────
 export EDITOR=nvim
-export EDITOR="nvim"
-export SUDO_EDITOR="$EDITOR"
-export DOCKER_HUB_USERNAME=bharathyadav1234
-export PATH=$HOME/bin:/usr/local/bin:$PATH
+export SUDO_EDITOR=nvim
+export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
 export DOTFILES_DIR="$HOME/.dotfiles"
-eval "$(direnv hook zsh)"
 
-
-# 🅻🅾🅰🅳🅴🆁🆂 - Concatenate dotfiles into a single cache
-_DOTFILES_CACHE="${HOME}/.zsh_dotfiles_cache"
-_DOTFILES_CACHE_TIME=86400  # 24 hours in seconds
-DOTFILES_DIR="${HOME}/.dotfiles"
-load_dotfiles() {
-  local load_from_cache=0
-
-  # Check if cache exists and is recent
-  if [[ -f "${_DOTFILES_CACHE}" ]]; then
-    local cache_time=$(stat -c %Y "${_DOTFILES_CACHE}" 2>/dev/null || stat -f %m "${_DOTFILES_CACHE}" 2>/dev/null)
-    local current_time=$(date +%s)
-    if (( current_time - cache_time < _DOTFILES_CACHE_TIME )); then
-      load_from_cache=1
-    fi
-  fi
-
-  if (( load_from_cache )); then
-    source "${_DOTFILES_CACHE}"
-  else
-    # Generate new cache: concatenate everything into one big file
-    {
-      echo "# Auto-generated dotfiles cache - $(date)"
-      for loader in "${DOTFILES_DIR}"/shell-sources/**/*.sh; do
-        if [[ -f "$loader" ]]; then
-          echo "# Source: $loader"
-          cat "$loader"
-          echo ""   # ensure newline between files
-        fi
-      done
-    } > "${_DOTFILES_CACHE}"
-
-    source "${_DOTFILES_CACHE}"
-  fi
-}
-
-
-load_dotfiles
-
-
-
-
-
-# GPG Secrets Manager
-export PATH="$HOME/.local/bin:$PATH"
+# GPG / secrets
 [[ -f "$HOME/.secrets/config" ]] && source "$HOME/.secrets/config"
 
-
+# Load .env only if it exists (personal env vars)
+[[ -f "$HOME/.env" ]] && source "$HOME/.env"

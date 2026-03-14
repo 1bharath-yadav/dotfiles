@@ -1,40 +1,27 @@
 #!/usr/bin/env zsh
+# update.sh — restow all packages for current OS, pull end4dots
 set -eo pipefail
 
-DOTFILES=~/.dotfiles
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 END4DOTS=~/linux/dots-hyprland
 LOG="$DOTFILES/update.log"
 
-log() { echo "\e[32m==>\e[0m $1"; }
+source "$DOTFILES/setup/lib.sh"
 
-# Stow package, auto-removing conflicts
-stow.it() {
-  local pkg="$1"
-  local conflicts=$(stow -nv "$pkg" 2>&1 | grep -oP '(?<=existing target is neither a link nor a directory: ).*')
-  [[ -n "$conflicts" ]] && echo "$conflicts" | xargs -I{} rm -rf ~/{} 
-  stow "$pkg"
-}
+log "Detecting OS"
+OS=$(detect_os)
+log "OS: $OS"
 
-# Restow package (unlink then relink), auto-removing conflicts
-restow() {
-  local pkg="$1"
-  stow -D "$pkg" 2>/dev/null || true
-  stow.it "$pkg"
-}
+# Pull end4dots only on Arch (has Hyprland)
+if [[ "$OS" == arch ]] && [[ -d "$END4DOTS" ]]; then
+  log "Updating end4dots"
+  git -C "$END4DOTS" stash -q && git -C "$END4DOTS" pull -q && \
+    "$END4DOTS/setup" install
+fi
 
-cd "$DOTFILES"
+log "Restowing for $OS"
+source "$DOTFILES/stow/${OS}.sh"
+install_yazi_pkgs
 
-log "Updating end4dots..."
-cd "$END4DOTS" && git stash -q && git pull -q && ./setup install
-
-log "Restowing packages..."
-cd "$DOTFILES"
-for pkg in */; do
-  [[ "$pkg" == "shell-sources/" ]] && continue
-  restow "${pkg%/}"
-done
-
-echo "[$(date '+%F %T')] updated" >> "$LOG"
-log "Done!"
-
-
+echo "[$(date '+%F %T')] updated ($OS)" >> "$LOG"
+log "Done"

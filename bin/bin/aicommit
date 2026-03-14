@@ -16,6 +16,7 @@ DRY_RUN=false
 REPO_PATH="."
 MAX_DIFF_CHARS=12000
 ADD_ALL=true
+CODEX_APPROVAL="${AICOMMIT_CODEX_APPROVAL:-untrusted}"
 
 # ── arg parsing ──────────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -30,6 +31,7 @@ while [[ $# -gt 0 ]]; do
       echo "  -m        Model override (provider-specific)"
       echo "  --dry-run Print commit message without committing"
       echo "  --no-add  Skip 'git add -A' (use only what's already staged)"
+      echo "  env       AICOMMIT_CODEX_APPROVAL=untrusted|on-request|never|on-failure"
       exit 0 ;;
     -*) echo "Unknown option: $1" >&2; exit 1 ;;
     *)  REPO_PATH="$1"; shift ;;
@@ -106,16 +108,13 @@ case "$PROVIDER" in
     # gemini prepends "Loading extension..." to stderr; stdout is clean
     ;;
   codex)
-    # Use --json (JSONL) and extract the agent_message text — avoids duplicate output
-    # that occurs when both -o and stdout emit the same message.
     echo "$PROMPT" | codex exec \
       --skip-git-repo-check \
       -m "$MODEL" \
-      --full-auto \
-      --json \
-      - 2>/dev/null \
-    | jq -r 'select(.type=="item.completed" and .item.type=="agent_message") | .item.text' \
-    > "$TMPFILE"
+      --ask-for-approval "$CODEX_APPROVAL" \
+      --sandbox workspace-write \
+      -o "$TMPFILE" \
+      -
     ;;
   ollama)
     echo "$PROMPT" | ollama run "$MODEL" > "$TMPFILE" 2>/dev/null

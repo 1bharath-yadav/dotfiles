@@ -1421,5 +1421,26 @@
       "name": "distrobox",
       "description": "Use any linux distribution inside your terminal."
     }
+  ],
+  "termux": [
+    { "name": "zsh",       "description": "Z shell" },
+    { "name": "git",       "description": "Version control" },
+    { "name": "curl",      "description": "Data transfer tool" },
+    { "name": "wget",      "description": "File downloader" },
+    { "name": "stow",      "description": "Symlink farm manager" },
+    { "name": "neovim",    "description": "Hyperextensible vim-based editor" },
+    { "name": "tmux",      "description": "Terminal multiplexer" },
+    { "name": "fzf",       "description": "Fuzzy finder" },
+    { "name": "bat",       "description": "Cat with syntax highlighting" },
+    { "name": "eza",       "description": "Modern ls replacement" },
+    { "name": "fd",        "description": "Fast find alternative" },
+    { "name": "ripgrep",   "description": "Fast grep alternative" },
+    { "name": "jq",        "description": "JSON processor" },
+    { "name": "zoxide",    "description": "Smarter cd" },
+    { "name": "starship",  "description": "Cross-shell prompt" },
+    { "name": "python",    "description": "Python interpreter" },
+    { "name": "nodejs",    "description": "Node.js runtime" },
+    { "name": "openssh",   "description": "SSH client/server" },
+    { "name": "yazi",      "description": "Terminal file manager" }
   ]
 }

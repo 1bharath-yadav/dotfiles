@@ -53,10 +53,10 @@ alias edit_git_ignore='${EDITOR} $HOME/.gitignore'
 # ------------------------------------------------------------------------------
 
 # Open hosts file in default text editor
-; alias edit_hosts='${EDITOR} /etc/hosts'
+alias edit_hosts='${EDITOR} /etc/hosts'
 
 # Open Nginx configuration file in default text editor
-; alias edit_nginx_config='${EDITOR} /etc/nginx/nginx.conf'
+alias edit_nginx_config='${EDITOR} /etc/nginx/nginx.conf'
 
 # Open SSH configuration file in default text editor
 alias edit_ssh_config='${EDITOR} $HOME/.ssh/config'
