@@ -131,7 +131,6 @@ format             = "[$symbol$percentage]($style) "
 
 [[battery.display]]
 threshold          = 20
-charging_threshold = 100   # never show when charging (only discharging < 20%)
 style              = "bold red"
 
 # ── Status (exit code) ───────────────────────────────────────────────────────

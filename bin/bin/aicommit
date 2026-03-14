@@ -72,5 +72,5 @@ _run_provider() {
 # ── Run + clean output ────────────────────────────────────────────────────
 _run_provider \
   | sed '/^```/d; /^---/d; s/^[[:space:]]*//' \
-  | sed '/^$/{ N; /^\n$/d }' \   # collapse multiple blank lines
-  | head -n 20                    # safety cap: no runaway output
+  | sed '/^$/{ N; /^\n$/d }' \
+  | head -n 20

@@ -155,6 +155,7 @@ rm ~/.zsh_dotfiles_cache
 - Providers: `copilot | gemini | codex | ollama` (default: copilot)
 - Env: `OLLAMA_COMMIT_MODEL` overrides model (default: `granite3.3:latest`)
 - Guards: fails cleanly if not in git repo or nothing staged
+- Output cleanup pipeline is `bash -n` clean; avoid inline comments on continued pipeline lines
 
 ### lazygit config shape
 
