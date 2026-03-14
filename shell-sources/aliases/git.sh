@@ -531,4 +531,6 @@ if command -v git &>/dev/null; then
 
   # Undo the last push.
   alias undopush="git push -f origin HEAD^:master"
+
+  alias lg="lazygit"
 fi

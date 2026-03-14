@@ -5,7 +5,7 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$DOTFILES/setup/lib.sh"
 
-PACKAGES=(bin hypr kitty nvim starship tmux yazi zsh)
+PACKAGES=(bin git hypr kitty lazygit nvim starship tmux yazi zsh)
 
 log "Stowing Arch packages"
 for pkg in "${PACKAGES[@]}"; do

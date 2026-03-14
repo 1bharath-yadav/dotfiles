@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jesseduffield/lazygit/master/schema/config.json
+# ~/.config/lazygit/config.yml — managed by stow: lazygit package
+
+gui:
+  nerdFontsVersion: "3"
+  showFileTree: true
+  showNumstatInFilesView: true
+  showRandomTip: false
+  mouseEvents: true
+  sidePanelWidth: 0.25
+  expandFocusedSidePanel: true
+  mainPanelSplitMode: flexible
+  timeFormat: "02 Jan 06 15:04"
+  shortTimeFormat: "15:04"
+  commitLength:
+    show: true
+  theme:  # one dark — mirrors kitty.conf palette
+    activeBorderColor: ['#61afef']        # blue — subtle active border
+    inactiveBorderColor: ['#393e48']      # surface — near-invisible
+    optionsTextColor: ['#61afef']
+    selectedLineBgColor: ['#2c313a']      # lifted surface, no contrast shock
+    selectedRangeBgColor: ['#2c313a']
+    cherryPickedCommitBgColor: ['#393e48']
+    cherryPickedCommitFgColor: ['#61afef']
+    unstagedChangesColor: ['#e06c75']     # kitty color1
+    defaultFgColor: ['#979eab']           # kitty foreground
+    searchingActiveBorderColor: ['#e5c07b'] # kitty color3
+
+git:
+  # --paging=never: prevents delta spawning less inside lazygit ("terminal not fully functional")
+  # --syntax-theme=ansi: uses terminal's own colours, no conflict with One Dark
+  # all bg colours match kitty surface shades
+  pagers:
+    - pager: "delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format='lazygit-edit://{path}:{line}' --syntax-theme=ansi --minus-style='syntax #3a2020' --minus-emph-style='syntax #6b2020' --plus-style='syntax #1e3a1e' --plus-emph-style='syntax #1e5c1e' --line-numbers-minus-style='#e06c75' --line-numbers-plus-style='#98c379' --line-numbers-zero-style='#393e48' --hunk-header-style='syntax #2c313a' --hunk-header-decoration-style='#393e48 box'"
+      colorArg: always
+  commit:
+    autoWrapCommitMessage: true
+    autoWrapWidth: 72
+  log:
+    order: "topo-order"
+    showGraph: "when-maximised"
+  autoFetch: true
+  autoRefresh: true
+  fetchAll: true
+  parseEmoji: true
+  diffContextSize: 5
+  branchLogCmd: "git log --graph --color=always --abbrev-commit --decorate --date=relative --format='%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' {{branchName}} --"
+  allBranchesLogCmds:
+    - "git log --graph --all --color=always --abbrev-commit --decorate --date=relative --format='%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
+
+os:
+  editPreset: "nvim-remote"
+  shellFunctionsFile: "~/.dotfiles/shell-sources/aliases/git.sh"
+
+# ── Custom Commands ────────────────────────────────────────────────────────
+# AI commits (files panel):
+#   <c-a> copilot  <c-g> gemini  <c-x> codex  <c-l> ollama
+#   <c-A> fzf provider picker → edit in $EDITOR before commit
+# Extras: O=open on GitHub  Y=yank SHA  I=interactive rebase N commits
+
+customCommands:
+  - key: "<c-a>"
+    context: "files"
+    description: "AI commit (copilot)"
+    loadingText: "Generating with Copilot..."
+    command: 'MSG=$(aicommit copilot) && git commit -m "$MSG"'
+    output: terminal
+
+  - key: "<c-g>"
+    context: "files"
+    description: "AI commit (gemini)"
+    loadingText: "Generating with Gemini..."
+    command: 'MSG=$(aicommit gemini) && git commit -m "$MSG"'
+    output: terminal
+
+  - key: "<c-x>"
+    context: "files"
+    description: "AI commit (codex)"
+    loadingText: "Generating with Codex..."
+    command: 'MSG=$(aicommit codex) && git commit -m "$MSG"'
+    output: terminal
+
+  - key: "<c-l>"
+    context: "files"
+    description: "AI commit (ollama)"
+    loadingText: "Running local model..."
+    command: 'MSG=$(aicommit ollama) && git commit -m "$MSG"'
+    output: terminal
+
+  - key: "<c-A>"
+    context: "files"
+    description: "AI commit (pick provider + edit)"
+    loadingText: "Loading providers..."
+    command: >-
+      PROVIDER=$(printf 'copilot\ngemini\ncodex\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) &&
+      TMP=$(mktemp /tmp/lgcommit.XXXXXX) &&
+      aicommit "$PROVIDER" > "$TMP" &&
+      ${EDITOR:-nvim} "$TMP" &&
+      MSG=$(cat "$TMP"); rm -f "$TMP"; [ -n "$MSG" ] && git commit -m "$MSG"
+    output: terminal
+
+  - key: "O"
+    context: "files"
+    description: "Open file on GitHub"
+    command: >-
+      xdg-open "$(git remote get-url origin | sed 's|git@github.com:|https://github.com/|;s|\.git$||')/blob/$(git branch --show-current)/{{selectedFile}}"
+    output: none
+
+  - key: "Y"
+    context: "commits"
+    description: "Yank commit SHA to clipboard"
+    command: "git rev-parse {{selectedCommit}} | tr -d '\n' | wl-copy"
+    output: none
+
+  - key: "I"
+    context: "commits"
+    description: "Interactive rebase last N commits"
+    command: >-
+      N=$(seq 2 20 | fzf --prompt='Rebase last N: ' --height=8) &&
+      git rebase -i HEAD~"$N"
+    output: terminal

@@ -65,9 +65,14 @@ bindkey '^[s' sudo-command-line
 
 # ── History ────────────────────────────────────────────────────────────────
 HISTFILE=~/.zsh_history
-HISTSIZE=10000; SAVEHIST=10000
-setopt EXTENDED_HISTORY INC_APPEND_HISTORY SHARE_HISTORY
-setopt HIST_EXPIRE_DUPS_FIRST HIST_IGNORE_DUPS HIST_IGNORE_ALL_DUPS
+HISTSIZE=1000
+SAVEHIST=1000
+
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_EXPIRE_DUPS_FIRST
 
 # ── Environment ────────────────────────────────────────────────────────────
 export EDITOR=nvim

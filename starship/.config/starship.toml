@@ -1,0 +1,119 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = true
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$status
+$character
+"""
+
+right_format = """
+$python\
+$nodejs\
+$rust\
+$golang\
+$docker_context\
+$kubernetes\
+$memory_usage\
+$time\
+$cmd_duration
+
+"""
+
+continuation_prompt = "▶▶ "
+
+# ---------------------------
+# Directory
+# ---------------------------
+[directory]
+style = "bold cyan"
+truncate_to_repo = true
+truncation_length = 4
+home_symbol = "~"
+
+# ---------------------------
+# Git
+# ---------------------------
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[git_status]
+style = "yellow"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+
+# ---------------------------
+# Command duration
+# ---------------------------
+[cmd_duration]
+disabled = false
+min_time = 0
+format = "[$duration]($style)"
+style = "yellow"
+show_milliseconds = true
+
+
+# ---------------------------
+# Status
+# ---------------------------
+[status]
+disabled = false
+format = "[✗ $status]($style)"
+style = "red"
+
+# ---------------------------
+# Languages
+# ---------------------------
+[python]
+symbol = "🐍 "
+style = "bright-yellow"
+format = "[$symbol$version]($style)"
+
+[nodejs]
+symbol = "⬢ "
+style = "bright-green"
+
+[rust]
+symbol = "🦀 "
+style = "red"
+
+[golang]
+symbol = " "
+style = "cyan"
+
+# ---------------------------
+# DevOps
+# ---------------------------
+[docker_context]
+symbol = "🐳 "
+
+[kubernetes]
+symbol = "☸ "
+
+# ---------------------------
+# System
+# ---------------------------
+[memory_usage]
+disabled = false
+threshold = 70
+
+[time]
+disabled = true
+time_format = "%R"
+format = "[$time]($style)"
+
+# ---------------------------
+# Disable unnecessary modules
+# ---------------------------
+[gcloud]
+disabled = true
+
+[aws]
+disabled = true
+
+[azure]
+disabled = true

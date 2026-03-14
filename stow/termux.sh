@@ -7,7 +7,7 @@ source "$DOTFILES/setup/lib.sh"
 
 # zsh-termux overrides/extends shared zsh config with termux-specific settings
 # termux package stows ~/.termux/ (colors, font, properties)
-PACKAGES=(bin nvim starship tmux zsh-termux termux)
+PACKAGES=(bin git nvim starship tmux zsh-termux termux)
 
 log "Stowing Termux packages"
 for pkg in "${PACKAGES[@]}"; do

@@ -143,6 +143,24 @@ rm ~/.zsh_dotfiles_cache
 # 3. Run ./update.sh
 ```
 
-# Main updates : # full replace after every update:
+## Current State
 
-- 2026-03-14: `bin/aicommit` (codex provider) now asks for explicit user confirmation before invoking `codex exec`; codex output capture uses `-o` file output and no longer hides codex errors with `2>/dev/null`.
+### Packages / Stow
+
+- `git` stow package → `git/.gitconfig` (all OSes including termux)
+- `lazygit` stow package → `lazygit/.config/lazygit/config.yml` (arch + ubuntu; termux excluded)
+
+### bin/aicommit
+
+- Providers: `copilot | gemini | codex | ollama` (default: copilot)
+- Env: `OLLAMA_COMMIT_MODEL` overrides model (default: `granite3.3:latest`)
+- Guards: fails cleanly if not in git repo or nothing staged
+
+### lazygit config shape
+
+- `git.pagers` array (not `git.paging`) — current API
+- delta: `--paging=never` required (prevents "terminal not fully functional") + `--hyperlinks` (click line→nvim)
+- `os.shellFunctionsFile`: `~/.dotfiles/shell-sources/aliases/git.sh` — git aliases in `:` prompt
+- No keybinding overrides; `output: terminal` on all customCommands
+- customCommands: `<c-a>` copilot · `<c-g>` gemini · `<c-x>` codex · `<c-l>` ollama · `<c-A>` fzf picker+nvim
+- Extras: `O` open on GitHub · `Y` yank SHA · `I` rebase last N via fzf

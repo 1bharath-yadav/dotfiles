@@ -5,7 +5,7 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$DOTFILES/setup/lib.sh"
 
-PACKAGES=(bin nvim starship tmux yazi zsh)
+PACKAGES=(bin git lazygit nvim starship tmux yazi zsh)
 
 log "Stowing Ubuntu/WSL packages"
 for pkg in "${PACKAGES[@]}"; do

@@ -1,139 +1,76 @@
-
 #!/usr/bin/env bash
-# ai-commit — AI-powered conventional commit messages
-# Usage:
-#   ai-commit                    # auto-detect provider
-#   ai-commit --dry-run          # preview, skip commit
-#   ai-commit -p copilot         # pin provider: copilot|codex|gemini|ollama
-#   ai-commit /path/to/repo      # target repo
-set -eu
+# aicommit — generate a Conventional Commit message via AI provider
+# Usage: aicommit [provider]
+#   providers: copilot | gemini | codex | ollama  (default: copilot)
+# Used by lazygit customCommands; lazygit handles approval/editing.
+set -euo pipefail
 
-R=$'\e[0;31m' G=$'\e[0;32m' Y=$'\e[0;33m' C=$'\e[0;36m' W=$'\e[1;37m' D=$'\e[2m' Z=$'\e[0m'
-die()  { printf "${R}✗ %s${Z}\n" "$*" >&2; exit 1; }
-ok()   { printf "  ${G}✔${Z}  %s\n" "$*"; }
-warn() { printf "  ${Y}⚠${Z}  %s\n" "$*"; }
+MAX_DIFF=300
+PROVIDER="${1:-copilot}"
 
-# --- defaults ---
-REPO_PATH="." DRY_RUN=false PROVIDER="" MAX_DIFF=300
-TMP=$(mktemp); trap 'rm -f "$TMP"' EXIT
+# ── Guard: must be in a git repo with staged changes ──────────────────────
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "ERROR: not a git repository" >&2; exit 1
+fi
 
-# --- args ---
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --dry-run)      DRY_RUN=true; shift ;;
-    -p|--provider)  PROVIDER="${2:?needs a name}"; shift 2 ;;
-    -*)             die "Unknown flag: $1" ;;
-    *)              REPO_PATH="$1"; shift ;;
-  esac
-done
-
-cd "$REPO_PATH"
-git rev-parse --git-dir >/dev/null 2>&1 || die "Not a git repo: $REPO_PATH"
-git add -A
-git diff --cached --quiet && { warn "Nothing staged."; exit 1; }
-
-
-
-FILES=$(git diff --cached --name-only | wc -l | tr -d ' ')
-INS=$(git diff --cached --numstat | awk '{s+=$1} END {print s+0}')
-DEL=$(git diff --cached --numstat | awk '{s+=$2} END {print s+0}')
-printf "  ${D}%s files${Z}  ${G}+%s${Z}  ${R}-%s${Z}\n\n" "$FILES" "$INS" "$DEL"
-
-# --- prompt ---
 STAT=$(git diff --cached --stat)
 DIFF=$(git diff --cached --unified=2 | head -n "$MAX_DIFF")
-PROMPT="Write a git commit message in Conventional Commits format.
 
+if [[ -z "$STAT" ]]; then
+  echo "ERROR: nothing staged — run 'git add' first" >&2; exit 1
+fi
+
+# ── Prompt ────────────────────────────────────────────────────────────────
+PROMPT="Write a git commit message in Conventional Commits format.
 Rules:
-- First line: type(scope): summary (≤72 chars, imperative, no period)
+- First line: type(scope): summary (<=72 chars, imperative, no period)
   Types: feat fix refactor perf style test docs chore build ci revert
-- Blank line, then 2–5 bullets (- ) with WHAT changed and WHY.
-  Name files/functions where helpful.
-- If breaking: add footer BREAKING CHANGE: <reason>
-- Output the commit message ONLY. No fences, no preamble.
+- Blank line, then 2-5 bullet points (- ) explaining WHAT changed and WHY.
+  Name specific files/functions where helpful.
+- If breaking change: add footer  BREAKING CHANGE: <reason>
+- Output the commit message ONLY. No fences, no preamble, no commentary.
 
 STAT:
-$STAT
+${STAT}
 
 DIFF:
-$DIFF"
+${DIFF}"
 
-# --- providers ---
-# copilot: new GitHub Copilot CLI (npm install -g @github/copilot OR gh extension install github/gh-copilot)
-# -p flag = non-interactive single-shot mode; --allow-all-tools lets it run without approval prompts
-run_copilot() {
-  # Try new standalone 'copilot' CLI first, fall back to 'gh copilot' alias
-  if command -v copilot >/dev/null 2>&1; then
-    copilot -p "$PROMPT" --allow-all-tools > "$TMP" 2>/dev/null
-  elif command -v gh >/dev/null 2>&1 && gh copilot --version >/dev/null 2>&1; then
-    gh copilot -p "$PROMPT" > "$TMP" 2>/dev/null
-  else
-    return 1
-  fi
+# ── Dispatch ──────────────────────────────────────────────────────────────
+_run_provider() {
+  case "$PROVIDER" in
+    copilot)
+      command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not found" >&2; exit 1; }
+      gh copilot suggest -t shell "$PROMPT" 2>/dev/null \
+        || gh copilot -p "$PROMPT" 2>/dev/null
+      ;;
+    gemini)
+      command -v gemini >/dev/null 2>&1 || { echo "ERROR: gemini CLI not found" >&2; exit 1; }
+      echo "$PROMPT" | gemini --model gemini-2.5-pro -p ""
+      ;;
+    codex)
+      command -v codex >/dev/null 2>&1 || { echo "ERROR: codex not found" >&2; exit 1; }
+      # Write prompt to temp file; capture output explicitly
+      local tmpfile; tmpfile=$(mktemp /tmp/aicommit-codex-XXXXXX.txt)
+      echo "$PROMPT" > "$tmpfile"
+      codex exec --ephemeral --sandbox read-only "$(cat "$tmpfile")" -o /dev/stdout
+      rm -f "$tmpfile"
+      ;;
+    ollama)
+      command -v ollama >/dev/null 2>&1 || { echo "ERROR: ollama not found" >&2; exit 1; }
+      local model="${OLLAMA_COMMIT_MODEL:-granite3.3:latest}"
+      echo "$PROMPT" | ollama run "$model"
+      ;;
+    *)
+      echo "ERROR: unknown provider '$PROVIDER'" >&2
+      echo "       valid: copilot | gemini | codex | ollama" >&2
+      exit 1
+      ;;
+  esac
 }
 
-# codex: OpenAI Codex CLI (npm install -g @openai/codex)
-run_codex() {
-  command -v codex >/dev/null 2>&1 || return 1
-  codex exec --ephemeral --sandbox read-only "$PROMPT" > "$TMP" 2>/dev/null
-}
-
-# gemini: Google Gemini CLI (npm install -g @google/gemini-cli)
-run_gemini() {
-  command -v gemini >/dev/null 2>&1 || return 1
-  echo "$PROMPT" | gemini --model gemini-2.5-pro -p "" > "$TMP" 2>/dev/null
-}
-
-# ollama: local fallback
-run_ollama() {
-  command -v ollama >/dev/null 2>&1 || return 1
-  echo "$PROMPT" | ollama run granite3.3:latest > "$TMP" 2>/dev/null
-}
-
-# --- run with fallback ---
-[[ -n "$PROVIDER" ]] && PROVIDERS=("$PROVIDER") || PROVIDERS=("gemini" "codex" "ollama" "copilot")
-SUCCESS=false; USED=""
-
-for p in "${PROVIDERS[@]}"; do
-  declare -f "run_$p" >/dev/null 2>&1 || die "Unknown provider '$p'. Valid: copilot codex gemini ollama"
-  printf "  ${C}◌${Z}  trying ${W}%s${Z}..." "$p"
-  if "run_$p" 2>/dev/null; then
-    printf "\r  ${G}✔${Z}  ${W}%s${Z} responded        \n\n" "$p"
-    SUCCESS=true; USED="$p"; break
-  else
-    printf "\r  ${R}✘${Z}  ${D}%s unavailable${Z}      \n" "$p"
-  fi
-done
-
-$SUCCESS || die "All providers failed: ${PROVIDERS[*]}"
-
-# --- clean message ---
-MSG=$(sed '/^```/d' "$TMP" | sed 's/^[[:space:]]*//' | sed '/./,/^$/!d')
-[[ -n "$MSG" ]] || die "Empty response from $USED"
-
-# --- preview via delta ---
-echo
-printf "${W}── Commit Message [%s] ──${Z}\n\n" "$USED"
-printf "%s\n" "$MSG" | delta --no-gitconfig --syntax-theme "ansi"
-echo
-$DRY_RUN && warn "--dry-run: commit skipped" && echo
-
-# --- approval ---
-printf "  ${W}Commit?${Z}  ${G}[y]${Z}es  ${Y}[e]${Z}dit  ${R}[n]${Z}o  > "
-read -r RESP; echo
-
-case "${RESP,,}" in
-  y)
-    $DRY_RUN && { warn "[dry-run] skipped."; exit 0; }
-    git commit -m "$MSG" && echo && ok "Committed!"
-    ;;
-  e)
-    ${EDITOR:-nvim} "$TMP"
-    NEW_MSG=$(sed '/^```/d' "$TMP" | sed 's/^[[:space:]]*//')
-    $DRY_RUN && { warn "[dry-run] edited, not committed."; exit 0; }
-    git commit -m "$NEW_MSG" && echo && ok "Committed!"
-    ;;
-  *)
-    printf "  ${D}Cancelled.${Z}\n"
-    ;;
-esac
+# ── Run + clean output ────────────────────────────────────────────────────
+_run_provider \
+  | sed '/^```/d; /^---/d; s/^[[:space:]]*//' \
+  | sed '/^$/{ N; /^\n$/d }' \   # collapse multiple blank lines
+  | head -n 20                    # safety cap: no runaway output
