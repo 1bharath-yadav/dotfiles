@@ -2,7 +2,7 @@
 set -eo pipefail
 
 DOTFILES=~/.dotfiles
-END4DOTS=~/linux/end4dots
+END4DOTS=~/linux/dots-hyprland
 LOG="$DOTFILES/update.log"
 
 log() { echo "\e[32m==>\e[0m $1"; }

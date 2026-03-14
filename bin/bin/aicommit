@@ -1,13 +1,149 @@
 #!/usr/bin/env bash
-set -e
+# aicommit — AI-powered conventional commit message generator
+# Providers: gemini (default) | codex | ollama
+# Usage:
+#   aicommit [options] [path]
+#   aicommit -p codex -m gpt-5.2-codex ~/myrepo
+#   aicommit -p ollama -m gemma3:4b .
+#   aicommit --dry-run
 
-git add -A
-DIFF="$(git diff --cached)"
-[ -z "$DIFF" ] && exit 0
+set -euo pipefail
 
-MSG="$(echo "$DIFF" | gemini --prompt 'Generate commit message:')" || true
-[ -z "$MSG" ] && MSG="auto: $(date)"
+# ── defaults ────────────────────────────────────────────────────────────────
+PROVIDER="${AICOMMIT_PROVIDER:-gemini}"
+MODEL=""
+DRY_RUN=false
+REPO_PATH="."
+MAX_DIFF_CHARS=12000
+ADD_ALL=true
 
-git commit -m "$MSG"
-git push
+# ── arg parsing ──────────────────────────────────────────────────────────────
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -p|--provider)   PROVIDER="$2"; shift 2 ;;
+    -m|--model)      MODEL="$2";    shift 2 ;;
+    --dry-run)       DRY_RUN=true;  shift   ;;
+    --no-add)        ADD_ALL=false; shift   ;;
+    -h|--help)
+      echo "Usage: aicommit [-p provider] [-m model] [--dry-run] [--no-add] [path]"
+      echo "  -p        Provider: gemini (default), codex, ollama"
+      echo "  -m        Model override (provider-specific)"
+      echo "  --dry-run Print commit message without committing"
+      echo "  --no-add  Skip 'git add -A' (use only what's already staged)"
+      exit 0 ;;
+    -*) echo "Unknown option: $1" >&2; exit 1 ;;
+    *)  REPO_PATH="$1"; shift ;;
+  esac
+done
 
+# ── default models per provider ──────────────────────────────────────────────
+case "$PROVIDER" in
+  gemini) [[ -z "$MODEL" ]] && MODEL="gemini-2.5-pro" ;;
+  codex)  [[ -z "$MODEL" ]] && MODEL="codex-mini-latest" ;;
+  ollama) [[ -z "$MODEL" ]] && MODEL="granite4:latest" ;;
+  *) echo "Unknown provider: $PROVIDER (use gemini|codex|ollama)" >&2; exit 1 ;;
+esac
+
+# ── resolve repo ─────────────────────────────────────────────────────────────
+cd "$REPO_PATH"
+if ! git rev-parse --git-dir &>/dev/null; then
+  echo "Error: not a git repository: $(pwd)" >&2; exit 1
+fi
+
+# ── stage everything unless --no-add ────────────────────────────────────────
+if $ADD_ALL; then
+  git add -A
+fi
+
+if git diff --cached --quiet; then
+  echo "Nothing staged. Run: git add <files>" >&2; exit 1
+fi
+
+# ── build diff context (token-efficient) ────────────────────────────────────
+STAT=$(git diff --cached --stat)
+DIFF=$(git diff --cached)
+DIFF_CHARS=${#DIFF}
+
+if (( DIFF_CHARS <= MAX_DIFF_CHARS )); then
+  CONTEXT="=== git diff --stat ===
+$STAT
+
+=== git diff --cached ===
+$DIFF"
+else
+  TRUNCATED=$(echo "$DIFF" | head -c $MAX_DIFF_CHARS)
+  CONTEXT="=== git diff --stat ===
+$STAT
+
+=== git diff --cached (truncated at ${MAX_DIFF_CHARS} chars) ===
+$TRUNCATED
+... [diff truncated]"
+fi
+
+# ── prompt ───────────────────────────────────────────────────────────────────
+PROMPT="Generate a git commit message for the following diff.
+
+Output ONLY the raw commit message text. No greetings, no explanations, no markdown fences, no commentary.
+
+Format (Conventional Commits):
+<type>(<scope>): <summary under 72 chars>
+
+- bullet: what changed and why
+- bullet: additional context if needed
+
+Types: feat fix docs style refactor perf test build ci chore revert
+BREAKING CHANGE: <description>  ← only if API/behavior breaks
+
+$CONTEXT"
+
+# ── call provider ────────────────────────────────────────────────────────────
+TMPFILE=$(mktemp /tmp/aicommit.XXXXXX)
+trap 'rm -f "$TMPFILE"' EXIT
+
+case "$PROVIDER" in
+  gemini)
+    echo "$PROMPT" | gemini -m "$MODEL" -p "" > "$TMPFILE" 2>/dev/null
+    # gemini prepends "Loading extension..." to stderr; stdout is clean
+    ;;
+  codex)
+    # Use --json (JSONL) and extract the agent_message text — avoids duplicate output
+    # that occurs when both -o and stdout emit the same message.
+    echo "$PROMPT" | codex exec \
+      --skip-git-repo-check \
+      -m "$MODEL" \
+      --full-auto \
+      --json \
+      - 2>/dev/null \
+    | jq -r 'select(.type=="item.completed" and .item.type=="agent_message") | .item.text' \
+    > "$TMPFILE"
+    ;;
+  ollama)
+    echo "$PROMPT" | ollama run "$MODEL" > "$TMPFILE" 2>/dev/null
+    ;;
+esac
+
+MSG=$(cat "$TMPFILE" | sed '/^$/N;/^\n$/d' | sed 's/^```[a-z]*//;s/^```//')
+MSG=$(echo "$MSG" | sed '/^```/d')
+
+if [[ -z "$MSG" ]]; then
+  echo "Error: provider returned empty message." >&2; exit 1
+fi
+
+# ── display with bat ─────────────────────────────────────────────────────────
+echo "$MSG" | bat --language=markdown --style=grid --pager=never
+
+# ── commit ───────────────────────────────────────────────────────────────────
+if $DRY_RUN; then
+  echo ""
+  echo "  [dry-run] not committing."
+else
+  echo ""
+  read -rp "  Use this message? [Y/n] " CONFIRM
+  CONFIRM="${CONFIRM:-y}"
+  if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+    git commit -m "$MSG"
+    echo "  ✓ committed."
+  else
+    echo "  Aborted."
+  fi
+fi
