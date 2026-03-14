@@ -14,17 +14,17 @@ gui:
   shortTimeFormat: "15:04"
   commitLength:
     show: true
-  theme:  # one dark — mirrors kitty.conf palette
-    activeBorderColor: ['#61afef']        # blue — subtle active border
-    inactiveBorderColor: ['#393e48']      # surface — near-invisible
-    optionsTextColor: ['#61afef']
-    selectedLineBgColor: ['#2c313a']      # lifted surface, no contrast shock
-    selectedRangeBgColor: ['#2c313a']
-    cherryPickedCommitBgColor: ['#393e48']
-    cherryPickedCommitFgColor: ['#61afef']
-    unstagedChangesColor: ['#e06c75']     # kitty color1
-    defaultFgColor: ['#979eab']           # kitty foreground
-    searchingActiveBorderColor: ['#e5c07b'] # kitty color3
+  theme: # one dark — mirrors kitty.conf palette
+    activeBorderColor: ["#61afef"] # blue — subtle active border
+    inactiveBorderColor: ["#393e48"] # surface — near-invisible
+    optionsTextColor: ["#61afef"]
+    selectedLineBgColor: ["#2c313a"] # lifted surface, no contrast shock
+    selectedRangeBgColor: ["#2c313a"]
+    cherryPickedCommitBgColor: ["#393e48"]
+    cherryPickedCommitFgColor: ["#61afef"]
+    unstagedChangesColor: ["#e06c75"] # kitty color1
+    defaultFgColor: ["#979eab"] # kitty foreground
+    searchingActiveBorderColor: ["#e5c07b"] # kitty color3
 
 git:
   # --paging=never: prevents delta spawning less inside lazygit ("terminal not fully functional")
