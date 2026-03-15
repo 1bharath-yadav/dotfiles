@@ -4,9 +4,14 @@
 #   providers: copilot | gemini | codex | ollama  (default: copilot)
 # Used by lazygit customCommands; lazygit handles approval/editing.
 set -euo pipefail
-
+set -x
 MAX_DIFF=300
 PROVIDER="${1:-copilot}"
+
+# If first argument is a path like "." treat it as repo path not provider
+if [[ "$PROVIDER" == "." || -d "$PROVIDER" ]]; then
+  PROVIDER="gemini"
+fi
 
 # ── Guard: must be in a git repo with staged changes ──────────────────────
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
@@ -37,40 +42,40 @@ DIFF:
 ${DIFF}"
 
 # ── Dispatch ──────────────────────────────────────────────────────────────
-_run_provider() {
+__run_provider() {
   case "$PROVIDER" in
     copilot)
-      command -v gh >/dev/null 2>&1 || { echo "ERROR: gh not found" >&2; exit 1; }
-      gh copilot suggest -t shell "$PROMPT" 2>/dev/null \
-        || gh copilot -p "$PROMPT" 2>/dev/null
+      command -v gh >/dev/null || { echo "ERROR: gh not found" >&2; exit 1; }
+      gh copilot suggest "$PROMPT" --shell 2>/dev/null \
+        || gh copilot suggest "$PROMPT"
       ;;
+
     gemini)
-      command -v gemini >/dev/null 2>&1 || { echo "ERROR: gemini CLI not found" >&2; exit 1; }
-      echo "$PROMPT" | gemini --model gemini-2.5-pro -p ""
+      command -v gemini >/dev/null || { echo "ERROR: gemini CLI not found" >&2; exit 1; }
+      printf "%s" "$PROMPT" | gemini --model gemini-2.5-pro
       ;;
+
     codex)
-      command -v codex >/dev/null 2>&1 || { echo "ERROR: codex not found" >&2; exit 1; }
-      # Write prompt to temp file; capture output explicitly
-      local tmpfile; tmpfile=$(mktemp /tmp/aicommit-codex-XXXXXX.txt)
-      echo "$PROMPT" > "$tmpfile"
-      codex exec --ephemeral --sandbox read-only "$(cat "$tmpfile")" -o /dev/stdout
+      command -v codex >/dev/null || { echo "ERROR: codex not found" >&2; exit 1; }
+      local tmpfile
+      tmpfile=$(mktemp /tmp/aicommit-codex-XXXXXX.txt)
+      printf "%s" "$PROMPT" > "$tmpfile"
+      codex exec --ephemeral "$(cat "$tmpfile")"
       rm -f "$tmpfile"
       ;;
+
     ollama)
-      command -v ollama >/dev/null 2>&1 || { echo "ERROR: ollama not found" >&2; exit 1; }
+      command -v ollama >/dev/null || { echo "ERROR: ollama not found" >&2; exit 1; }
       local model="${OLLAMA_COMMIT_MODEL:-granite3.3:latest}"
-      echo "$PROMPT" | ollama run "$model"
-      ;;
-    *)
-      echo "ERROR: unknown provider '$PROVIDER'" >&2
-      echo "       valid: copilot | gemini | codex | ollama" >&2
-      exit 1
+      printf "%s" "$PROMPT" | ollama run "$model"
       ;;
   esac
 }
-
 # ── Run + clean output ────────────────────────────────────────────────────
-_run_provider \
-  | sed '/^```/d; /^---/d; s/^[[:space:]]*//' \
-  | sed '/^$/{ N; /^\n$/d }' \
+
+output="$(_run_provider)"
+
+printf "%s\n" "$output" \
+  | sed '/^```/d;/^---/d;s/^[[:space:]]*//' \
+  | awk 'NF || !blank++' \
   | head -n 20
