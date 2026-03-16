@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 # aicommit — generate a Conventional Commit message via AI provider
-# Usage: aicommit [--edit] [provider]
+# Usage: aicommit [provider]
 #   providers: copilot | codex | gemini | ollama  (default: copilot)
-#   --edit    open $EDITOR to review/tweak before printing
-# Used by lazygit customCommands; lazygit handles the git commit call.
+# After generation, prompts: [e]dit  [p]ush  [c]ancel
+# Used standalone; lazygit customCommands call it in a terminal pane.
 
 MAX_DIFF=300
-EDIT=0
 PROVIDER=""
 
 # ── Argument parsing ──────────────────────────────────────────────────────
 for arg in "$@"; do
   case "$arg" in
-    --edit) EDIT=1 ;;
     ""|.) ;;
     *) PROVIDER="$arg" ;;
   esac
@@ -21,14 +19,12 @@ PROVIDER="${PROVIDER:-copilot}"
 
 # ── Guard: must be in a git repo with staged changes ──────────────────────
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-  echo "ERROR: not a git repository" >&2
-  exit 1
+  echo "ERROR: not a git repository" >&2; exit 1
 fi
 
 STAT=$(git diff --cached --stat)
 if [[ -z "$STAT" ]]; then
-  echo "ERROR: nothing staged — run 'git add' first" >&2
-  exit 1
+  echo "ERROR: nothing staged — run 'git add' first" >&2; exit 1
 fi
 
 DIFF=$(git diff --cached --unified=2 | head -n "$MAX_DIFF")
@@ -56,7 +52,7 @@ case "$PROVIDER" in
   copilot)
     output=$(printf "%s" "$PROMPT" | opencode run --model github-copilot/gpt-4.1 --format json 2>"$LOG" \
       | jq -r 'select(.type=="text") | .part.text')
-    rc=${PIPESTATUS[1]}  # opencode exit code (index 1 in pipe)
+    rc=${PIPESTATUS[1]}
     ;;
   codex)
     output=$(codex exec --ephemeral "$PROMPT" 2>"$LOG"); rc=$?
@@ -68,15 +64,12 @@ case "$PROVIDER" in
     output=$(printf "%s" "$PROMPT" | ollama run "${OLLAMA_COMMIT_MODEL:-granite3.3:latest}" 2>"$LOG"); rc=$?
     ;;
   *)
-    echo "ERROR: unknown provider '$PROVIDER'" >&2
-    exit 1
+    echo "ERROR: unknown provider '$PROVIDER'" >&2; exit 1
     ;;
 esac
 
 if [[ ${rc:-$?} -ne 0 ]]; then
-  echo "ERROR: $PROVIDER failed — see $LOG" >&2
-  cat "$LOG" >&2
-  exit 1
+  echo "ERROR: $PROVIDER failed — see $LOG" >&2; cat "$LOG" >&2; exit 1
 fi
 
 # ── Cleanup model output ──────────────────────────────────────────────────
@@ -85,13 +78,34 @@ cleaned=$(printf "%s\n" "$output" \
   | awk 'NF || !blank++' \
   | head -n 20)
 
-# ── Optional edit step ────────────────────────────────────────────────────
-if [[ $EDIT -eq 1 ]]; then
-  tmpfile=$(mktemp /tmp/aicommit-edit-XXXXXX.txt)
-  printf "%s\n" "$cleaned" > "$tmpfile"
-  ${EDITOR:-nvim} "$tmpfile" </dev/tty >/dev/tty
-  cleaned=$(cat "$tmpfile")
-  rm -f "$tmpfile"
-fi
+# ── Show message + interactive prompt ─────────────────────────────────────
+tmpfile=$(mktemp /tmp/aicommit-edit-XXXXXX.txt)
+printf "%s\n" "$cleaned" >"$tmpfile"
 
-printf "%s\n" "$cleaned"
+while true; do
+  printf "\n\033[1;34m── Generated commit message ──\033[0m\n" >/dev/tty
+  printf "%s\n" "$cleaned" >/dev/tty
+  printf "\n\033[1;33m[e]dit  [p]ush  [c]ancel\033[0m  > " >/dev/tty
+  read -r choice </dev/tty
+
+  case "$choice" in
+    e|E)
+      ${EDITOR:-nvim} "$tmpfile" </dev/tty >/dev/tty
+      cleaned=$(cat "$tmpfile")
+      ;;
+    p|P)
+      git commit -m "$cleaned"
+      break
+      ;;
+    c|C|"")
+      echo "Cancelled." >/dev/tty
+      rm -f "$tmpfile"
+      exit 0
+      ;;
+    *)
+      echo "Press e, p, or c." >/dev/tty
+      ;;
+  esac
+done
+
+rm -f "$tmpfile"

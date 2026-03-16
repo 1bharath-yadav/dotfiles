@@ -152,13 +152,16 @@ rm ~/.zsh_dotfiles_cache
 
 ### bin/aicommit
 
-- Providers: `copilot | codex | gemini | ollama` (default: copilot) — priority order: copilot first
+- Providers: `copilot | codex | gemini | ollama` (default: copilot)
 - Copilot uses `opencode run --model github-copilot/gpt-4.1 --format json` via stdin; text extracted with `jq -r 'select(.type=="text") | .part.text'`; exit code via `PIPESTATUS[1]`
-- Flags: `--edit` opens `$EDITOR` to review/tweak message before printing
-- Env: `OLLAMA_COMMIT_MODEL` overrides model (default: `granite3.3:latest`)
+- After generation: interactive loop shows message, prompts `[e]dit [p]ush [c]ancel` on `/dev/tty`
+  - `e` → opens `$EDITOR` to tweak, re-shows message, re-prompts
+  - `p` → runs `git commit -m "$msg"` directly
+  - `c` → exits without committing
+- `--edit` flag removed; loop replaces it
 - Guards: fails cleanly if not in git repo or nothing staged
 - Provider stderr captured to `/tmp/aicommit-<provider>-<pid>.log`; surfaced only on failure
-- No functions used — flat case statement dispatch
+- lazygit commands now call `aicommit <provider>` directly (no `git commit` wrapper needed)
 
 ### lazygit config shape
 
@@ -166,5 +169,6 @@ rm ~/.zsh_dotfiles_cache
 - delta: `--paging=never` required (prevents "terminal not fully functional") + `--hyperlinks` (click line→nvim)
 - `os.shellFunctionsFile`: `~/.dotfiles/shell-sources/aliases/git.sh` — git aliases in `:` prompt
 - No keybinding overrides; `output: terminal` on all customCommands
-- customCommands: `<c-c>` copilot · `<c-g>` gemini · `<c-x>` codex · `<c-l>` ollama · `<c-A>` fzf picker+edit
+- customCommands: `<c-c>` copilot · `<c-g>` gemini · `<c-x>` codex · `<c-l>` ollama · `<c-A>` fzf provider picker
+- All AI commit bindings call `aicommit <provider>` directly; the script owns the full edit→commit flow
 - Extras: `O` open on GitHub · `Y` yank SHA · `I` rebase last N via fzf

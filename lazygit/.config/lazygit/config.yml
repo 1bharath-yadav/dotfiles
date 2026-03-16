@@ -63,37 +63,37 @@ customCommands:
     context: "files"
     description: "AI commit (copilot)"
     loadingText: "Generating with Copilot..."
-    command: 'MSG=$(aicommit copilot) && git commit -m "$MSG"'
+    command: "aicommit copilot"
     output: terminal
 
   - key: "<c-g>"
     context: "files"
     description: "AI commit (gemini)"
     loadingText: "Generating with Gemini..."
-    command: 'MSG=$(aicommit gemini) && git commit -m "$MSG"'
+    command: "aicommit gemini"
     output: terminal
 
   - key: "<c-x>"
     context: "files"
     description: "AI commit (codex)"
     loadingText: "Generating with Codex..."
-    command: 'MSG=$(aicommit codex) && git commit -m "$MSG"'
+    command: "aicommit codex"
     output: terminal
 
   - key: "<c-l>"
     context: "files"
     description: "AI commit (ollama)"
     loadingText: "Running local model..."
-    command: 'MSG=$(aicommit ollama) && git commit -m "$MSG"'
+    command: "aicommit ollama"
     output: terminal
 
   - key: "<c-A>"
     context: "files"
-    description: "AI commit (pick provider + edit)"
+    description: "AI commit (pick provider)"
     loadingText: "Loading providers..."
     command: >-
       PROVIDER=$(printf 'copilot\ncodex\ngemini\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) &&
-      MSG=$(aicommit --edit "$PROVIDER") && [ -n "$MSG" ] && git commit -m "$MSG"
+      aicommit "$PROVIDER"
     output: terminal
 
   - key: "O"
