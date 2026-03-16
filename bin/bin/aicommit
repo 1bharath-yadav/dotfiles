@@ -1,29 +1,37 @@
 #!/usr/bin/env bash
 # aicommit — generate a Conventional Commit message via AI provider
-# Usage: aicommit [provider]
-#   providers: copilot | gemini | codex | ollama  (default: copilot)
-# Used by lazygit customCommands; lazygit handles approval/editing.
-set -euo pipefail
-set -x
-MAX_DIFF=300
-PROVIDER="${1:-copilot}"
+# Usage: aicommit [--edit] [provider]
+#   providers: copilot | codex | gemini | ollama  (default: copilot)
+#   --edit    open $EDITOR to review/tweak before printing
+# Used by lazygit customCommands; lazygit handles the git commit call.
 
-# If first argument is a path like "." treat it as repo path not provider
-if [[ "$PROVIDER" == "." || -d "$PROVIDER" ]]; then
-  PROVIDER="gemini"
-fi
+MAX_DIFF=300
+EDIT=0
+PROVIDER=""
+
+# ── Argument parsing ──────────────────────────────────────────────────────
+for arg in "$@"; do
+  case "$arg" in
+    --edit) EDIT=1 ;;
+    ""|.) ;;
+    *) PROVIDER="$arg" ;;
+  esac
+done
+PROVIDER="${PROVIDER:-copilot}"
 
 # ── Guard: must be in a git repo with staged changes ──────────────────────
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-  echo "ERROR: not a git repository" >&2; exit 1
+  echo "ERROR: not a git repository" >&2
+  exit 1
 fi
 
 STAT=$(git diff --cached --stat)
-DIFF=$(git diff --cached --unified=2 | head -n "$MAX_DIFF")
-
 if [[ -z "$STAT" ]]; then
-  echo "ERROR: nothing staged — run 'git add' first" >&2; exit 1
+  echo "ERROR: nothing staged — run 'git add' first" >&2
+  exit 1
 fi
+
+DIFF=$(git diff --cached --unified=2 | head -n "$MAX_DIFF")
 
 # ── Prompt ────────────────────────────────────────────────────────────────
 PROMPT="Write a git commit message in Conventional Commits format.
@@ -41,41 +49,49 @@ ${STAT}
 DIFF:
 ${DIFF}"
 
-# ── Dispatch ──────────────────────────────────────────────────────────────
-__run_provider() {
-  case "$PROVIDER" in
-    copilot)
-      command -v gh >/dev/null || { echo "ERROR: gh not found" >&2; exit 1; }
-      gh copilot suggest "$PROMPT" --shell 2>/dev/null \
-        || gh copilot suggest "$PROMPT"
-      ;;
+# ── Provider dispatch ─────────────────────────────────────────────────────
+LOG="/tmp/aicommit-${PROVIDER}-$$.log"
 
-    gemini)
-      command -v gemini >/dev/null || { echo "ERROR: gemini CLI not found" >&2; exit 1; }
-      printf "%s" "$PROMPT" | gemini --model gemini-2.5-pro
-      ;;
+case "$PROVIDER" in
+  copilot)
+    output=$(printf "%s" "$PROMPT" | opencode run --model github-copilot/gpt-4.1 --format json 2>"$LOG" \
+      | jq -r 'select(.type=="text") | .part.text')
+    rc=${PIPESTATUS[1]}  # opencode exit code (index 1 in pipe)
+    ;;
+  codex)
+    output=$(codex exec --ephemeral "$PROMPT" 2>"$LOG"); rc=$?
+    ;;
+  gemini)
+    output=$(gemini --prompt "$PROMPT" 2>"$LOG"); rc=$?
+    ;;
+  ollama)
+    output=$(printf "%s" "$PROMPT" | ollama run "${OLLAMA_COMMIT_MODEL:-granite3.3:latest}" 2>"$LOG"); rc=$?
+    ;;
+  *)
+    echo "ERROR: unknown provider '$PROVIDER'" >&2
+    exit 1
+    ;;
+esac
 
-    codex)
-      command -v codex >/dev/null || { echo "ERROR: codex not found" >&2; exit 1; }
-      local tmpfile
-      tmpfile=$(mktemp /tmp/aicommit-codex-XXXXXX.txt)
-      printf "%s" "$PROMPT" > "$tmpfile"
-      codex exec --ephemeral "$(cat "$tmpfile")"
-      rm -f "$tmpfile"
-      ;;
+if [[ ${rc:-$?} -ne 0 ]]; then
+  echo "ERROR: $PROVIDER failed — see $LOG" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
 
-    ollama)
-      command -v ollama >/dev/null || { echo "ERROR: ollama not found" >&2; exit 1; }
-      local model="${OLLAMA_COMMIT_MODEL:-granite3.3:latest}"
-      printf "%s" "$PROMPT" | ollama run "$model"
-      ;;
-  esac
-}
-# ── Run + clean output ────────────────────────────────────────────────────
-
-output="$(_run_provider)"
-
-printf "%s\n" "$output" \
+# ── Cleanup model output ──────────────────────────────────────────────────
+cleaned=$(printf "%s\n" "$output" \
   | sed '/^```/d;/^---/d;s/^[[:space:]]*//' \
   | awk 'NF || !blank++' \
-  | head -n 20
+  | head -n 20)
+
+# ── Optional edit step ────────────────────────────────────────────────────
+if [[ $EDIT -eq 1 ]]; then
+  tmpfile=$(mktemp /tmp/aicommit-edit-XXXXXX.txt)
+  printf "%s\n" "$cleaned" > "$tmpfile"
+  ${EDITOR:-nvim} "$tmpfile" </dev/tty >/dev/tty
+  cleaned=$(cat "$tmpfile")
+  rm -f "$tmpfile"
+fi
+
+printf "%s\n" "$cleaned"

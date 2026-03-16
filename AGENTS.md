@@ -152,10 +152,13 @@ rm ~/.zsh_dotfiles_cache
 
 ### bin/aicommit
 
-- Providers: `copilot | gemini | codex | ollama` (default: copilot)
+- Providers: `copilot | codex | gemini | ollama` (default: copilot) — priority order: copilot first
+- Copilot uses `opencode run --model github-copilot/gpt-4.1 --format json` via stdin; text extracted with `jq -r 'select(.type=="text") | .part.text'`; exit code via `PIPESTATUS[1]`
+- Flags: `--edit` opens `$EDITOR` to review/tweak message before printing
 - Env: `OLLAMA_COMMIT_MODEL` overrides model (default: `granite3.3:latest`)
 - Guards: fails cleanly if not in git repo or nothing staged
-- Output cleanup pipeline is `bash -n` clean; avoid inline comments on continued pipeline lines
+- Provider stderr captured to `/tmp/aicommit-<provider>-<pid>.log`; surfaced only on failure
+- No functions used — flat case statement dispatch
 
 ### lazygit config shape
 
@@ -163,5 +166,5 @@ rm ~/.zsh_dotfiles_cache
 - delta: `--paging=never` required (prevents "terminal not fully functional") + `--hyperlinks` (click line→nvim)
 - `os.shellFunctionsFile`: `~/.dotfiles/shell-sources/aliases/git.sh` — git aliases in `:` prompt
 - No keybinding overrides; `output: terminal` on all customCommands
-- customCommands: `<c-a>` copilot · `<c-g>` gemini · `<c-x>` codex · `<c-l>` ollama · `<c-A>` fzf picker+nvim
+- customCommands: `<c-c>` copilot · `<c-g>` gemini · `<c-x>` codex · `<c-l>` ollama · `<c-A>` fzf picker+edit
 - Extras: `O` open on GitHub · `Y` yank SHA · `I` rebase last N via fzf

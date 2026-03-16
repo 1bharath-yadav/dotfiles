@@ -54,12 +54,12 @@ os:
 
 # ── Custom Commands ────────────────────────────────────────────────────────
 # AI commits (files panel):
-#   <c-a> copilot  <c-g> gemini  <c-x> codex  <c-l> ollama
-#   <c-A> fzf provider picker → edit in $EDITOR before commit
+#   <c-c> copilot  <c-g> gemini  <c-x> codex  <c-l> ollama
+#   <c-A> fzf provider picker + edit in $EDITOR before commit
 # Extras: O=open on GitHub  Y=yank SHA  I=interactive rebase N commits
 
 customCommands:
-  - key: "<c-a>"
+  - key: "<c-c>"
     context: "files"
     description: "AI commit (copilot)"
     loadingText: "Generating with Copilot..."
@@ -92,11 +92,8 @@ customCommands:
     description: "AI commit (pick provider + edit)"
     loadingText: "Loading providers..."
     command: >-
-      PROVIDER=$(printf 'copilot\ngemini\ncodex\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) &&
-      TMP=$(mktemp /tmp/lgcommit.XXXXXX) &&
-      aicommit "$PROVIDER" > "$TMP" &&
-      ${EDITOR:-nvim} "$TMP" &&
-      MSG=$(cat "$TMP"); rm -f "$TMP"; [ -n "$MSG" ] && git commit -m "$MSG"
+      PROVIDER=$(printf 'copilot\ncodex\ngemini\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) &&
+      MSG=$(aicommit --edit "$PROVIDER") && [ -n "$MSG" ] && git commit -m "$MSG"
     output: terminal
 
   - key: "O"
