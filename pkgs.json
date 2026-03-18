@@ -1418,6 +1418,10 @@
   ],
   "official": [
     {
+      "name": "acpi",
+      "description": "Client for battery, power, and thermal readings"
+    },
+    {
       "name": "git-delta",
       "description": "Syntax-highlighting pager for git and diff output"
     },
