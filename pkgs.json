@@ -1432,6 +1432,10 @@
     {
       "name": "distrobox",
       "description": "Use any linux distribution inside your terminal."
+    },
+    {
+      "name": "yay",
+      "description": "Yet another yogurt. Pacman wrapper and AUR helper written in go."
     }
   ],
   "termux": [
