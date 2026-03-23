@@ -133,3 +133,17 @@ install_yazi_pkgs() {
   log "Installing yazi plugins & flavors via ya pkg"
   ya pkg install
 }
+
+# ── nvim lazy pkg installation───────────────────────────────────────────────────────
+install_lazy() {
+  local lazy_dir="$HOME/.local/share/nvim/lazy/lazy.nvim"
+  if [[ -d "$lazy_dir" ]]; then
+    log "lazy.nvim already installed"
+    git -C "$lazy_dir" pull -q
+  else
+  git clone --depth 1https://github.com/folke/lazy.nvim.git \
+  ~/.local/share/nvim/lazy/lazy.nvim
+
+  fi
+} 
+

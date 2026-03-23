@@ -66,6 +66,7 @@ main() {
   install_aur_pkgs
   install_fnm
   install_npm_globals
+  install_lazy
   set_zsh_default
   log "Stowing dotfiles"
   source "$DOTFILES/stow/arch.sh"

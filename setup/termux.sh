@@ -39,6 +39,7 @@ main() {
   install_pip_extras
   install_omz
   install_npm_globals_termux
+  install_lazy
   set_zsh_default
   reload_termux_style
   log "Stowing Termux dotfiles"

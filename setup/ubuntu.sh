@@ -73,6 +73,7 @@ main() {
   install_omz
   install_extras
   install_npm_globals
+  install_lazy
   set_zsh_default
   log "Stowing dotfiles"
   source "$DOTFILES/stow/ubuntu.sh"
