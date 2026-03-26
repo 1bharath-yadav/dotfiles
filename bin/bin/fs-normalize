@@ -1,0 +1,3 @@
+for d in *; do
+  mv "$d" "${d// /_}"
+done
