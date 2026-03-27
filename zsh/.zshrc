@@ -85,3 +85,4 @@ export DOTFILES_DIR="$HOME/.dotfiles"
 
 # Load .env only if it exists (personal env vars)
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
+eval "$(_MARIMO_COMPLETE=zsh_source marimo)"
