@@ -57,6 +57,13 @@
     gitui
     shellcheck
     direnv
+    nix-direnv
+
+    # Nix dev tooling
+    comma          # run any pkg without installing: , manim
+    nix-tree       # interactive dep graph browser
+    deadnix        # find dead code in .nix files
+    statix         # lint/fix antipatterns in .nix files
 
     neovim
     opencode

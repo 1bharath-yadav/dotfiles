@@ -7,16 +7,16 @@ It is the single source of truth for architecture decisions, working agreements,
 
 ## Environment
 
-| Key            | Value                 |
-| -------------- | --------------------- |
-| Primary OS     | Arch Linux + Hyprland |
+| Key            | Value                   |
+| -------------- | ----------------------- |
+| Primary OS     | Arch Linux + Hyprland   |
 | Secondary OS   | Ubuntu in WSL2 (no GUI) |
-| Mobile         | nix-on-droid (Android) |
-| Shell          | zsh                   |
-| Prompt         | Starship              |
-| Editor         | Neovim                |
-| Package linker | Nix Home Manager      |
-| Base dotfiles  | end4dots (Hyprland)   |
+| Mobile         | nix-on-droid (Android)  |
+| Shell          | zsh                     |
+| Prompt         | Starship                |
+| Editor         | Neovim                  |
+| Package linker | Nix Home Manager        |
+| Base dotfiles  | end4dots (Hyprland)     |
 
 ---
 
@@ -53,6 +53,7 @@ It is the single source of truth for architecture decisions, working agreements,
 ## Key Design Decisions
 
 ### Configuration linker strategy
+
 All user configurations, including end4dots overrides, are managed by Nix Home Manager. `stow` has been completely retired from the user environment.
 
 ### OS detection (`setup/lib.sh: detect_os`)
@@ -65,9 +66,9 @@ All user configurations, including end4dots overrides, are managed by Nix Home M
 
 Two-branch model — keeps upstream sync clean and your changes rebased on top:
 
-| Branch | Purpose | Rule |
-|--------|---------|------|
-| `main` | Clean mirror of `upstream/main` | **Never commit here** |
+| Branch   | Purpose                              | Rule                      |
+| -------- | ------------------------------------ | ------------------------- |
+| `main`   | Clean mirror of `upstream/main`      | **Never commit here**     |
 | `archer` | Your modifications to end4dots files | Only branch you commit to |
 
 - `update.sh` handles the full sync: `main` rebases onto `upstream/main`, then `archer` rebases onto `main`
@@ -77,11 +78,11 @@ Two-branch model — keeps upstream sync clean and your changes rebased on top:
 
 **What goes where:**
 
-| Change type | Location |
-|-------------|----------|
-| Modifies an existing end4dots file (AGS widget, theme, hyprland.conf) | `archer` branch commit |
+| Change type                                                             | Location                                                      |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Modifies an existing end4dots file (AGS widget, theme, hyprland.conf)   | `archer` branch commit                                        |
 | Pure addition end4dots leaves for users (keybinds, execs, window rules) | `nix/modules/programs/hyprland/config/custom/` (Home Manager) |
-| Machine-specific (monitor layout, app exec paths) | `nix/modules/programs/hyprland/config/custom/` (Home Manager) |
+| Machine-specific (monitor layout, app exec paths)                       | `nix/modules/programs/hyprland/config/custom/` (Home Manager) |
 
 ---
 
@@ -139,15 +140,53 @@ git rebase --continue         # after resolving archer conflict
 
 ## Current State
 
+### Python environment strategy (established 2026-03-28)
+
+`~/apps/` has been retired. The three-layer model:
+
+| Layer                 | Tool                                 | Where                            |
+| --------------------- | ------------------------------------ | -------------------------------- |
+| Global CLI tools      | `uv tool install`                    | `~/.local/bin` (already in PATH) |
+| Ephemeral/one-shot    | `uvx` or `, <pkg>` (comma)           | nowhere — no install             |
+| Project-specific deps | project `pyproject.toml` + `uv sync` | inside the project               |
+| Long-running services | systemd user units                   | `systemctl --user`               |
+
+**Key rule:** venv `.bin` dirs are NEVER added to PATH. `paths.sh` no longer contains any `~/apps/.../.venv/bin` entries.
+
+**Migrated data:**
+
+- `~/apps/open-webui_env/.webui_secret_key` → `~/.config/open-webui/.webui_secret_key`
+- `~/apps/credentials.json` (Google OAuth) → `~/.config/credentials/google-oauth.json`
+- Dep inventory saved to `nix/modules/packages/python-apps-ref.md`
+
+**`~/apps/` can now be deleted.** Run: `rm -rf ~/apps`
+
+### Nix additions (2026-03-28)
+
+- `nix-direnv` + `programs.direnv` module added — auto-activates `.envrc` on `cd` into project dirs. New module at `nix/modules/programs/direnv/default.nix`.
+- `comma`, `nix-tree`, `deadnix`, `statix` added to `1.core-packages.nix`
+- `direnv` module imported in `nix/modules/programs/default.nix`
+- `direnv` bare package removed from `1.core-packages.nix` (HM `programs.direnv` installs it)
+- `direnv` module now pre-migrates an existing `~/.config/direnv/direnv.toml` to `direnv.toml.pre-home-manager*` before `checkLinkTargets`, preventing Home Manager clobber errors while preserving legacy local settings for manual review.
+
+### shell-sources/aliases/python.sh (2026-03-28)
+
+Fully rewritten. New mental model:
+
+- `uvti/uvtu/uvtl/uvtun` aliases for `uv tool` lifecycle
+- `svc-*` aliases for `systemctl --user` (start/stop/status/log)
+- `webui-*` shortcuts for open-webui service
+- Removed all venv-activation-as-global-tool patterns
+
 ### Package ownership model
 
 Clear three-layer boundary (established 2026-03-28):
 
-| Layer | Manager | Tracked in |
-|---|---|---|
-| System / kernel / AUR | `pacman` | `setup/arch_linux/pacman-explicit.txt` |
-| User environment (all hosts) | Nix Home Manager | `nix/modules/` |
-| Android | nix-on-droid | `nix/hosts/archer-phone.nix` |
+| Layer                        | Manager          | Tracked in                             |
+| ---------------------------- | ---------------- | -------------------------------------- |
+| System / kernel / AUR        | `pacman`         | `setup/arch_linux/pacman-explicit.txt` |
+| User environment (all hosts) | Nix Home Manager | `nix/modules/`                         |
+| Android                      | nix-on-droid     | `nix/hosts/archer-phone.nix`           |
 
 **Key rule:** if it needs a systemd service, `/etc` integration, or is AUR-only → pacman. Everything else → Nix.
 
@@ -196,19 +235,34 @@ To enable on a host: `imports = [ ../modules/packages/5.extra-packages.nix ];`
 - `desktop-file-utils` now lives in `nix/modules/packages/3.linux-packages.nix` to provide `update-desktop-database`
 - `nix-index` is paired with `pay-respects` in both `nix/modules/packages/3.linux-packages.nix` and `nix/modules/packages/4.wsl.nix` — `pay-respects` requires `nix-locate` (from `nix-index`) to suggest Nix packages for unknown commands
 
+### end4dots AGENTS.md
+
+A dedicated `AGENTS.md` lives at `~/.local/share/end4dots/AGENTS.md` covering:
+
+- Sidebar tab visibility rules (Intelligence / Translator / Anime config keys)
+- AI chat commands, keyboard shortcuts, and save/load path (`~/.local/state/quickshell/ii/user/ai/chats/`)
+- Translator setup (`translate-shell` / `trans` CLI)
+- Quickshell `Directories` singleton resolved paths
+- end4dots branch strategy and working agreement
+
+Read it at session start whenever touching end4dots / Quickshell / illogical-impulse configs.
+
+---
+
 ### Nix app visibility in Quickshell / fuzzel
 
 **Root cause**: end4dots `./setup install` uses `cp -f` (not symlinks), so it overwrites `~/.config/hypr/hyprland.conf` with the upstream version every run. The upstream version is missing `source=custom/env.conf`, so `custom/env.conf` (which sets `XDG_DATA_DIRS` and `PATH` for Nix) never loads.
 
 **Fix applied (2025-03-28)**:
+
 1. `hypr/.config/hypr/custom/env.conf` (stowed) — sets `XDG_DATA_DIRS` to include `~/.nix-profile/share`, adds `~/.nix-profile/bin` to `PATH`, sets `NIX_PATH`
 2. `update.sh` now re-copies `hyprland.conf` from the archer branch after every end4dots `setup install`, ensuring `source=custom/env.conf` is always present; `local` keyword bug fixed (was `local hconf=...` at top level, now plain `_hconf=`)
-3. `bin/scripts/refresh-apps` — rebuild desktop cache + signal Quickshell reload without full restart; manually linked to `~/bin` pending next HM switch
+3. `bin/scripts/refresh-apps` — rebuild desktop cache + signal Quickshell reload without full restart; Home Manager links it to `~/.local/bin`
 4. **To activate**: log out and back in once; thereafter `refresh-apps` is sufficient after new Nix installs
 
 **Key insight**: `~/.config/hypr/hyprland.conf` must always come from the archer branch of `dots-hyprland` (which has `source=custom/env.conf`). The `update.sh` patch guard ensures this survives future upstream syncs.
 
-**Launcher env drift in fuzzel/Quickshell (confirmed 2026-03-28)**: Root cause: SDDM starts the systemd user instance *before* Hyprland processes `env =` directives, so launcher-driven app starts can see a stale D-Bus/systemd activation environment. This shows up as apps launched from Quickshell/fuzzel not matching the behavior/config of the same apps launched from a terminal. Fix: `custom/execs.conf` now runs `exec-once = systemctl --user import-environment --all` + `dbus-update-activation-environment --systemd --all` immediately after Hyprland starts, pushing the full Hyprland session environment into the live user session. `update.sh` does the same after each reload.
+**Launcher env drift in fuzzel/Quickshell (confirmed 2026-03-28)**: Root cause: SDDM starts the systemd user instance _before_ Hyprland processes `env =` directives, so launcher-driven app starts can see a stale D-Bus/systemd activation environment. This shows up as apps launched from Quickshell/fuzzel not matching the behavior/config of the same apps launched from a terminal. Fix: `custom/execs.conf` now runs `exec-once = systemctl --user import-environment --all` + `dbus-update-activation-environment --systemd --all` immediately after Hyprland starts, pushing the full Hyprland session environment into the live user session. `update.sh` does the same after each reload.
 
 **Hyprland inotify mid-flight reload (fixed 2026-03-28)**: `setup install` writes `hyprland.conf` which triggers an immediate inotify reload before Home Manager has linked `custom/` — causing `source= globbing error: found no match` on lines 10, 20-23. Fixed by adding Phase 4 to `update.sh`: explicit `hyprctl reload` after all Home Manager linking + patching is complete, so Hyprland always reads the fully settled state. Also added cleanup of `*.new` files left behind by end4dots install.
 

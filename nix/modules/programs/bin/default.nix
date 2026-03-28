@@ -1,6 +1,6 @@
 { config, ... }:
 {
-  home.file."bin" = {
+  home.file.".local/bin" = {
     source = ./scripts;
     executable = true;
     recursive = true;

@@ -22,6 +22,14 @@ Required before running any `nix run` or `nix flake` command:
 echo "experimental-features = nix-command flakes" | sudo tee -a /etc/nix/nix.conf
 ```
 
+### Enable Sudo access to Nix Profile
+
+Required for `sudo` to find packages installed via Home Manager (like `systemctl-tui` or `nvim`):
+
+```bash
+echo 'Defaults secure_path="/home/archer/.nix-profile/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"' | sudo tee /etc/sudoers.d/nix-profile
+```
+
 ---
 
 ## Arch Linux
@@ -36,18 +44,17 @@ chmod +x setup/bootstrap.sh
 **What it does, step by step:**
 
 1. Installs bootstrap packages with `pacman`
-2. Stows only Arch GUI overlays still kept outside Home Manager
-3. Applies the `archer-arch` Home Manager config if `nix` is installed
-4. Leaves Hyprland base updates to `update.sh` and `~/linux/dots-hyprland`
+2. Applies the `archer-arch` Home Manager config if `nix` is installed
+3. Leaves Hyprland base updates to `update.sh` and `~/.local/share/end4dots`
 
 ### 2. Manual post-install steps
 
 ````bash
 # Set up Hyprland (end4dots)
-cd ~/linux/dots-hyprland && ./setup install
+git clone https://github.com/productive-pro/dots-hyprland.git ~/.local/share/end4dots
+cd ~/.local/share/end4dots && ./setup install
 
 # Enable services
-sudo systemctl enable --now bluetooth
 sudo systemctl enable --now tlp
 
 ### 3. Re-apply configs after editing
@@ -56,6 +63,12 @@ sudo systemctl enable --now tlp
 ./setup/main.sh arch
 # or full update:
 ./update.sh
+````
+
+
+```bash
+npm config set prefix '~/.npm-global'
+mkdir -p ~/.npm-global
 ````
 
 ---
@@ -73,7 +86,6 @@ chmod +x setup/bootstrap.sh
 
 1. Installs bootstrap packages with `apt`
 2. Applies the `archer-wsl` Home Manager config if `nix` is installed
-3. Leaves no common user config under Stow on Ubuntu in WSL
 
 ### 2. WSL-specific notes
 
@@ -114,19 +126,9 @@ chmod +x setup/bootstrap.sh
 
 ### Adding a new config package
 
-```
-# 1. Create the stow package directory
-mkdir -p ~/.dotfiles/myapp/.config/myapp
-
-# 2. Put configs inside
-cp ~/.config/myapp/config ~/.dotfiles/myapp/.config/myapp/config
-
-# 3. Add it only if it is an Arch-only overlay
-#    edit apply_stow_overlays() in setup/lib.sh
-
-# 4. Stow it
-cd ~/.dotfiles && stow --no-folding -t ~ myapp
-```
+- All user configurations go directly into `nix/modules/programs/`
+- Use `xdg.configFile."app".source = ./app;` to link native directories
+- Rebuild via `nh home switch` or `./update.sh`
 
 ### Adding a user package
 

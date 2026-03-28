@@ -15,21 +15,19 @@ export GOG_ACCOUNT=bat1batttt4@gmail.com
 
 #**************   CUSTOM PATHS   *********************
 
-# Add specific virtualenv paths
-export PATH="$HOME/apps/global/.venv/bin:$PATH"
-export PATH="$HOME/apps/euphorie_env/.venv/bin:$PATH"
-export PATH="$HOME/apps/open-webui_env/.venv/bin:$PATH"
+# NOTE: venv bins are NOT in PATH.
+# - Services (open-webui, euphorie): managed by systemd user units → start/stop via aliases below
+# - Dev tools (marimo, jupyter): use `uvx <tool>` or `uv run <tool>` inside a project
+# - Global CLI tools (ruff, mypy): installed via `uv tool install` → live in ~/.local/bin (already in PATH)
 
 # System paths
-# Adding essential system directories to PATH
 export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/sbin:${PATH}"
-export PATH="/home/archer/.local/share/../bin:$PATH"
-# Add Cargo binaries to PATH (check version with: cargo --version)
+# Add Cargo binaries to PATH
 export PATH="${HOME}/.cargo/bin:${PATH}"
-
-
-# Add Node.js global modules binaries to PATH (check version with: node --version)
+# Node.js global modules
 export PATH="${HOME}/.node_modules/bin:${PATH}"
+# uv tool installs land here (already covered by home.sessionPath but explicit for non-HM shells)
+export PATH="${HOME}/.local/bin:${PATH}"
 
 # # Deduplicate PATH entries
 # deduplicate_path() {

@@ -7,6 +7,7 @@ export NH_HOME_FLAKE="$HOME/.dotfiles"
 export NH_NOM=1
 
 path=(
+  "$HOME/.nix-profile/bin"
   "$HOME/.local/bin"
   "$HOME/.cargo/bin"
   "$HOME/.bun/bin"

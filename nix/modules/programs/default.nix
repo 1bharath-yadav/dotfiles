@@ -1,4 +1,5 @@
 { ... }:
+
 {
   imports = [
     ./bin
@@ -7,5 +8,6 @@
     ./tmux
     ./starship
     ./nvim
+    ./direnv
   ];
 }
