@@ -156,7 +156,7 @@ git rebase --continue         # after resolving archer conflict
 ### Packages / Stow
 
 - Repository root is clean. All user configurations (neovim, yazi, tmux, zsh, lazygit, starship, bin) are strictly grouped inside `nix/modules/programs/`.
-- `git` and `zsh` configs are fully declared natively inside Nix, while tools with native config directories (like Neovim) are mounted via `xdg.configFile` alongside their `.nix` module files.
+- `git` and `zsh` configs are fully declared natively inside Nix. `programs.zsh.dotDir` uses an absolute path (`config.home.homeDirectory`) to avoid deprecation warnings. Oh My Zsh is enabled with a default theme (robbyrussell) and several productivity plugins (git, sudo, docker, etc.). Zsh autosuggestions are configured with `history` and `completion` strategies and an explicit highlight style for visibility. Tools with native config directories (like Neovim) are mounted via `xdg.configFile` alongside their `.nix` module files.
 - Stow remains only for Arch-specific `hypr/` and `kitty/`
 
 ### Nix current state

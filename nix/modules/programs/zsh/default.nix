@@ -1,16 +1,20 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    dotDir = ".config/zsh";
+    dotDir = "${config.home.homeDirectory}/.config/zsh";
 
     shellAliases = {
       apply-dotfiles = "git -C ~/.dotfiles add . && nix run home-manager/master -- switch --flake ~/.dotfiles#archer-arch";
     };
 
-    autosuggestion.enable = true;
+    autosuggestion = {
+      enable = true;
+      strategy = [ "history" "completion" ];
+      highlight = "fg=8,underline"; # Grey with underline for visibility
+    };
     syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
 
@@ -20,6 +24,20 @@
       ignoreAllDups = true;
       share = true;
       expireDuplicatesFirst = true;
+    };
+
+    oh-my-zsh = {
+      enable = true;
+      plugins = [
+        "git"
+        "sudo"
+        "docker"
+        "kubectl"
+        "ansible"
+        "terraform"
+        "helm"
+      ];
+      theme = "robbyrussell";
     };
 
     envExtra = ''
