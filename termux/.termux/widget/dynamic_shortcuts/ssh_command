@@ -1,2 +1,0 @@
-#!/data/data/com.termux/files/usr/bin/bash
-echo ssh -p 8022 $(whoami)@$(ifconfig | awk '/inet /&&!/127.0.0.1/{print $2;exit}')

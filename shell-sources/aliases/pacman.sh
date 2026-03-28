@@ -2,8 +2,6 @@
 # Pacman/yay aliases — Arch Linux only
 [[ -f /etc/arch-release ]] || return 0
 
-alias i='~/bin/pkg-log.sh i'
-alias rp='~/bin/pkg-log.sh rp'
 alias upd="sudo pacman -Syu"
 alias pS='sudo pacman -S'
 alias pR='sudo pacman -R'                  # Remove package(s)

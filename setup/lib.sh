@@ -3,7 +3,6 @@
 set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
-PKGS_JSON="$DOTFILES/pkgs.json"
 
 # ── logging ────────────────────────────────────────────────────────────────
 log()  { printf "\033[32m==>\033[0m %s\n" "$*"; }
@@ -15,14 +14,12 @@ require_cmd() { command -v "$1" >/dev/null 2>&1 || die "Missing required command
 has_cmd()     { command -v "$1" >/dev/null 2>&1; }
 
 # ── OS detection ───────────────────────────────────────────────────────────
-is_termux() { [[ -n "${TERMUX_VERSION:-}" ]] || [[ -d /data/data/com.termux ]]; }
 is_wsl()    { grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null; }
 is_arch()   { [[ -f /etc/arch-release ]]; }
 is_ubuntu() { grep -qi ubuntu /etc/os-release 2>/dev/null; }
 
 detect_os() {
-  if is_termux; then echo termux
-  elif is_wsl;  then echo wsl
+  if is_wsl;  then echo wsl
   elif is_arch; then echo arch
   elif is_ubuntu; then echo ubuntu
   else die "Unsupported OS"; fi
@@ -52,11 +49,29 @@ stow_pkg() {
   local conflicts
   cd "$DOTFILES"
   # dry-run to find conflicts
-  conflicts=$(stow --no-folding -nv -t "$target" "$pkg" 2>&1 \
-    | awk '/existing target is neither a link nor a directory:/{print $NF}')
+  conflicts=$(
+    {
+      stow --no-folding -nv -t "$target" "$pkg" 2>&1 || true
+    } | awk '
+          /existing target is neither a link nor a directory:/ { print $NF }
+          /cannot stow .* over existing target / {
+            target = $0
+            sub(/^.* over existing target /, "", target)
+            sub(/ since neither a link nor a directory.*$/, "", target)
+            print target
+          }
+        '
+  )
   if [[ -n "$conflicts" ]]; then
     warn "Removing conflicts for $pkg"
-    while IFS= read -r f; do rm -rf "$target/$f"; done <<< "$conflicts"
+    while IFS= read -r f; do
+      [[ -z "$f" ]] && continue
+      if [[ "$f" = /* ]]; then
+        rm -rf "$f"
+      else
+        rm -rf "$target/$f"
+      fi
+    done <<< "$conflicts"
   fi
   stow --no-folding -t "$target" "$pkg"
   log "Stowed: $pkg → $target"
@@ -72,54 +87,17 @@ restow_pkg() {
   stow_pkg "$pkg" "$target"
 }
 
-# ── zsh plugins via git ────────────────────────────────────────────────────
-install_zsh_plugin() {
-  local repo="$1" name="${2:-$(basename "$1")}"
-  local dest="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/$name"
-  if [[ -d "$dest" ]]; then
-    log "Plugin already present: $name"
-    git -C "$dest" pull -q
-  else
-    git clone --depth=1 "https://github.com/$repo" "$dest"
-  fi
-}
-
-# ── Oh My Zsh ─────────────────────────────────────────────────────────────
-install_omz() {
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then log "OMZ already installed"; return; fi
-  log "Installing Oh My Zsh"
-  RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  install_zsh_plugin zsh-users/zsh-autosuggestions
-  install_zsh_plugin zsh-users/zsh-syntax-highlighting
-}
-
-# ── set default shell ──────────────────────────────────────────────────────
-set_zsh_default() {
-  local zsh_path
-  zsh_path=$(command -v zsh) || die "zsh not found"
-  if [[ "$SHELL" != "$zsh_path" ]]; then
-    log "Setting zsh as default shell"
-    if is_termux; then chsh -s zsh
-    else chsh -s "$zsh_path" "$USER"
-    fi
-  fi
-}
-
-# ── npm globals ────────────────────────────────────────────────────────────
-install_npm_globals() {
-  has_cmd jq || die "jq required"
-  local npm_prefix="$HOME/.npm-global"
-  mkdir -p "$npm_prefix"
-  npm config set prefix "$npm_prefix"
-  mapfile -t pkgs < <(jq -r '.npm[].name' "$PKGS_JSON")
-  [[ ${#pkgs[@]} -gt 0 ]] && npm install -g "${pkgs[@]}"
+unstow_pkg_if_present() {
+  local pkg="$1" target="${2:-$HOME}"
+  _stow_blocked "$pkg" && return 0
+  [[ -d "$DOTFILES/$pkg" ]] || return 0
+  (cd "$DOTFILES" && stow --no-folding -D -t "$target" "$pkg") 2>/dev/null || true
 }
 
 # ── yazi plugins & flavors via ya pkg ──────────────────────────────────────
 # Plugins/flavors are declared in ~/.config/yazi/package.toml and installed
 # at runtime into ~/.config/yazi/plugins/ and ~/.config/yazi/flavors/.
-# They are NOT stowed — .stowrc ignores those dirs.
+# They are NOT stowed.
 install_yazi_pkgs() {
   local pkg_toml="$HOME/.config/yazi/package.toml"
   if ! has_cmd ya; then
@@ -134,16 +112,80 @@ install_yazi_pkgs() {
   ya pkg install
 }
 
-# ── nvim lazy pkg installation───────────────────────────────────────────────────────
-install_lazy() {
-  local lazy_dir="$HOME/.local/share/nvim/lazy/lazy.nvim"
-  if [[ -d "$lazy_dir" ]]; then
-    log "lazy.nvim already installed"
-    git -C "$lazy_dir" pull -q
-  else
-  git clone --depth 1https://github.com/folke/lazy.nvim.git \
-  ~/.local/share/nvim/lazy/lazy.nvim
+host_name_for_os() {
+  case "$1" in
+    arch) echo archer-arch ;;
+    wsl|ubuntu) echo archer-wsl ;;
+    *) die "Unsupported OS for Home Manager: $1" ;;
+  esac
+}
 
+install_system_pkgs() {
+  case "$1" in
+    arch)
+      require_cmd sudo
+      log "Installing Arch bootstrap packages"
+      sudo pacman -Syu --needed --noconfirm base-devel curl git stow zsh xz
+      ;;
+    wsl|ubuntu)
+      require_cmd sudo
+      log "Updating apt"
+      sudo apt-get update -y
+      log "Installing Ubuntu-in-WSL bootstrap packages"
+      sudo apt-get install -y curl git stow xz-utils zsh
+      ;;
+    *)
+      die "Unsupported OS for bootstrap: $1"
+      ;;
+  esac
+}
+
+
+
+apply_stow_overlays() {
+  case "$1" in
+    arch)
+      local pkg
+      log "Stowing Arch overlays"
+      for pkg in hypr kitty; do
+        restow_pkg "$pkg"
+      done
+      ;;
+    wsl|ubuntu)
+      log "No stow overlays for Ubuntu in WSL"
+      ;;
+    *)
+      die "Unsupported OS for stow overlays: $1"
+      ;;
+  esac
+}
+
+enable_nix_flakes() {
+  local nix_conf="$HOME/.config/nix/nix.conf"
+  mkdir -p "$(dirname "$nix_conf")"
+
+  if [[ -f "$nix_conf" ]] && grep -q '^experimental-features = .*flakes' "$nix_conf"; then
+    return
   fi
-} 
 
+  {
+    echo "experimental-features = nix-command flakes"
+    echo "accept-flake-config = true"
+  } >> "$nix_conf"
+}
+
+apply_home_manager() {
+  local os="$1"
+  local host
+  host="$(host_name_for_os "$os")"
+
+  if ! has_cmd nix; then
+    warn "Nix not found — install Nix, then run: $DOTFILES/setup/main.sh $os"
+    return
+  fi
+
+  enable_nix_flakes
+  log "Applying Home Manager user environment"
+  nix run github:nix-community/home-manager -- switch --flake "$DOTFILES#$host"
+  install_yazi_pkgs
+}

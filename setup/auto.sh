@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
-# setup/auto.sh — detect OS and delegate to the right setup script
+# setup/auto.sh — detect OS and run the unified setup entry
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export DOTFILES
-source "$DOTFILES/setup/lib.sh"
-
-main() {
-  local os; os=$(detect_os)
-  log "Detected OS: $os"
-  exec "$DOTFILES/setup/${os}.sh"
-}
-
-main "$@"
+exec "$DOTFILES/setup/main.sh" auto "$@"

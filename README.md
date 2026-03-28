@@ -1,6 +1,6 @@
 # dotfiles
 
-Managed with [GNU Stow](https://www.gnu.org/software/stow/). Supports **Arch Linux**, **Ubuntu/WSL**, and **Termux**.
+Managed with Home Manager for userland and a small amount of GNU Stow for Arch-only GUI overlays. Supports **Arch Linux**, **Ubuntu in WSL2 (no GUI)**, and **Android via nix-on-droid**.
 
 ## Quick Start
 
@@ -8,52 +8,38 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/). Supports **Arch Lin
 git clone https://github.com/yourusername/dotfiles ~/.dotfiles
 cd ~/.dotfiles
 chmod +x setup/auto.sh
-./setup/auto.sh        # auto-detects OS
+./setup/auto.sh
 ```
 
-Or run OS-specific setup directly:
+Preferred flow:
 ```bash
-./setup/arch.sh        # Arch Linux
-./setup/ubuntu.sh      # Ubuntu / WSL
-./setup/termux.sh      # Termux (Android)
+./setup/bootstrap.sh arch      # first-run bootstrap for Arch
+./setup/bootstrap.sh wsl       # first-run bootstrap for Ubuntu in WSL
+./setup/bootstrap.sh android   # first-run bootstrap inside nix-on-droid
+./setup/main.sh arch     # Arch bootstrap + overlays + Home Manager
+./setup/main.sh wsl      # Ubuntu in WSL bootstrap + Home Manager
+./setup/auto.sh          # detect current OS and run setup/main.sh
 ```
 
 ## Structure
 
 ```
 .dotfiles/
-├── setup/             # OS setup scripts
-│   ├── lib.sh         # shared helpers (stow, log, detect_os, omz…)
-│   ├── auto.sh        # entry point — detects OS, delegates
-│   ├── arch.sh        # Arch Linux: pacman + yay + npm
-│   ├── ubuntu.sh      # Ubuntu/WSL: apt + extras
-│   └── termux.sh      # Termux: pkg + pip + npm
-├── stow/              # stow manifests (which packages per OS)
-│   ├── arch.sh
-│   ├── ubuntu.sh
-│   └── termux.sh
+├── flake.nix          # Home Manager + nix-on-droid entrypoint
+├── nix/               # Nix modules and host definitions
+├── setup/             # setup scripts
+│   ├── lib.sh         # shared helpers (bootstrap, stow, Home Manager, detect_os)
+│   ├── bootstrap.sh   # shared bootstrap entry for arch / wsl / android
+│   ├── main.sh        # unified setup entry for arch / wsl / auto
+│   └── auto.sh        # thin wrapper to setup/main.sh auto
 ├── shell-sources/     # sourced via .zshrc cache (NOT stowed)
 │   ├── aliases/       # aliases organised by topic
 │   ├── functions/     # helper functions
 │   └── paths/         # PATH additions
 │
-├── # ── stow packages (stowed to $HOME) ──
-├── bin/               # personal scripts → ~/bin/
+├── # ── end4dots graphical additions (GNU Stow) ──
 ├── hypr/              # Hyprland config  [arch only]
-├── kitty/             # Kitty terminal   [arch only]
-├── nvim/              # Neovim config
-├── starship/          # Starship prompt
-├── tmux/              # Tmux config
-├── yazi/              # Yazi file manager
-├── zsh/               # Zsh config       [arch + ubuntu]
-├── zsh-termux/        # Zsh config       [termux]
-└── termux/            # ~/.termux/       [termux]
-    └── .termux/
-        ├── termux.properties
-        ├── colors.properties
-        ├── colors/
-        ├── bin/
-        └── widget/
+└── kitty/             # Kitty terminal   [arch only]
 ```
 
 ## Updating
@@ -62,18 +48,21 @@ Or run OS-specific setup directly:
 ~/.dotfiles/update.sh   # restow for current OS, pull end4dots (Arch)
 ```
 
-## Adding a new package
+`update.sh` intentionally keeps the `end4dots` Arch workflow intact. Nix does not replace that upstream Hyprland base.
 
-1. Add it to `pkgs.json` under the right key (`common`, `arch.official`, `arch.aur`, `ubuntu.apt`, `termux`, `npm`)
-2. Add the stow package dir if needed
-3. Add it to the relevant `stow/<os>.sh` PACKAGES array
-4. Run `./update.sh`
+## Package ownership
+
+- `pacman` / `apt`: system bootstrap only
+- Home Manager: user-level packages and common user config links
+- `nix-on-droid`: Android user environment
+- Stow: Arch-only `hypr` and `kitty`
 
 ## Key files
 
 | File | Purpose |
 |------|---------|
-| `pkgs.json` | Single source of truth for all packages |
-| `setup/lib.sh` | Shared bash helpers (stow_pkg, restow_pkg, detect_os…) |
-| `.stowrc` | Global stow defaults (target=$HOME, ignores) |
-| `update.sh` | Idempotent restow for current OS |
+| `flake.nix` | Single source of truth for Nix user environments |
+| `setup/lib.sh` | Shared bash helpers for bootstrap, overlays, and Home Manager |
+| `setup/bootstrap.sh` | First-run bootstrap entry for all supported OS targets |
+| `setup/main.sh` | Unified setup entry for Arch and Ubuntu in WSL |
+| `update.sh` | Idempotent restow for current OS + end4dots pull on Arch |

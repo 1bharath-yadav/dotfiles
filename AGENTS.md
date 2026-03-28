@@ -10,9 +10,9 @@ It is the single source of truth for architecture decisions, working agreements,
 | Key            | Value                 |
 | -------------- | --------------------- |
 | Primary OS     | Arch Linux + Hyprland |
-| Secondary OS   | Ubuntu / WSL2         |
-| Mobile         | Termux (Android)      |
-| Shell          | zsh (Oh My Zsh)       |
+| Secondary OS   | Ubuntu in WSL2 (no GUI) |
+| Mobile         | nix-on-droid (Android) |
+| Shell          | zsh                   |
 | Prompt         | Starship              |
 | Editor         | Neovim                |
 | Package linker | GNU Stow              |
@@ -27,47 +27,28 @@ It is the single source of truth for architecture decisions, working agreements,
 ├── AGENTS.md              ← this file; read at start, updated at end of session
 ├── README.md              ← user-facing quick-start
 ├── Setup.md               ← detailed per-OS setup guide
-├── pkgs.json              ← single source of truth for ALL packages
-│                            keys: common / arch.official / arch.aur / ubuntu.apt / termux / npm
-├── .stowrc                ← global stow config (target=~, ignores)
-├── update.sh              ← idempotent restow for current OS + end4dots pull (Arch)
+├── flake.nix              ← single source of truth for Nix user environments
+├── update.sh              ← idempotent restow for current OS + end4dots two-branch sync (Arch)
+├── nix/                   ← Home Manager + nix-on-droid configs
+│   ├── hosts/             ← host entrypoints (archer-arch / archer-wsl / archer-phone)
+│   └── modules/           ← organized by functional domain:
+│       ├── core/          ← home-base and CLI base packages
+│       ├── programs/      ← apps (nvim, yazi, git, tmux, zsh, starship, bin)
+│       └── linux|android/ ← OS-specific packaging
 │
 ├── setup/                 ← OS setup scripts
-│   ├── lib.sh             ← shared helpers: log/warn/die, detect_os, stow_pkg,
-│   │                         restow_pkg, install_omz, install_zsh_plugin, set_zsh_default
-│   ├── auto.sh            ← entry point: detect_os → exec setup/<os>.sh
-│   ├── arch.sh            ← Arch: pacman base → omz → pacman pkgs → yay → AUR → fnm → npm → stow
-│   ├── ubuntu.sh          ← Ubuntu/WSL: apt → fnm → omz → extras (starship/zoxide/yazi) → npm → stow
-│   ├── termux.sh          ← Termux: pkg → pip → omz → npm → stow
-│   └── cleanup_root_orphans.sh  ← one-time: removes old setup scripts from ~/
-│
-├── stow/                  ← stow manifests (PACKAGES array per OS)
-│   ├── arch.sh            ← bin hypr kitty nvim starship tmux yazi zsh
-│   ├── ubuntu.sh          ← bin nvim starship tmux yazi zsh
-│   └── termux.sh          ← bin nvim starship tmux zsh-termux termux
+│   ├── lib.sh             ← shared helpers: logging, OS detection, bootstrap, stow
+│   ├── bootstrap.sh       ← shared bootstrap entry for `arch|wsl|android`
+│   └── main.sh            ← unified setup entry for `arch|wsl|auto`
 │
 ├── shell-sources/         ← NOT stowed; sourced via dotfiles cache in .zshrc
 │   ├── aliases/           ← topic aliases (pacman.sh is Arch-only guarded)
 │   ├── functions/         ← helper functions
 │   └── paths/             ← PATH exports
 │
-├── # ── stow packages (each dir stowed → $HOME) ──
-├── bin/                   ← ~/bin/ personal scripts
+├── # ── end4dots graphical additions (GNU Stow) ──
 ├── hypr/                  ← ~/.config/hypr/          [Arch only]
-├── kitty/                 ← ~/.config/kitty/          [Arch only]
-├── nvim/                  ← ~/.config/nvim/
-├── starship/              ← ~/.config/starship.toml
-├── tmux/                  ← ~/.tmux.conf
-├── yazi/                  ← ~/.config/yazi/
-├── zsh/                   ← ~/.zshrc + ~/.zshenv      [Arch + Ubuntu]
-├── zsh-termux/            ← ~/.zshrc                  [Termux override]
-└── termux/                ← ~/.termux/                [Termux]
-    └── .termux/
-        ├── termux.properties
-        ├── colors.properties
-        ├── colors/tokyonight.properties
-        ├── bin/termux-url-opener
-        └── widget/dynamic_shortcuts/ssh_command
+└── kitty/                 ← ~/.config/kitty/         [Arch only]
 ```
 
 ---
@@ -77,33 +58,44 @@ It is the single source of truth for architecture decisions, working agreements,
 ### Stow strategy
 
 - `stow --no-folding -t ~ <pkg>` — always use `--no-folding` so stow never folds a directory into a symlink (safer for `.config/`)
-- `--no-folding` is now also set in `.stowrc` globally so it applies even to manual stow calls
 - `restow_pkg` = `stow --no-folding -D` then `stow_pkg` — atomic unlink+relink
 - Conflict resolution in `stow_pkg`: dry-run first, parse conflict lines, `rm` them, then stow
 
 ### Stow safety — non-package dirs never stowed (3 layers)
 
-1. **Explicit PACKAGES arrays** in `stow/arch.sh`, `stow/ubuntu.sh`, `stow/termux.sh` — only named packages are ever passed to stow. No globbing.
-2. **`_STOW_BLOCKLIST`** in `setup/lib.sh` — `stow_pkg` and `restow_pkg` both call `_stow_blocked()` first and `die` if given a non-package dir (`setup stow shell-sources .git .spaces`).
-3. **`.stowrc` `--ignore` patterns** — defence-in-depth: if someone runs `stow .` manually, these name-based patterns prevent the non-package dirs from being linked. Note: stow ignores match basenames, not full paths.
+1. **Explicit overlay list** in `apply_stow_overlays()` (`setup/lib.sh`) — only named packages are ever passed to stow. No globbing.
+2. **`_STOW_BLOCKLIST`** in `setup/lib.sh` — `stow_pkg` and `restow_pkg` both call `_stow_blocked()` first and `die` if given a non-package dir (`setup shell-sources .git .spaces`).
+3. **Script-only stow usage** — stow is only invoked through `setup/lib.sh`, which always passes explicit package names and `--no-folding`.
 
-Dirs that will never be stowed: `setup/` `stow/` `shell-sources/` `.git/` `.spaces/`
-
-### pkgs.json keys
-
-- `common[]` — installed on Arch + Ubuntu (common CLI tools)
-- `arch.official[]` — pacman packages (Arch only, skips if also in aur)
-- `arch.aur[]` — AUR packages via yay
-- `ubuntu.apt[]` — apt packages (Ubuntu/WSL only, name-mapped from Arch names)
-- `termux[]` — pkg packages (Termux only)
-- `npm[]` — npm -g packages (all OSes with Node)
+Dirs that will never be stowed: `setup/` `stow/` `shell-sources/` `.git/` `.spaces/` `nix/`
 
 ### OS detection (`setup/lib.sh: detect_os`)
 
-- Termux: `$TERMUX_VERSION` set OR `/data/data/com.termux` exists (checked first, no `/etc/os-release`)
 - WSL: `/proc/version` contains `microsoft|wsl`
 - Arch: `/etc/arch-release` exists
 - Ubuntu: `/etc/os-release` contains `ubuntu`
+
+### end4dots fork strategy (`~/linux/dots-hyprland`)
+
+Two-branch model — keeps upstream sync clean and your changes rebased on top:
+
+| Branch | Purpose | Rule |
+|--------|---------|------|
+| `main` | Clean mirror of `upstream/main` | **Never commit here** |
+| `archer` | Your modifications to end4dots files | Only branch you commit to |
+
+- `update.sh` handles the full sync: `main` rebases onto `upstream/main`, then `archer` rebases onto `main`
+- Always remain on `archer` after `update.sh` completes
+- Conflict on `main` → `git rebase --abort`, fix upstream divergence, re-run
+- Conflict on `archer` → `git rebase --continue` after resolving
+
+**What goes where:**
+
+| Change type | Location |
+|-------------|----------|
+| Modifies an existing end4dots file (AGS widget, theme, hyprland.conf) | `archer` branch commit |
+| Pure addition end4dots leaves for users (keybinds, execs, window rules) | `~/.dotfiles/hypr/custom/` (stowed) |
+| Machine-specific (monitor layout, app exec paths) | `~/.dotfiles/hypr/custom/` (stowed) |
 
 ---
 
@@ -116,7 +108,13 @@ Dirs that will never be stowed: `setup/` `stow/` `shell-sources/` `.git/` `.spac
 - `stow --no-folding` always — never omit this flag
 - Never manually copy configs; always use stow
 - `shell-sources/` is never stowed — it's loaded via the dotfiles cache in `.zshrc`
-- Hyprland/end4dots configs live in `~/linux/dots-hyprland/`, not here
+- Hyprland/end4dots configs live in `~/linux/dots-hyprland/` on branch `archer`, not here
+- **Never commit to `main` in `dots-hyprland`** — it is a clean upstream mirror
+- `update.sh` syncs `main` → upstream, rebases `archer` → `main`; Nix layers userland on top
+- `pacman` / `apt` are for bootstrap and system-level packages only
+- Home Manager owns Linux user-level packages and common user config links
+- nix-on-droid owns Android user-level packages
+- `.zshrc` should stay package-agnostic and stable; package changes belong in Nix, not shell startup
 
 ---
 
@@ -125,30 +123,51 @@ Dirs that will never be stowed: `setup/` `stow/` `shell-sources/` `.git/` `.spac
 ```bash
 # Full setup on new machine
 ~/.dotfiles/setup/auto.sh
+~/.dotfiles/setup/bootstrap.sh arch
+~/.dotfiles/setup/bootstrap.sh wsl
+~/.dotfiles/setup/bootstrap.sh android
 
 # Re-stow after editing configs
 ~/.dotfiles/update.sh
 
-# Re-stow specific OS
-~/.dotfiles/stow/arch.sh       # Arch
-~/.dotfiles/stow/ubuntu.sh     # Ubuntu/WSL
-~/.dotfiles/stow/termux.sh     # Termux
+# Full setup for a specific OS
+~/.dotfiles/setup/main.sh arch
+~/.dotfiles/setup/main.sh wsl
 
 # Invalidate dotfiles cache (picks up shell-sources changes)
 rm ~/.zsh_dotfiles_cache
 
-# Add new package to all OSes
-# 1. Edit pkgs.json
-# 2. Edit stow/<os>.sh PACKAGES array if it's a new stow package
-# 3. Run ./update.sh
+# Add new user package
+# 1. Edit nix/modules/*
+# 2. Run setup/main.sh <arch|wsl> or ./update.sh
+
+# Sync end4dots with upstream (two-branch)
+~/.dotfiles/update.sh          # handles everything automatically
+
+# Manual end4dots branch ops
+cd ~/linux/dots-hyprland
+git checkout archer            # always work here
+git rebase main               # after manual main update
+git rebase --continue         # after resolving archer conflict
 ```
 
 ## Current State
 
 ### Packages / Stow
 
-- `git` stow package → `git/.gitconfig` (all OSes including termux)
-- `lazygit` stow package → `lazygit/.config/lazygit/config.yml` (arch + ubuntu; termux excluded)
+- Repository root is clean. All user configurations (neovim, yazi, tmux, zsh, lazygit, starship, bin) are strictly grouped inside `nix/modules/programs/`.
+- `git` and `zsh` configs are fully declared natively inside Nix, while tools with native config directories (like Neovim) are mounted via `xdg.configFile` alongside their `.nix` module files.
+- Stow remains only for Arch-specific `hypr/` and `kitty/`
+
+### Nix current state
+
+- `flake.nix` defines:
+  - `homeConfigurations.archer-arch`
+  - `homeConfigurations.archer-wsl`
+  - `nixOnDroidConfigurations.archer-phone`
+- Linux setup is now unified in `setup/main.sh`; OS-specific logic lives in `setup/lib.sh`
+- First-run bootstrap is handled by `setup/bootstrap.sh <arch|wsl|android>`
+- Android target is `nix-on-droid`; Termux-specific setup/config has been removed
 
 ### bin/aicommit
 
