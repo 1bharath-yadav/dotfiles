@@ -33,8 +33,9 @@ It is the single source of truth for architecture decisions, working agreements,
 │   ├── hosts/             ← host entrypoints (archer-arch / archer-wsl / archer-phone)
 │   └── modules/           ← organized by functional domain:
 │       ├── core/          ← home-base and CLI base packages
-│       ├── programs/      ← apps (nvim, yazi, git, tmux, zsh, starship, bin)
-│       └── linux|android/ ← OS-specific packaging
+│       ├── programs/      ← app configs (nvim, yazi, git, tmux, zsh, starship, bin)
+│       ├── profiles/      ← host package bundles (common-linux / arch-desktop / wsl)
+│       └── android/       ← Android-specific packaging
 │
 ├── setup/                 ← OS setup scripts
 │   ├── lib.sh             ← shared helpers: logging, OS detection, bootstrap, stow
@@ -108,6 +109,7 @@ Two-branch model — keeps upstream sync clean and your changes rebased on top:
 - `stow --no-folding` always — never omit this flag
 - Never manually copy configs; always use stow
 - `shell-sources/` is never stowed — it's loaded via the dotfiles cache in `.zshrc`
+- In `shell-sources/`, `*.sh` means active/loaded and `*.s` means parked/disabled reference snippets; do not change the loader to source `.s` files by default
 - Hyprland/end4dots configs live in `~/linux/dots-hyprland/` on branch `archer`, not here
 - **Never commit to `main` in `dots-hyprland`** — it is a clean upstream mirror
 - `update.sh` syncs `main` → upstream, rebases `archer` → `main`; Nix layers userland on top
@@ -153,10 +155,40 @@ git rebase --continue         # after resolving archer conflict
 
 ## Current State
 
+### Package ownership model
+
+Clear three-layer boundary (established 2026-03-28):
+
+| Layer | Manager | Tracked in |
+|---|---|---|
+| System / kernel / AUR | `pacman` | `setup/arch_linux/pacman-explicit.txt` |
+| User environment (all hosts) | Nix Home Manager | `nix/modules/` |
+| Android | nix-on-droid | `nix/hosts/archer-phone.nix` |
+
+**Key rule:** if it needs a systemd service, `/etc` integration, or is AUR-only → pacman. Everything else → Nix.
+
+### Nix module layout (post-refactor)
+
+```
+nix/modules/
+  core/packages.nix          ← universal CLI tools on ALL hosts (bat, eza, fzf, ripgrep, jq, gh…)
+  profiles/
+    common-linux.nix         ← targets.genericLinux.enable + lazygit + yazi imports
+    arch-desktop.nix         ← Arch-specific CLI + GUI apps + fonts; has ownership comment block
+    wsl.nix                  ← minimal WSL additions on top of common-linux
+    extras.nix               ← optional/niche tools (security, rare utils); NOT imported by default
+```
+
+**extras.nix** contains: `aircrack-ng`, `john`, `fcrackzip`, `f3`, `gogcli`, `httrack`, `nyx`, `tor`, `lynx`, `monolith`, `goaccess`, `payload-dumper-go`, `netcat-openbsd`, `msmtp`, `sshfs`, `traceroute`, `acpi`, `ent`, `fq`, `speedtest-cli`, `antigravity`, `smartmontools`.
+To enable on a host: `imports = [ ../profiles/extras.nix ];`
+
+**pacman-explicit.txt** (`setup/arch_linux/pacman-explicit.txt`) — git-tracked list of system packages pacman explicitly owns, with audit command: `pacman -Qe | awk '{print $1}' | sort`
+
 ### Packages / Stow
 
 - Repository root is clean. All user configurations (neovim, yazi, tmux, zsh, lazygit, starship, bin) are strictly grouped inside `nix/modules/programs/`.
-- `git` and `zsh` configs are fully declared natively inside Nix. `programs.zsh.dotDir` uses an absolute path (`config.home.homeDirectory`) to avoid deprecation warnings. Oh My Zsh is enabled with a default theme (robbyrussell) and several productivity plugins (git, sudo, docker, etc.). Zsh autosuggestions are configured with `history` and `completion` strategies and an explicit highlight style for visibility. Tools with native config directories (like Neovim) are mounted via `xdg.configFile` alongside their `.nix` module files.
+- `git` and `zsh` configs are fully declared natively inside Nix. `programs.zsh.dotDir` uses an absolute path (`config.home.homeDirectory`) to avoid deprecation warnings. Oh My Zsh is enabled with a default theme (robbyrussell) and several productivity plugins (git, sudo, docker, etc.). Zsh autosuggestions are configured with `history` and `completion` strategies and an explicit highlight style for visibility. Tools with native config directories (like Neovim and Tmux) are mounted via `xdg.configFile` alongside their `.nix` module files.
+- The zsh module is split into a small `default.nix` plus `env.zsh` and ordered `init/*.zsh` snippets for tools, cached shell-sources loading, Yazi helper, keybindings, and optional secrets.
 - Stow remains only for Arch-specific `hypr/` and `kitty/`
 
 ### Nix current state
@@ -168,6 +200,32 @@ git rebase --continue         # after resolving archer conflict
 - Linux setup is now unified in `setup/main.sh`; OS-specific logic lives in `setup/lib.sh`
 - First-run bootstrap is handled by `setup/bootstrap.sh <arch|wsl|android>`
 - Android target is `nix-on-droid`; Termux-specific setup/config has been removed
+- Host package ownership is split through profile modules: `common-linux` for shared non-NixOS behavior, `arch-desktop` for Arch GUI/dev packages, and `wsl` for a lighter terminal-focused WSL set
+- User-level Home Manager config avoids restricted Nix daemon settings such as `trusted-public-keys`; custom binary caches belong in system Nix config, not Home Manager
+- `apply-dotfiles` stages the repo then runs `home-manager switch --flake ~/.dotfiles#archer-arch` directly; avoid floating `nix run home-manager/<branch>` aliases
+- Yazi uses per-file Home Manager links for static config, while `~/.config/yazi/package.toml` stays writable and is seeded once from the repo so `ya pkg install` can manage plugins/flavors at runtime
+- Shell snippet convention is intentional: only `shell-sources/**/*.sh` participates in normal shell startup; `*.s` files are archival/manual snippets
+- `nvim`, `lazygit`, and `starship` use `config.lib.file.mkOutOfStoreSymlink` → editing files in `nix/modules/programs/*/config/` takes effect immediately with no HM rebuild required
+- `desktop-file-utils` added to `core/packages.nix` to provide `update-desktop-database`
+- `nix-index` added alongside `pay-respects` in both `arch-desktop.nix` and `wsl.nix` — `pay-respects` requires `nix-locate` (from `nix-index`) to suggest Nix packages for unknown commands
+
+### Nix app visibility in Quickshell / fuzzel
+
+**Root cause**: end4dots `./setup install` uses `cp -f` (not symlinks), so it overwrites `~/.config/hypr/hyprland.conf` with the upstream version every run. The upstream version is missing `source=custom/env.conf`, so `custom/env.conf` (which sets `XDG_DATA_DIRS` and `PATH` for Nix) never loads.
+
+**Fix applied (2025-03-28)**:
+1. `hypr/.config/hypr/custom/env.conf` (stowed) — sets `XDG_DATA_DIRS` to include `~/.nix-profile/share`, adds `~/.nix-profile/bin` to `PATH`, sets `NIX_PATH`
+2. `update.sh` now re-copies `hyprland.conf` from the archer branch after every end4dots `setup install`, ensuring `source=custom/env.conf` is always present; `local` keyword bug fixed (was `local hconf=...` at top level, now plain `_hconf=`)
+3. `bin/scripts/refresh-apps` — rebuild desktop cache + signal Quickshell reload without full restart; manually linked to `~/bin` pending next HM switch
+4. **To activate**: log out and back in once; thereafter `refresh-apps` is sufficient after new Nix installs
+
+**Key insight**: `~/.config/hypr/hyprland.conf` must always come from the archer branch of `dots-hyprland` (which has `source=custom/env.conf`). The `update.sh` patch guard ensures this survives future upstream syncs.
+
+### update.sh smart rebuild
+
+- Skips HM rebuild when no `.nix` / `flake.lock` files changed since last switch (tracked in `~/.local/state/home-manager/last-switch`)
+- `NIX_FORCE=1 ./update.sh` forces a full rebuild regardless
+- After end4dots `setup install`, auto-patches `hyprland.conf` to restore `source=custom/env.conf`
 
 ### bin/aicommit
 

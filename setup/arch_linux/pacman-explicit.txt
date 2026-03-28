@@ -1,0 +1,65 @@
+# pacman-explicit.txt — packages explicitly installed via pacman on Arch Linux
+#
+# These are packages that CANNOT or SHOULD NOT be managed by Nix Home Manager:
+#   - require kernel/system integration (drivers, display server, init)
+#   - only available in AUR / chaotic-aur
+#   - provide systemd services that must run as root
+#
+# To reproduce on a new Arch install:
+#   sudo pacman -S --needed $(grep -v '^#' pacman-explicit.txt | grep -v '^$')
+#
+# To audit what you've actually installed explicitly:
+#   pacman -Qe | awk '{print $1}' | sort
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Kernel & Boot ────────────────────────────────────────────────────────────
+linux
+linux-headers
+linux-firmware
+grub
+efibootmgr
+mkinitcpio
+
+# ── Display / Wayland ────────────────────────────────────────────────────────
+wayland
+xorg-xwayland
+mesa
+vulkan-intel
+hyprland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+sddm
+qt5-wayland
+qt6-wayland
+
+# ── Audio ────────────────────────────────────────────────────────────────────
+pipewire
+pipewire-audio
+pipewire-pulse
+pipewire-alsa
+wireplumber
+
+# ── Bluetooth ────────────────────────────────────────────────────────────────
+bluez
+bluez-utils
+
+# ── Network ──────────────────────────────────────────────────────────────────
+networkmanager
+network-manager-applet
+
+# ── System essentials ────────────────────────────────────────────────────────
+base
+base-devel
+sudo
+git
+nix              # Nix daemon itself — must be pacman-installed on Arch
+openssh
+reflector        # mirrorlist updater
+
+# ── AUR / chaotic-aur only ───────────────────────────────────────────────────
+# (packages unavailable in nixpkgs or behave better from AUR)
+yay              # AUR helper
+chaotic-keyring
+chaotic-mirrorlist
+zen-browser      # AUR
+hyprshot         # AUR screenshot tool

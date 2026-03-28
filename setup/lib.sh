@@ -99,9 +99,14 @@ unstow_pkg_if_present() {
 # at runtime into ~/.config/yazi/plugins/ and ~/.config/yazi/flavors/.
 # They are NOT stowed.
 install_yazi_pkgs() {
+  local yazi_dir="$HOME/.config/yazi"
   local pkg_toml="$HOME/.config/yazi/package.toml"
   if ! has_cmd ya; then
     warn "ya not found — skipping yazi plugin install"
+    return
+  fi
+  if [[ -L "$yazi_dir" || -L "$pkg_toml" || ! -w "$yazi_dir" || ! -w "$pkg_toml" ]]; then
+    warn "Yazi config is read-only — skipping yazi plugin install"
     return
   fi
   if [[ ! -f "$pkg_toml" ]]; then

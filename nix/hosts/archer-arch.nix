@@ -4,7 +4,7 @@
   imports = [
     ../modules/core
     ../modules/programs
-    ../modules/linux/packages.nix
+    ../modules/profiles/arch-desktop.nix
   ];
 
   home.username = "archer";

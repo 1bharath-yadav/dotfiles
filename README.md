@@ -54,6 +54,7 @@ Preferred flow:
 
 - `pacman` / `apt`: system bootstrap only
 - Home Manager: user-level packages and common user config links
+- `nix/modules/profiles/`: host package bundles (`common-linux`, `arch-desktop`, `wsl`)
 - `nix-on-droid`: Android user environment
 - Stow: Arch-only `hypr` and `kitty`
 

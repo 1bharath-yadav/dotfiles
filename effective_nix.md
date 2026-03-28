@@ -11,14 +11,15 @@ You should almost never use `sudo pacman -S <tool>` or `apt install <tool>` for 
 Instead, put them in your **Home Manager `packages.nix`**:
 
 - **Cross-platform CLI packages (Arch, WSL, Phone):** Add them to `~/.dotfiles/nix/modules/core/packages.nix`
-- **Linux-specific packages (GUI apps like Chrome, OBS, Zed):** Add them to `~/.dotfiles/nix/modules/linux/packages.nix`
+- **Arch desktop packages (GUI apps like Chrome, OBS, Zed):** Add them to `~/.dotfiles/nix/modules/profiles/arch-desktop.nix`
+- **WSL-specific user packages:** Add them to `~/.dotfiles/nix/modules/profiles/wsl.nix`
 
 *How to apply your changes:*
 ```bash
 apply-dotfiles
 # or manually:
 git add .
-nix run home-manager/master -- switch --flake ~/.dotfiles#archer-arch
+home-manager switch --flake ~/.dotfiles#archer-arch
 ```
 *(Always remember to `git add` new files or modifications before running switch, otherwise Nix will ignore them or throw a dirty tree warning).*
 

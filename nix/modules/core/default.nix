@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   imports = [ ./packages.nix ];
@@ -14,5 +14,13 @@
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
+  };
+
+  nix = {
+    package = pkgs.nix;
+    settings = {
+      # Keep user-level Nix settings minimal; restricted cache trust settings
+      # belong in the system daemon config on non-NixOS.
+    };
   };
 }

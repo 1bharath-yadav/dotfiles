@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# refresh-apps — rebuild desktop app caches and signal Quickshell to reload
+# Run this after installing new Nix packages to see them in launchers immediately
+# without a full Hyprland restart.
+set -euo pipefail
+
+GREEN=$'\033[32m' RST=$'\033[0m'
+
+# Rebuild the .desktop file MIME database for the Nix profile
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database "$HOME/.nix-profile/share/applications/" 2>/dev/null && \
+    echo "${GREEN}✓ Rebuilt Nix desktop database${RST}"
+fi
+
+# Also rebuild the system-wide one if writable (usually not, skip gracefully)
+update-desktop-database /usr/share/applications/ 2>/dev/null || true
+
+# Signal Quickshell to reload its shell (reloads DesktopEntries)
+if command -v qs >/dev/null 2>&1; then
+  qs reload 2>/dev/null && echo "${GREEN}✓ Quickshell reloaded${RST}" || \
+    echo "Quickshell reload failed — may need Hyprland restart"
+elif command -v pkill >/dev/null 2>&1; then
+  # Quickshell wraps itself; the actual process name may be wrapped
+  pkill -HUP -f '\.quickshell-wra\|quickshell' 2>/dev/null && \
+    echo "${GREEN}✓ Sent HUP to Quickshell${RST}" || true
+fi
+
+echo "${GREEN}Done. New Nix apps should appear in launchers.${RST}"
+echo "If not, log out/in once to fully reload XDG_DATA_DIRS in the session."
