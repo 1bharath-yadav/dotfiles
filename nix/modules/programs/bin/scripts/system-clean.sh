@@ -40,5 +40,8 @@ ask "Clean journals (keep 2 weeks)?" && sudo journalctl --vacuum-time=2weeks
 [[ -d ~/.local/share/Trash ]] && echo "[Trash: $(du -sh ~/.local/share/Trash 2>/dev/null | awk '{print $1}')]" && \
 ask "Empty trash?" && rm -rf ~/.local/share/Trash/*
 
+# nix garbage collector
+nix-collect-garbage -d
+
 echo -e "\n=== Done ==="
 df -h / | grep -v tmpfs

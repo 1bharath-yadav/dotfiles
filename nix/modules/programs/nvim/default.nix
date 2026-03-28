@@ -1,7 +1,5 @@
-{ pkgs, config, ... }:
+{ config, ... }:
 {
-  home.packages = with pkgs; [ neovim ];
-
   # mkOutOfStoreSymlink: ~/.config/nvim → live dotfiles path (edits = instant, no rebuild)
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink

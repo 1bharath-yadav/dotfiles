@@ -20,7 +20,6 @@ main() {
   esac
 
   install_system_pkgs "$os"
-  apply_stow_overlays "$os"
   apply_home_manager "$os"
   hyprctl reload
 

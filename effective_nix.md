@@ -10,9 +10,9 @@ You should almost never use `sudo pacman -S <tool>` or `apt install <tool>` for 
 
 Instead, put them in your **Home Manager `packages.nix`**:
 
-- **Cross-platform CLI packages (Arch, WSL, Phone):** Add them to `~/.dotfiles/nix/modules/core/packages.nix`
-- **Arch desktop packages (GUI apps like Chrome, OBS, Zed):** Add them to `~/.dotfiles/nix/modules/profiles/arch-desktop.nix`
-- **WSL-specific user packages:** Add them to `~/.dotfiles/nix/modules/profiles/wsl.nix`
+- **Cross-platform CLI packages (Arch, WSL, Phone):** Add them to `~/.dotfiles/nix/modules/packages/1.core-packages.nix`
+- **Linux desktop packages (GUI apps like Chrome, OBS, Zed):** Add them to `~/.dotfiles/nix/modules/packages/3.linux-packages.nix`
+- **WSL-specific user packages:** Add them to `~/.dotfiles/nix/modules/packages/4.wsl.nix`
 
 *How to apply your changes:*
 ```bash

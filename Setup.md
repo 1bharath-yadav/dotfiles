@@ -3,7 +3,7 @@
 Detailed setup instructions for the current setup:
 - Arch and Ubuntu in WSL: system bootstrap with `pacman` or `apt`, userland with Home Manager
 - Android: `nix-on-droid`
-- Host-specific package bundles now live in `nix/modules/profiles/`
+- Host-specific package bundles now live in `nix/modules/packages/`
 
 ---
 

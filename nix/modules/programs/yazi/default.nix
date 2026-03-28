@@ -1,20 +1,50 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, ... }:
 
 let
   yaziConfigDir = "${config.xdg.configHome}/yazi";
+  mkYaziEntries = dir:
+    let
+      entries = builtins.readDir dir;
+    in
+    builtins.listToAttrs (builtins.map (name: {
+      name = lib.removeSuffix ".yazi" name;
+      value = dir + "/${name}";
+    }) (builtins.filter (name: entries.${name} == "directory") (builtins.attrNames entries)));
+  pluginNames = builtins.attrNames (mkYaziEntries ./config/plugins);
+  flavorNames = builtins.attrNames (mkYaziEntries ./config/flavors);
 in {
-  home.packages = with pkgs; [ yazi ];
-
-  xdg.configFile."yazi/init.lua".source = ./config/init.lua;
-  xdg.configFile."yazi/keymap.toml".source = ./config/keymap.toml;
-  xdg.configFile."yazi/theme.toml".source = ./config/theme.toml;
-  xdg.configFile."yazi/yazi.toml".source = ./config/yazi.toml;
+  programs.yazi = {
+    enable = true;
+    package = null;
+    enableZshIntegration = true;
+    shellWrapperName = "y";
+    initLua = ./config/init.lua;
+    keymap = builtins.fromTOML (builtins.readFile ./config/keymap.toml);
+    settings = builtins.fromTOML (builtins.readFile ./config/yazi.toml);
+    theme = builtins.fromTOML (builtins.readFile ./config/theme.toml);
+    plugins = mkYaziEntries ./config/plugins;
+    flavors = mkYaziEntries ./config/flavors;
+  };
 
   home.activation.prepareYaziConfigDir = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     if [ -L "${yaziConfigDir}" ]; then
       rm -f "${yaziConfigDir}"
     fi
     mkdir -p "${yaziConfigDir}"
+    mkdir -p "${yaziConfigDir}/plugins" "${yaziConfigDir}/flavors"
+  '';
+
+  home.activation.prepareYaziManagedEntries = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+${lib.concatMapStringsSep "\n" (name: ''
+    if [ -e "${yaziConfigDir}/plugins/${name}.yazi" ] && [ ! -L "${yaziConfigDir}/plugins/${name}.yazi" ]; then
+      rm -rf "${yaziConfigDir}/plugins/${name}.yazi"
+    fi
+'') pluginNames}
+${lib.concatMapStringsSep "\n" (name: ''
+    if [ -e "${yaziConfigDir}/flavors/${name}.yazi" ] && [ ! -L "${yaziConfigDir}/flavors/${name}.yazi" ]; then
+      rm -rf "${yaziConfigDir}/flavors/${name}.yazi"
+    fi
+'') flavorNames}
   '';
 
   home.activation.initializeYaziPackageToml = lib.hm.dag.entryAfter [ "linkGeneration" ] ''

@@ -6,10 +6,9 @@
   # nix-on-droid owns the mobile user environment directly.
   home-manager.config = {
     imports = [
-      ../modules/core
       ../modules/programs
-      ../modules/programs/yazi
-      ../modules/android/packages.nix
+      ../modules/packages/1.core-packages.nix
+      ../modules/packages/2.droid-packages.nix
     ];
 
   };

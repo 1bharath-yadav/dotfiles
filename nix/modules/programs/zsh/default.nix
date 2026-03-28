@@ -4,8 +4,8 @@ let
   initSnippets = [
     ./init/00-utils.zsh
     ./init/10-tools.zsh
+    ./init/15-nh.zsh
     ./init/20-dotfiles-cache.zsh
-    ./init/30-yazi.zsh
     ./init/40-bindings.zsh
     ./init/50-secrets.zsh
   ];
@@ -18,7 +18,13 @@ in
     dotDir = "${config.home.homeDirectory}/.config/zsh";
 
     shellAliases = {
-      apply-dotfiles = "git -C ~/.dotfiles add . && home-manager switch --flake ~/.dotfiles#archer-arch";
+      apply-dotfiles = "dotfiles-switch";
+      hms = "dotfiles-switch";
+      hmt = "dotfiles-test";
+      hmb = "dotfiles-build";
+      hme = "nh home edit $HOME/.dotfiles";
+      nhc = "nh clean all --keep-since 4d --keep 3";
+      nhh = "nh home";
     };
 
     autosuggestion = {

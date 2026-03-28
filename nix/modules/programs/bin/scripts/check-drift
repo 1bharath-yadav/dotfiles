@@ -61,7 +61,7 @@ echo "${RED}⚠ $total_drift package(s) not tracked in Nix. Run with --fix to se
 
 if [[ "$FIX" == "--fix" ]]; then
   echo ""
-  echo "${YEL}# Paste into nix/modules/core/packages.nix or arch-desktop.nix:${RST}"
+  echo "${YEL}# Paste into nix/modules/packages/1.core-packages.nix or nix/modules/packages/3.linux-packages.nix:${RST}"
   printf '%s\n%s' "$drift_native" "$drift_aur" \
     | grep '[a-z]' \
     | sed 's/^/    # pacman-drift: /' \

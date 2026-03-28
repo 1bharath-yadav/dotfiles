@@ -54,7 +54,7 @@ Preferred flow:
 
 - `pacman` / `apt`: system bootstrap only
 - Home Manager: user-level packages and common user config links
-- `nix/modules/profiles/`: host package bundles (`common-linux`, `arch-desktop`, `wsl`)
+- `nix/modules/packages/`: centralized package bundles (`1.core-packages.nix`, `2.droid-packages.nix`, `3.linux-packages.nix`, `4.wsl.nix`, `5.extra-packages.nix`)
 - `nix-on-droid`: Android user environment
 - Stow: Arch-only `hypr` and `kitty`
 
@@ -67,3 +67,5 @@ Preferred flow:
 | `setup/bootstrap.sh` | First-run bootstrap entry for all supported OS targets |
 | `setup/main.sh` | Unified setup entry for Arch and Ubuntu in WSL |
 | `update.sh` | Idempotent restow for current OS + end4dots pull on Arch |
+
+`nh` is the preferred Home Manager frontend on Linux/WSL once the environment is bootstrapped. Use `hms`, `hmt`, `hmb`, `hme`, and `nhc` from zsh for host-aware Home Manager and cleanup workflows.

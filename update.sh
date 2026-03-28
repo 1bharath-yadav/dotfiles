@@ -7,7 +7,7 @@
 set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
-END4DOTS=~/linux/dots-hyprland
+END4DOTS=~/.local/share/end4dots
 
 source "$DOTFILES/setup/lib.sh"
 
@@ -89,9 +89,7 @@ if [[ "$OS" == arch ]] && [[ -d "$END4DOTS" ]]; then
   log "Cleaned up .new files from end4dots install"
 fi
 
-# ── Phase 2: restow overlays ───────────────────────────────────────────────
-log "Restowing overlays for $OS"
-apply_stow_overlays "$OS"
+# ── Phase 2: (Retired) Stow overlays are now handled by Home Manager ────────
 
 # ── Phase 3: Home Manager — only rebuild when .nix files changed ───────────
 if ! has_cmd nix; then
@@ -103,8 +101,12 @@ HM_HOST="$(host_name_for_os "$OS")"
 if [[ "${NIX_FORCE:-0}" == "1" ]] || nix_files_changed; then
   log "Nix config changed — running home-manager switch"
   enable_nix_flakes
-  home-manager switch --flake "$DOTFILES#$HM_HOST" 2>&1 \
-    | grep -E '^(=>|activating|error|warning)' || true
+  if has_cmd nh; then
+    nh home switch "$DOTFILES" -c "$HM_HOST"
+  else
+    home-manager switch --flake "$DOTFILES#$HM_HOST" 2>&1 \
+      | grep -E '^(=>|activating|error|warning)' || true
+  fi
   stamp_hm_switch
   log "Home Manager switch complete"
 else
@@ -120,8 +122,8 @@ if [[ "$OS" == arch ]] && has_cmd hyprctl && [[ -n "${HYPRLAND_INSTANCE_SIGNATUR
   log "Hyprland config reloaded"
   # Re-push env into systemd + D-Bus after reload so Nix apps stay visible
   # without requiring a logout. Matches what custom/execs.conf does at login.
-  systemctl --user import-environment XDG_DATA_DIRS PATH XCURSOR_PATH NIX_PATH 2>/dev/null || true
-  dbus-update-activation-environment --systemd XDG_DATA_DIRS PATH XCURSOR_PATH 2>/dev/null || true
+  systemctl --user import-environment --all 2>/dev/null || true
+  dbus-update-activation-environment --systemd --all 2>/dev/null || true
   log "Environment propagated to systemd user session"
 fi
 
