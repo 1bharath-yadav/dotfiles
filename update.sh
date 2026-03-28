@@ -118,6 +118,11 @@ fi
 if [[ "$OS" == arch ]] && has_cmd hyprctl && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
   hyprctl reload -q
   log "Hyprland config reloaded"
+  # Re-push env into systemd + D-Bus after reload so Nix apps stay visible
+  # without requiring a logout. Matches what custom/execs.conf does at login.
+  systemctl --user import-environment XDG_DATA_DIRS PATH XCURSOR_PATH NIX_PATH 2>/dev/null || true
+  dbus-update-activation-environment --systemd XDG_DATA_DIRS PATH XCURSOR_PATH 2>/dev/null || true
+  log "Environment propagated to systemd user session"
 fi
 
 log "Done ✓"
