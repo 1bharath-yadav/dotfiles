@@ -248,6 +248,19 @@ A dedicated `AGENTS.md` lives at `~/.local/share/end4dots/AGENTS.md` covering:
 
 Read it at session start whenever touching end4dots / Quickshell / illogical-impulse configs.
 
+### Quickshell font sizing (2026-03-29)
+
+- Global Quickshell font tokens were bumped by `+1px` for both the main `ii` appearance scale and the `waffle` looks scale.
+- Source of truth for persistent edits: `~/.local/share/end4dots/dots/.config/quickshell/ii/modules/common/Appearance.qml` and `~/.local/share/end4dots/dots/.config/quickshell/ii/modules/waffle/looks/Looks.qml`
+- Live runtime copies were also updated under `~/.config/quickshell/ii/...` so the size increase applies immediately.
+- Follow-up tweak: only the smaller font tokens were increased an additional `+2px`; larger display/title sizes were left unchanged.
+
+### Hyprland whisper-hold bind (2026-03-29)
+
+- `SUPER+H` had been pointing at a retired legacy path: `~/.dotfiles/bin/bin/whisper-hold`.
+- The active script is now Home Manager-managed at `~/.local/bin/whisper-hold` from `nix/modules/programs/bin/scripts/whisper-hold`.
+- Source of truth for the keybind is `nix/modules/programs/hyprland/config/custom/keybinds.conf`; Hyprland only needs a config reload after editing because `custom/` is out-of-store linked.
+
 ---
 
 ### Nix app visibility in Quickshell / fuzzel
