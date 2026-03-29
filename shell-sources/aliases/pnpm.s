@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-
-
-
-
-
 # 🅿🅽🅿🅼 🅰🅻🅸🅰🆂🅴🆂
 if command -v 'pnpm' >/dev/null; then
   # Add a dependency to the project.
