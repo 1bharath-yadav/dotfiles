@@ -216,6 +216,7 @@ To enable on a host: `imports = [ ../modules/packages/5.extra-packages.nix ];`
 
 ### Nix current state
 
+- Home Manager flake exports canonical Linux host attrs `homeConfigurations.archer-arch` and `homeConfigurations.archer-wsl`; compatibility aliases `"archer@arch"` / `"archer@wsl"` are also kept so both `nh -c <host>` and any older explicit attr references continue to work
 - `flake.nix` defines:
   - `homeConfigurations.archer-arch`
   - `homeConfigurations.archer-wsl`
