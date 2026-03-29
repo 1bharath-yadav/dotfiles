@@ -29,17 +29,17 @@ export PATH="${HOME}/.node_modules/bin:${PATH}"
 # uv tool installs land here (already covered by home.sessionPath but explicit for non-HM shells)
 export PATH="${HOME}/.local/bin:${PATH}"
 
-# # Deduplicate PATH entries
-# deduplicate_path() {
-#     PATH=$(echo "$PATH" | awk -v RS=':' '!seen[$0]++ {ORS=(NR>1?":":"")} {print}')
-#     export PATH
-# }
+# Deduplicate PATH entries
+deduplicate_path() {
+    PATH=$(echo "$PATH" | awk -v RS=':' '!seen[$0]++ {ORS=(NR>1?":":"")} {print}')
+    export PATH
+}
 
-# # Call the deduplication function
-# PATH=$(echo "$PATH" | awk -v RS=':' '!seen[$0]++ {ORS=(NR>1?":":"")} {print}')
-# export PATH
+# Call the deduplication function
+PATH=$(echo "$PATH" | awk -v RS=':' '!seen[$0]++ {ORS=(NR>1?":":"")} {print}')
+export PATH
 
-# deduplicate_path
+deduplicate_path
 
 
 
