@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # refresh-apps — rebuild desktop app caches and signal Quickshell to reload
-# Run this after installing new Nix packages to see them in launchers immediately
-# without a full Hyprland restart.
+# Run this after installing new Nix or pacman desktop apps to see them in
+# launchers and KDE-integrated app menus immediately without a full restart.
 set -euo pipefail
 
 GREEN=$'\033[32m' RST=$'\033[0m'
@@ -15,6 +15,18 @@ fi
 # Also rebuild the system-wide one if writable (usually not, skip gracefully)
 update-desktop-database /usr/share/applications/ 2>/dev/null || true
 
+# Rebuild KDE's service/plugin cache when available. This helps Dolphin and
+# other KDE apps notice newly installed desktop files, MIME data, services,
+# and servicemenus in mixed Hyprland/KDE setups where the cache may still be
+# stale.
+for kbuildsycoca in kbuildsycoca6 kbuildsycoca5 kbuildsycoca; do
+  if command -v "$kbuildsycoca" >/dev/null 2>&1; then
+    "$kbuildsycoca" --noincremental >/dev/null 2>&1 && \
+      echo "${GREEN}✓ Rebuilt KDE service cache via ${kbuildsycoca}${RST}"
+    break
+  fi
+done
+
 # Signal Quickshell to reload its shell (reloads DesktopEntries)
 if command -v qs >/dev/null 2>&1; then
   qs reload 2>/dev/null && echo "${GREEN}✓ Quickshell reloaded${RST}" || \
@@ -25,5 +37,5 @@ elif command -v pkill >/dev/null 2>&1; then
     echo "${GREEN}✓ Sent HUP to Quickshell${RST}" || true
 fi
 
-echo "${GREEN}Done. New Nix apps should appear in launchers.${RST}"
-echo "If not, log out/in once to fully reload XDG_DATA_DIRS in the session."
+echo "${GREEN}Done. New apps should appear in launchers and KDE menus.${RST}"
+echo "If not, log out/in once to fully reload XDG_DATA_DIRS and user-session env."

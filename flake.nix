@@ -1,5 +1,5 @@
 {
-  description = "Unified dotfiles: Home Manager + nix-on-droid";
+  description = "Unified dotfiles: Home Manager for arch linux,wsl-linux and nix-on-droid";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -13,77 +13,73 @@
       url = "github:nix-community/nix-on-droid";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # optional but recommended for scaling
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, nix-on-droid, flake-utils, ... }:
+  outputs = inputs@{ nixpkgs, home-manager, nix-on-droid, ... }:
     let
       lib = nixpkgs.lib;
-
-      # supported systems
       systems = [ "x86_64-linux" "aarch64-linux" ];
+      forAllSystems = lib.genAttrs systems;
 
-      # helper: generate pkgs
+      user = "archer";
+      homeDirectory = "/home/${user}";
+
       pkgsFor = system:
         import nixpkgs {
           inherit system;
           config.allowUnfree = true;
         };
 
-      # helper: home-manager builder
-      mkHome = { system, user, module }:
-        home-manager.lib.homeManagerConfiguration {
-          pkgs = pkgsFor system;
-          modules = [ module ];
-          extraSpecialArgs = { inherit inputs user; };
-        };
-
-    in
-    flake-utils.lib.eachSystem systems (system: {
-      # this fixes `nix flake show`
-      packages.default = (pkgsFor system).hello;
-
-      devShells.default = (pkgsFor system).mkShell {
-        buildInputs = with (pkgsFor system); [ git nixfmt ];
-      };
-    })
-    //
-    {
-      # -------------------------
-      # HOME MANAGER CONFIGS
-      # -------------------------
-      homeConfigurations = rec {
-        archer-arch = mkHome {
+      homeHosts = {
+        archer-arch = {
           system = "x86_64-linux";
-          user = "archer";
           module = ./nix/hosts/archer-arch.nix;
         };
 
-        archer-wsl = mkHome {
+        archer-wsl = {
           system = "x86_64-linux";
-          user = "archer";
           module = ./nix/hosts/archer-wsl.nix;
         };
-
-        "archer@arch" = archer-arch;
-        "archer@wsl" = archer-wsl;
       };
 
-      # -------------------------
-      # NIX-ON-DROID
-      # -------------------------
+      mkHome = _: { system, module }:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = pkgsFor system;
+          modules = [
+            module
+            {
+              home = {
+                username = user;
+                inherit homeDirectory;
+              };
+            }
+          ];
+          extraSpecialArgs = { inherit inputs user homeDirectory; };
+        };
+
+      standaloneHomeConfigurations = lib.mapAttrs mkHome homeHosts;
+
+    in
+    {
+      formatter = forAllSystems (system: (pkgsFor system).nixfmt);
+
+      devShells = forAllSystems (system: {
+        default = (pkgsFor system).mkShell {
+          packages = with (pkgsFor system); [ git nixfmt ];
+        };
+      });
+
+      homeConfigurations = standaloneHomeConfigurations // {
+        "archer@arch" = standaloneHomeConfigurations.archer-arch;
+        "archer@wsl" = standaloneHomeConfigurations.archer-wsl;
+        "archer@zero-book" = standaloneHomeConfigurations.archer-arch;
+      };
+
       nixOnDroidConfigurations = {
         archer-phone = nix-on-droid.lib.nixOnDroidConfiguration {
           pkgs = pkgsFor "aarch64-linux";
-
-          modules = [
-            ./nix/hosts/archer-phone.nix
-          ];
-
-          # important for HM integration
-          extraSpecialArgs = { inherit inputs; };
+          modules = [ ./nix/hosts/archer-phone.nix ];
+          extraSpecialArgs = { inherit inputs user homeDirectory; };
         };
       };
     };

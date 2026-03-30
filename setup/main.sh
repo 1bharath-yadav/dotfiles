@@ -21,7 +21,10 @@ main() {
 
   install_system_pkgs "$os"
   apply_home_manager "$os"
-  hyprctl reload
+  # Reload Hyprland config on Arch only (not available on WSL/Ubuntu)
+  if [[ "$os" == arch ]] && has_cmd hyprctl && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    hyprctl reload -q && log "Hyprland config reloaded"
+  fi
 
   log "Setup complete for $os!"
 }

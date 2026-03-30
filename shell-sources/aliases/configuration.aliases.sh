@@ -1,80 +1,19 @@
 #!/usr/bin/env bash
+# configuration.aliases.sh — quick-edit shortcuts for common config files
 
+# Use EDITOR from env (set to nvim in env.zsh)
+: "${EDITOR:=nvim}"
 
-# 🅳🅾🆃🅵🅸🅻🅴🆂
-# Script: configuration.aliases.sh
-
-# Description: Script containing aliases to open configuration files in default
-# editor
-
-
-
-
-# Set default text editor
-EDITOR="${EDITOR:-nvim}"
-
-# Apache aliases
-# ------------------------------------------------------------------------------
-
-# Open Apache configuration file in default text editor
-alias edit_apache_config='${EDITOR} /etc/apache2/apache2.conf'
-
-# Bash aliases
-# ------------------------------------------------------------------------------
-
-# Open Bash configuration file in default text editor
-alias edit_bashrc='${EDITOR} $HOME/.bashrc'
-
-# Open Bash profile in default text editor
-alias edit_bash_profile='${EDITOR} $HOME/.bash_profile'
-
-# Docker aliases
-# ------------------------------------------------------------------------------
-
-# Open Docker Compose file in default text editor
-alias edit_docker_compose='${EDITOR} docker-compose.yml'
-
-# General aliases
-# ------------------------------------------------------------------------------
-
-# Open current directory in default text editor
-alias edit_current_directory='${EDITOR} .'
-
-# Git aliases
-# ------------------------------------------------------------------------------
-
-# Open Git configuration file in default text editor
-alias edit_git_config='${EDITOR} $HOME/.gitconfig'
-
-# Open Git ignore file in default text editor
-alias edit_git_ignore='${EDITOR} $HOME/.gitignore'
-
-# System config aliases
-# ------------------------------------------------------------------------------
-
-# Open hosts file in default text editor
-alias edit_hosts='${EDITOR} /etc/hosts'
-
-# Open Nginx configuration file in default text editor
-alias edit_nginx_config='${EDITOR} /etc/nginx/nginx.conf'
-
-# Open SSH configuration file in default text editor
-alias edit_ssh_config='${EDITOR} $HOME/.ssh/config'
-
-# Open Zsh configuration file in default text editor
-alias edit_zshrc='${EDITOR} $HOME/.zshrc'
-
-# Dotfiles aliases
-alias edit_dotfiles='${EDITOR} $HOME/.dotfiles'
-
-# Hyprland aliases
-alias edit_hypr='${EDITOR} $HOME/.config/hypr/hyprland.conf'
-
-# quickshell aliases
-alias edit_quickshell='${EDITOR} $HOME/.config/quickshell'
-
-# Illogical Impulse aliases
-alias edit_iiconfig='${EDITOR} /home/archer/.config/illogical-impulse/config.json'
-
-# Open Zsh profile in default text editor
-alias edit_zsh_profile='${EDITOR} $HOME/.zsh_profile'
+alias edit_bashrc='$EDITOR $HOME/.bashrc'
+alias edit_zshrc='$EDITOR $HOME/.config/zsh/.zshrc'
+alias edit_zsh_profile='$EDITOR $HOME/.zsh_profile'
+alias edit_ssh_config='$EDITOR $HOME/.ssh/config'
+alias edit_git_config='$EDITOR $HOME/.gitconfig'
+alias edit_git_ignore='$EDITOR $HOME/.gitignore'
+alias edit_hosts='$EDITOR /etc/hosts'
+alias edit_nginx_config='$EDITOR /etc/nginx/nginx.conf'
+alias edit_docker_compose='$EDITOR docker-compose.yml'
+alias edit_dotfiles='$EDITOR $HOME/.dotfiles'
+alias edit_hypr='$EDITOR $HOME/.config/hypr/hyprland.conf'
+alias edit_quickshell='$EDITOR $HOME/.config/quickshell'
+alias edit_iiconfig='$EDITOR $HOME/.config/illogical-impulse/config.json'

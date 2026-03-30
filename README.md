@@ -52,11 +52,13 @@ Preferred flow:
 
 ## Package ownership
 
-- `pacman` / `apt`: system bootstrap only
+- `pacman` / `apt`: system bootstrap, root-level integration, and desktop-stack app bundles that depend on distro-native plugins/services
 - Home Manager: user-level packages and common user config links
 - `nix/modules/packages/`: centralized package bundles (`1.core-packages.nix`, `2.droid-packages.nix`, `3.linux-packages.nix`, `4.wsl.nix`, `5.extra-packages.nix`)
 - `nix-on-droid`: Android user environment
 - Stow: Arch-only `hypr` and `kitty`
+
+On the Arch desktop host, tightly-coupled KDE apps such as `dolphin`, `ark`, `konsole`, `kdeconnect`, `filelight`, `kamoso`, `partitionmanager`, and `kdesu` are intentionally pacman-owned so they share the same runtime/plugin/service layer as the rest of the system KDE stack.
 
 ## Key files
 

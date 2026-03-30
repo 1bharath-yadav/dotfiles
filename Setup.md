@@ -6,6 +6,8 @@ Detailed setup instructions for the current setup:
 - Android: `nix-on-droid`
 - Host-specific package bundles now live in `nix/modules/packages/`
 
+Rule of thumb: portable user apps and CLI tools fit well in Home Manager; desktop-environment-integrated app bundles with service menus, file-manager actions, KIO/KParts helpers, D-Bus helpers, or similar distro-native plugin layers are safer from the host package manager.
+
 ---
 
 ## Prerequisites (all OSes)

@@ -4,8 +4,10 @@ let
   initSnippets = [
     ./init/00-utils.zsh
     ./init/10-tools.zsh
+    ./init/12-tmux.zsh
     ./init/15-nh.zsh
     ./init/20-dotfiles-cache.zsh
+    ./init/30-yazi.zsh
     ./init/40-bindings.zsh
     ./init/50-secrets.zsh
   ];

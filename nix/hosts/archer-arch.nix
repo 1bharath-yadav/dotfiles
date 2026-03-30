@@ -7,7 +7,4 @@
     ../modules/packages/3.linux-packages.nix
     # ../modules/packages/5.extra-packages.nix
   ];
-
-  home.username = "archer";
-  home.homeDirectory = "/home/archer";
 }

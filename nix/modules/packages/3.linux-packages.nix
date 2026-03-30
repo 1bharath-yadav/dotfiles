@@ -38,13 +38,6 @@
 
     antigravity
     anki
-    kdePackages.ark
-    kdePackages.filelight
-    kdePackages.kamoso
-    kdePackages.kdeconnect-kde
-    kdePackages.konsole
-    kdePackages.partitionmanager
-    kdePackages.kdesu
     feh
     foliate
     koodo-reader

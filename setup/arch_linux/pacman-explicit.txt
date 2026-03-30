@@ -31,6 +31,21 @@ xdg-desktop-portal-gtk
 sddm
 qt5-wayland
 qt6-wayland
+dex
+grimblast-git
+hyprpaper
+hyprpolkitagent
+kde-cli-tools
+kvantum
+kvantum-qt5
+nwg-displays
+nwg-look
+plasma-browser-integration
+qt6ct
+speech-dispatcher
+udiskie
+wl-screenrec
+xsettingsd
 
 # ── Audio ────────────────────────────────────────────────────────────────────
 pipewire
@@ -38,6 +53,8 @@ pipewire-audio
 pipewire-pulse
 pipewire-alsa
 wireplumber
+pipewire-jack
+pipewire-libcamera
 
 # ── Bluetooth ────────────────────────────────────────────────────────────────
 bluez
@@ -46,6 +63,32 @@ bluez-utils
 # ── Network ──────────────────────────────────────────────────────────────────
 networkmanager
 network-manager-applet
+openresolv
+
+# ── Storage / filesystem / hardware integration ─────────────────────────────
+btrfs-progs
+gptfdisk
+ntfs-3g
+sof-firmware
+linux-firmware-intel
+zram-generator
+
+# ── Camera / media / Intel acceleration ─────────────────────────────────────
+clinfo
+gst-plugin-libcamera
+gst-plugin-pipewire
+gst-plugins-ugly
+intel-compute-runtime
+intel-media-driver
+libcamera
+libcamera-tools
+libva-intel-driver
+libva-utils
+openvino-intel-gpu-plugin
+v4l2loopback-dkms
+v4l2loopback-utils
+vpl-gpu-rt
+vulkan-tools
 
 # ── System essentials ────────────────────────────────────────────────────────
 base
@@ -54,6 +97,54 @@ sudo
 git
 nix              # Nix daemon itself — must be pacman-installed on Arch
 openssh
+cpio
+dkms
+elfutils
+gcc
+glib2-devel
+lld
+make
+man-db
+mokutil
+os-prober
+zsh
+
+# ── KDE desktop apps (end4dots / system-integrated) ─────────────────────────
+ark
+dolphin
+filelight
+kamoso
+kdeconnect
+konsole
+partitionmanager
+kdesu
+kdenlive
+
+# ── Filesystem / desktop portals / mounts ───────────────────────────────────
+gvfs
+gvfs-google
+gvfs-mtp
+gvfs-onedrive
+
+# ── Containers / virtualization / services ──────────────────────────────────
+docker
+docker-compose
+haveged
+jackett
+libvirt
+linux-wifi-hotspot
+ollama
+ollama-vulkan
+podman
+podman-compose
+postgresql
+tlp
+tlp-rdw
+tlpui
+
+# ── Alternate kernel ─────────────────────────────────────────────────────────
+linux-zen
+linux-zen-headers
 
 # ── AUR / chaotic-aur only ───────────────────────────────────────────────────
 # (packages unavailable in nixpkgs or behave better from AUR)
@@ -61,3 +152,32 @@ yay              # AUR helper
 chaotic-keyring
 chaotic-mirrorlist
 zen-browser      # AUR
+antigravity-tools-bin
+blackarch-keyring
+claude-desktop-bin
+datui-bin
+illogical-impulse-audio
+illogical-impulse-backlight
+illogical-impulse-basic
+illogical-impulse-bibata-modern-classic-bin
+illogical-impulse-fonts-themes
+illogical-impulse-hyprland
+illogical-impulse-kde
+illogical-impulse-microtex-git
+illogical-impulse-microtex-git-debug
+illogical-impulse-portal
+illogical-impulse-python
+illogical-impulse-quickshell-git
+illogical-impulse-screencapture
+illogical-impulse-toolkit
+illogical-impulse-widgets
+kde-material-you-colors
+koodo-reader-bin
+kvantum-theme-catppuccin-git
+libayatana-appindicator-glib
+pam-gnupg
+pacseek
+sddm-silent-theme
+torrra-bin
+whisper.cpp-openvino
+zen-browser-bin

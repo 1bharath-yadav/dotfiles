@@ -178,6 +178,14 @@ Fully rewritten. New mental model:
 - `webui-*` shortcuts for open-webui service
 - Removed all venv-activation-as-global-tool patterns
 
+### Zsh tmux autostart (2026-03-30)
+
+- Interactive local zsh sessions now auto-exec into `tmux` via `nix/modules/programs/zsh/init/12-tmux.zsh`.
+- Guard rails: skips when already inside `tmux`, in SSH sessions, in VS Code/Emacs terminals, on non-interactive shells, or when `DOTFILES_DISABLE_AUTO_TMUX` is set.
+- Default target session is `main`; override with `TMUX_AUTO_SESSION=<name>` when needed.
+- Follow-up fix: the guard no longer uses top-level `return` for skip cases, because that prevented later `.zshrc` content (including aliases like `hms` and helper functions like `dotfiles-switch`) from loading inside tmux sessions.
+- Policy refinement: auto-enter `tmux` only when there are no attached tmux clients yet; opening a second local terminal now stays in plain zsh instead of force-attaching you to the already-active session.
+
 ### Package ownership model
 
 Clear three-layer boundary (established 2026-03-28):
@@ -189,6 +197,8 @@ Clear three-layer boundary (established 2026-03-28):
 | Android                      | nix-on-droid     | `nix/hosts/archer-phone.nix`           |
 
 **Key rule:** if it needs a systemd service, `/etc` integration, or is AUR-only → pacman. Everything else → Nix.
+
+**Arch KDE exception:** end4dots-integrated KDE desktop apps should also prefer `pacman` on the Arch host, even when available in Nix, to keep their runtime plugins/services/config behavior aligned with the rest of the system KDE stack.
 
 ### Nix module layout (post-refactor)
 
@@ -217,6 +227,8 @@ To enable on a host: `imports = [ ../modules/packages/5.extra-packages.nix ];`
 ### Nix current state
 
 - Home Manager flake exports canonical Linux host attrs `homeConfigurations.archer-arch` and `homeConfigurations.archer-wsl`; compatibility aliases `"archer@arch"` / `"archer@wsl"` are also kept so both `nh -c <host>` and any older explicit attr references continue to work
+- Current Arch laptop hostname compatibility alias: `homeConfigurations."archer@zero-book" = homeConfigurations.archer-arch`, so bare `nh home switch` also resolves correctly on this machine.
+- `flake.nix` now centralizes standalone Home Manager host metadata in a single `homeHosts` attrset, injects shared `home.username` / `home.homeDirectory` from the flake helper, and uses `nixpkgs.lib.genAttrs` instead of `flake-utils` for per-system `formatter` / `devShells`
 - `flake.nix` defines:
   - `homeConfigurations.archer-arch`
   - `homeConfigurations.archer-wsl`
@@ -248,7 +260,59 @@ A dedicated `AGENTS.md` lives at `~/.local/share/end4dots/AGENTS.md` covering:
 
 Read it at session start whenever touching end4dots / Quickshell / illogical-impulse configs.
 
-### Quickshell font sizing (2026-03-29)
+### Dotfiles audit & cleanup (2026-03-31)
+
+Comprehensive pass over all shell-sources and Nix config. Changes made:
+
+**shell-sources/aliases/git.sh (536 → 27 lines)**
+- Removed all git aliases that are already declared in `nix/modules/programs/git/default.nix` (lg, st, co, d, etc.) — they were pure duplication loaded on every shell start
+- Kept only shell-function aliases that require subshell expansion and can't live in gitconfig: `gitpb`, `gitcode`, `gitcom`, `gitrprint`, `gitrmds`, and `lg` → lazygit
+
+**shell-sources/aliases/list.sh (132 → 22 lines)**
+- Removed verbose multi-paragraph JSDoc comments, noisy `echo` fallback notices
+- Kept the same functional aliases; added `llm` to eza branch
+
+**shell-sources/aliases/default.sh (66 → 19 lines)**
+- Removed the pointless `set_default_aliases()` wrapper (defined then immediately called)
+- Inlined all aliases directly at file scope (correct pattern for sourced files)
+
+**shell-sources/aliases/tmux.sh (42 → 18 lines)**
+- Fixed dead path reference: `~/.dotfiles/lib/configurations/tmux/tmux` → `~/.config/tmux/tmux.conf` (HM-managed location)
+- Removed the `tm()` function that started tmux + sourced that dead path
+
+**shell-sources/aliases/docker.sh (163 → 109 lines)**
+- Fixed duplicate alias names: `dki`, `dkl`, `dks`, `dkst`, `dkn`, `dkni`, `dknp` were each defined twice with conflicting targets
+- Unified docker-compose to support both `docker-compose` (standalone) and `docker compose` (plugin) via `_dc()` wrapper
+- Removed Swarm aliases (rarely used; can be added back to 5.extra-packages pattern if needed)
+
+**shell-sources/aliases/configuration.aliases.sh (80 → 20 lines)**
+- Removed hardcoded `/home/archer` path → `$HOME`
+- Removed irrelevant entries (Apache, bash_profile, edit_current_directory)
+- Kept all useful config-open shortcuts
+
+**shell-sources/paths/paths.sh**
+- Removed large dead commented-out deduplication block (~15 lines)
+
+**nix/modules/programs/zsh/default.nix**
+- Fixed: `./init/30-yazi.zsh` existed on disk but was missing from `initSnippets` list — `y()` wrapper was never loaded
+
+**nix/modules/packages/4.wsl.nix**
+- Removed `fonts.fontconfig.enable = true` from WSL module (WSL has no GUI font rendering stack)
+
+**nix/modules/packages/2.droid-packages.nix**
+- Removed redundant `home.packages = with pkgs; [ yazi ]` — the imported `programs/yazi` module already installs yazi
+
+**setup/main.sh**
+- Fixed unconditional `hyprctl reload` call — now guarded with `[[ "$os" == arch ]] && has_cmd hyprctl && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]` so it no longer errors on WSL/Ubuntu
+
+**Summary stats:**
+- `git.sh`: 536 → 27 lines (−95%)
+- `list.sh`: 132 → 22 lines (−83%)
+- `default.sh`: 66 → 19 lines (−71%)
+- `tmux.sh`: 42 → 18 lines (−57%)
+- `docker.sh`: 163 → 109 lines (−33%)
+- `configuration.aliases.sh`: 80 → 20 lines (−75%)
+- Total shell startup cache: substantially smaller → faster `source "$CACHE"` on each shell open
 
 - Global Quickshell font tokens were bumped by `+1px` for both the main `ii` appearance scale and the `waffle` looks scale.
 - Source of truth for persistent edits: `~/.local/share/end4dots/dots/.config/quickshell/ii/modules/common/Appearance.qml` and `~/.local/share/end4dots/dots/.config/quickshell/ii/modules/waffle/looks/Looks.qml`
@@ -260,6 +324,27 @@ Read it at session start whenever touching end4dots / Quickshell / illogical-imp
 - `SUPER+H` had been pointing at a retired legacy path: `~/.dotfiles/bin/bin/whisper-hold`.
 - The active script is now Home Manager-managed at `~/.local/bin/whisper-hold` from `nix/modules/programs/bin/scripts/whisper-hold`.
 - Source of truth for the keybind is `nix/modules/programs/hyprland/config/custom/keybinds.conf`; Hyprland only needs a config reload after editing because `custom/` is out-of-store linked.
+
+### Hyprland Obsidian scratchpad (2026-03-30)
+
+- `SUPER+O` now matches the other special-workspace scratchpads by defining `workspace = special:obsidian, on-created-empty:... obsidian` in `nix/modules/programs/hyprland/config/custom/keybinds.conf`.
+- Obsidian class matching in `nix/modules/programs/hyprland/config/custom/rules.conf` was broadened to `^([Oo]bsidian)$` so floating/special-workspace rules still apply if the WM class is capitalized.
+- Result: toggling the Obsidian scratchpad creates or recalls a centered floating Obsidian window instead of letting it open as a normal tiled window.
+
+### Dolphin KDE integration (2026-03-30)
+
+- The earlier Home Manager/Nix packaging attempt for Dolphin/KDE apps was retired.
+- Current rule: install end4dots-facing KDE desktop apps from `pacman` on Arch (`ark`, `dolphin`, `filelight`, `kamoso`, `kdeconnect`, `konsole`, `partitionmanager`, `kdesu`) via `setup/arch_linux/pacman-explicit.txt`.
+- Root cause: these apps behaved better when they came from the same Arch/KDE runtime layer as the rest of the system and end4dots-related integration, rather than mixing Nix-packaged KDE apps with system components.
+- `nix/modules/packages/3.linux-packages.nix` no longer owns that KDE app cluster.
+- Generalized rule: similar desktop-environment-integrated app bundles can fail the same way when they depend on runtime-discovered plugins, servicemenus, MIME caches, D-Bus helpers, or tightly-coupled companion packages from the host distro.
+
+### PATH precedence for Nix GUI apps (2026-03-30)
+
+- `home.sessionPath` now explicitly includes `~/.nix-profile/bin` before other user paths in `nix/modules/packages/1.core-packages.nix`.
+- `shell-sources/paths/paths.sh` now prepends `~/.nix-profile/bin`, `~/.local/bin`, Cargo, and Node user bins before core system paths.
+- Root cause: desktop entries like `org.kde.dolphin.desktop` use `Exec=dolphin %u`, so if `/usr/bin` wins PATH precedence, launchers and shells can still start the system Dolphin instead of the Nix/Home Manager one.
+- Working rule: when a package is intentionally user-managed by Nix, keep `~/.nix-profile/bin` ahead of `/usr/bin` in both session and shell PATH so the matching config/plugins/integration layer is the one that actually launches.
 
 ---
 
@@ -279,6 +364,13 @@ Read it at session start whenever touching end4dots / Quickshell / illogical-imp
 **Launcher env drift in fuzzel/Quickshell (confirmed 2026-03-28)**: Root cause: SDDM starts the systemd user instance _before_ Hyprland processes `env =` directives, so launcher-driven app starts can see a stale D-Bus/systemd activation environment. This shows up as apps launched from Quickshell/fuzzel not matching the behavior/config of the same apps launched from a terminal. Fix: `custom/execs.conf` now runs `exec-once = systemctl --user import-environment --all` + `dbus-update-activation-environment --systemd --all` immediately after Hyprland starts, pushing the full Hyprland session environment into the live user session. `update.sh` does the same after each reload.
 
 **Hyprland inotify mid-flight reload (fixed 2026-03-28)**: `setup install` writes `hyprland.conf` which triggers an immediate inotify reload before Home Manager has linked `custom/` — causing `source= globbing error: found no match` on lines 10, 20-23. Fixed by adding Phase 4 to `update.sh`: explicit `hyprctl reload` after all Home Manager linking + patching is complete, so Hyprland always reads the fully settled state. Also added cleanup of `*.new` files left behind by end4dots install.
+
+**KDE cache refresh follow-up (2026-03-30)**: `nix/modules/programs/bin/scripts/refresh-apps` now also rebuilds KDE's sycoca cache via `kbuildsycoca{6,5}` when available, so newly installed apps/servicemenus/plugins are picked up faster in Hyprland sessions that are not running a full Plasma desktop service stack.
+
+### Package ownership drift audit (2026-03-30)
+
+- `nix/modules/programs/bin/scripts/check-drift` now treats both Nix declarations and `setup/arch_linux/pacman-explicit.txt` as valid tracked ownership sources.
+- Purpose: avoid false positives after intentionally moving desktop-integrated packages from Home Manager to `pacman`, and keep the ownership boundary auditable.
 
 ### update.sh smart rebuild
 

@@ -6,6 +6,7 @@
   xdg.enable = true;
 
   home.sessionPath = [
+    "$HOME/.nix-profile/bin"
     "$HOME/bin"
     "$HOME/.local/bin"
   ];
@@ -54,6 +55,8 @@
     xh
 
     gh
+    delta
+    git-lfs
     gitui
     shellcheck
     direnv

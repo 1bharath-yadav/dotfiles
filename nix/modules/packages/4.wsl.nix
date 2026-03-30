@@ -8,7 +8,7 @@
   ];
 
   targets.genericLinux.enable = true;
-  fonts.fontconfig.enable = true;
+  # fonts.fontconfig intentionally omitted — WSL has no GUI font rendering
 
   home.packages = with pkgs; [
     lazygit
