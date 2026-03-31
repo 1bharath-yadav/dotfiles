@@ -68,10 +68,10 @@ sudo systemctl enable --now tlp
 ./update.sh
 ````
 
-```bash
-npm config set prefix '~/.npm-global'
-mkdir -p ~/.npm-global
-```
+### Node.js and Global Packages
+
+Managed declaratively via Home Manager in `nix/modules/programs/npm/default.nix`.
+To add new global packages, edit that file and run `./update.sh`.
 
 ---
 
@@ -153,3 +153,13 @@ rm ~/.zsh_dotfiles_cache
 ```bash
 ~/.dotfiles/update.sh
 ```
+
+# AI
+
+## Agency agents
+
+https://github.com/msitarzewski/agency-agents
+
+## smithery
+
+npx @smithery/cli@latest setup or npm install -g @smithery/cli

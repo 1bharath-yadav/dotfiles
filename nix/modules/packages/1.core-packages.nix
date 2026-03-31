@@ -18,11 +18,11 @@
 
   nix = {
     package = pkgs.nix;
-    settings = {
-    };
+    settings = { };
   };
 
   home.packages = with pkgs; [
+    # Core CLI
     bat
     eza
     fd
@@ -35,53 +35,57 @@
     zip
     zoxide
 
-    asciinema
-    chafa
-    fastfetch
-    glow
-    parallel
-    tealdeer
-
+    # Data & Parsing
     cmark
     fx
     jq
     jqp
     pandoc
 
+    # Development
+    delta
+    direnv
+    gh
+    git-lfs
+    gitui
+    nix-direnv
+    shellcheck
+
+    # Editors
+    neovim
+    opencode
+
+    # Media
+    ffmpegthumbnailer
+    mediainfo
+    yt-dlp
+
+    # Network
     aria2
     httpie
     nmap
     rclone
     xh
 
-    gh
-    delta
-    git-lfs
-    gitui
-    shellcheck
-    direnv
-    nix-direnv
+    # Nix Tooling
+    comma
+    deadnix
+    nix-tree
+    statix
 
-    # Nix dev tooling
-    comma          # run any pkg without installing: , manim
-    nix-tree       # interactive dep graph browser
-    deadnix        # find dead code in .nix files
-    statix         # lint/fix antipatterns in .nix files
-
-    neovim
-    opencode
-
+    # Terminal Utils
+    asciinema
+    chafa
     containerd
     distrobox
-
-    ffmpegthumbnailer
-    mediainfo
-    yt-dlp
-
     eget
+    fastfetch
     fdupes
+    glow
+    parallel
     pngquant
     resvg
     starship
+    tealdeer
   ];
 }

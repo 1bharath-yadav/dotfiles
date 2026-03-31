@@ -56,6 +56,7 @@
     zed-editor
     whisper-cpp-vulkan
     gemini-cli
+    codex
     zenity
 
     fira-code

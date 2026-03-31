@@ -13,8 +13,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Kernel & Boot ────────────────────────────────────────────────────────────
-linux
-linux-headers
+linux-zen 
+linux-zen-headers
 linux-firmware
 grub
 efibootmgr
@@ -119,7 +119,8 @@ konsole
 partitionmanager
 kdesu
 kdenlive
-
+noise-suppression-for-voice 
+ladspa      
 # ── Filesystem / desktop portals / mounts ───────────────────────────────────
 gvfs
 gvfs-google

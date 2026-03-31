@@ -11,10 +11,10 @@ export PYTHONIOENCODING='UTF-8'
 export PYTHONUTF8=1
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONUNBUFFERED=1
-export UV_TORCH_BACKEND=cpu
+# export UV_TORCH_BACKEND=cpu
 # uv tool installs land in ~/.local/bin (already in PATH via home.sessionPath / paths.sh)
 export UV_TOOL_BIN_DIR="$HOME/.local/bin"
-
+export UV_TORCH_BACKEND=auto
 if command -v python3 >/dev/null; then
   python() { command python3 "$@"; }
 fi

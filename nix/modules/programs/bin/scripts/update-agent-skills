@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -e
+
+read -p "Install/update ALL agents? (y/n): " yn
+[[ $yn != "y" ]] && exit 0
+
+AGENCY_DIR="$HOME/.local/share/agency-agents"
+CLAUDE_DIR="$HOME/.claude/agents"
+
+echo "[1] Agency Agents"
+if [ -d "$AGENCY_DIR/.git" ]; then
+  git -C "$AGENCY_DIR" pull --quiet
+else
+  git clone https://github.com/msitarzewski/agency-agents.git "$AGENCY_DIR"
+fi
+
+cd "$AGENCY_DIR"
+./scripts/convert.sh
+./scripts/install.sh
+
+mkdir -p "$CLAUDE_DIR"
+cp -r "$AGENCY_DIR"/* "$CLAUDE_DIR"/
+
+echo "[2] Smithery"
+if command -v smithery >/dev/null 2>&1; then
+  smithery update
+else
+  npx @smithery/cli@latest setup
+fi
+
+echo "[3] Antigravity Skills"
+read -p "Target tool (claude/cursor/gemini/opencode/custom): " tool
+
+case $tool in
+  claude) npx antigravity-awesome-skills --claude ;;
+  cursor) npx antigravity-awesome-skills --cursor ;;
+  gemini) npx antigravity-awesome-skills --gemini ;;
+  opencode) npx antigravity-awesome-skills --path ~/.agents/skills ;;
+  custom)
+    read -p "Path: " p
+    npx antigravity-awesome-skills --path "$p"
+    ;;
+  *) echo "Invalid tool";;
+esac
+
+echo "Done."
