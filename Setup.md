@@ -154,12 +154,20 @@ rm ~/.zsh_dotfiles_cache
 ~/.dotfiles/update.sh
 ```
 
-# AI
+```bash
+cd ~/.local/share/piper/voices
+curl -L -o te_IN-maya-medium.onnx \
+https://huggingface.co/rhasspy/piper-voices/resolve/main/te/te_IN/maya/medium/te_IN-maya-medium.onnx
 
-## Agency agents
+curl -L -o te_IN-maya-medium.onnx.json \
+https://huggingface.co/rhasspy/piper-voices/resolve/main/te/te_IN/maya/medium/te_IN-maya-medium.onnx.json
 
-https://github.com/msitarzewski/agency-agents
 
-## smithery
+curl -L -o en_US-hfc_male-medium.onnx \
+https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/hfc_male/medium/en_US-hfc_male-medium.onnx
 
-npx @smithery/cli@latest setup or npm install -g @smithery/cli
+curl -L -o en_US-hfc_male-medium.onnx.json \
+https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/hfc_male/medium/en_US-hfc_male-medium.onnx.json
+
+
+```

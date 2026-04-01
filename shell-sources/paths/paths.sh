@@ -7,3 +7,7 @@
 export PATH="${HOME}/.nix-profile/bin:${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/sbin"
 
 #**************   CUSTOM PATHS   *********************
+
+export PATH="${HOME}/.npm/bin:${PATH}"                             
+
+

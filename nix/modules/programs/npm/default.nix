@@ -3,12 +3,11 @@
 {
   home.packages = with pkgs; [
     nodejs_25
-    nodePackages.pnpm
-
+    pnpm
   ];
 
   programs.npm = {
     enable = true;
-    package = pkgs.nodejs_latest;
+    package = pkgs.nodejs_25;
   };
 }

@@ -1,18 +1,19 @@
 return {
-  -- "jackMort/ChatGPT.nvim",
-  -- event = "VeryLazy",
-  -- dependencies = {
-  --   "MunifTanjim/nui.nvim",
-  --   "nvim-lua/plenary.nvim",
-  --   "folke/trouble.nvim",
-  --   "nvim-telescope/telescope.nvim",
-  -- },
-  -- config = function()
-  --   require("chatgpt").setup({
-  --     api_key_cmd = "op read op://Personal/open-ai-key/credential",
-  --   })
-  -- end,
-  -- keys = {
-  --   { "<leader>ai", "<cmd>ChatGPT<cr>", desc = "Open chatgpt" },
-  -- },
+  "carlos-algms/agentic.nvim",
+  event = "VeryLazy",
+
+  opts = {
+    provider = "codex-acp", -- use codex via ACP
+  },
+
+  keys = {
+    {
+      "<C-\\>",
+      function()
+        require("agentic").toggle()
+      end,
+      desc = "Agentic Toggle",
+      mode = { "n", "v", "i" },
+    },
+  },
 }

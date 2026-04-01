@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# voice-assistant — Letta assistant wrapper
+# Usage: voice-assistant [text|pipe|pipe-set <label> <value>]
+#
+# Manages a venv at ~/.local/state/voice-assistant/venv so the script
+# runs as a plain Python file — no uv, no PATH isolation issues.
+
+set -euo pipefail
+
+VENV_DIR="$HOME/.local/state/voice-assistant/venv"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY_SCRIPT="$SCRIPT_DIR/voice-assistant.py"
+
+# ── Venv bootstrap (first run or after wipe) ──────────────────────────────────
+if [[ ! -x "$VENV_DIR/bin/python" ]]; then
+    echo "[voice-assistant] Creating venv at $VENV_DIR …" >&2
+    python3 -m venv "$VENV_DIR"
+    "$VENV_DIR/bin/pip" install --quiet --upgrade pip
+    "$VENV_DIR/bin/pip" install --quiet letta-client
+fi
+
+exec "$VENV_DIR/bin/python" "$PY_SCRIPT" "${1:-text}" "${@:2}"

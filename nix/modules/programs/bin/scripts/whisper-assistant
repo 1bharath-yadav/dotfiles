@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# whisper-assistant: hold-to-record voice assistant.
+# Usage: whisper-assistant start | stop
+# Keybind: bindl SUPER,semicolon → start   bindr SUPER,semicolon → stop
+
+set -euo pipefail
+
+PIDFILE="/tmp/whisper-assistant.pid"
+WAVFILE="/tmp/whisper-assistant.wav"
+QS_BIN="/usr/bin/quickshell"
+
+notify() { notify-send -t 2500 -i audio-input-microphone "Voice Assistant" "$1"; }
+
+cmd_start() {
+  # Kill any stale recording
+  [[ -f "$PIDFILE" ]] && kill "$(cat "$PIDFILE")" 2>/dev/null
+
+  # Open sidebar to Assistant tab
+  "$QS_BIN" -c ii ipc call sidebarLeft open
+  "$QS_BIN" -c ii ipc call voiceAssistantShortcut trigger
+
+  notify "🎙 Listening… (hold SUPER+;)"
+  ffmpeg -y -f pulse -i default "$WAVFILE" &>/tmp/whisper-assistant-ffmpeg.log &
+  echo $! > "$PIDFILE"
+}
+
+cmd_stop() {
+  [[ ! -f "$PIDFILE" ]] && exit 0
+
+  kill "$(cat "$PIDFILE")" 2>/dev/null
+  rm -f "$PIDFILE"
+  sleep 0.3   # let ffmpeg flush
+
+  if ! command -v whisper-cli &>/dev/null; then
+    notify "⚠ whisper-cli not found"; exit 1
+  fi
+  text=$(whisper-cli -m "${WHISPER_MODEL:-$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin}" -f "$WAVFILE" -nt -np --beam-size 1 --ov-e-device GPU 2>/dev/null | tr -d '\n')
+
+  if [[ -z "$text" ]]; then
+    notify "⚠ No speech detected"; exit 0
+  fi
+
+  notify "💬 $text"
+  echo "$text" | ~/.local/bin/voice-assistant pipe
+}
+
+case "$1" in
+  start) cmd_start ;;
+  stop)  cmd_stop  ;;
+  *) echo "Usage: whisper-assistant start|stop" >&2; exit 1 ;;
+esac

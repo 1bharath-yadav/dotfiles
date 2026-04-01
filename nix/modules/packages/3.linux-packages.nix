@@ -18,6 +18,7 @@
 
     alsa-utils
     pamixer
+    socat
     ueberzugpp
     nvtopPackages.intel
     slirp4netns
@@ -41,7 +42,6 @@
     feh
     foliate
     koodo-reader
-    google-chrome
     gparted
     libreoffice-still
     mplayer
@@ -57,6 +57,7 @@
     whisper-cpp-vulkan
     gemini-cli
     codex
+    codex-acp
     zenity
 
     fira-code

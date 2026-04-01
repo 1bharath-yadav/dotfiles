@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# piper-speak — direct TTS wrapper around piper.
+# Usage: echo "Hello" | piper-speak
+#        piper-speak "Hello world"
+# Env:   PIPER_MODEL
+
+set -euo pipefail
+
+MODEL="${PIPER_MODEL:-$HOME/.local/share/piper/voices/en_US-lessac-medium.onnx}"
+CONFIG="${MODEL%.onnx}.onnx.json"
+
+if ! command -v aplay &>/dev/null; then
+    echo "[piper-speak] aplay not found (required). Install alsa-utils and retry." >&2
+    exit 127
+fi
+
+if ! command -v piper &>/dev/null; then
+    echo "[piper-speak] piper not found" >&2
+    exit 127
+fi
+
+text="${1:-}"
+if [[ -z "$text" ]]; then
+    text=$(cat)
+fi
+[[ -z "$text" ]] && exit 0
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+printf '%s\n' "$text" > "$tmp"
+
+piper --model "$MODEL" --config "$CONFIG" --input-file "$tmp" --output-raw \
+    | aplay -r 22050 -f S16_LE -t raw - 2>/dev/null
