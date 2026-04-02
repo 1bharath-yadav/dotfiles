@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# kokoro-speak — Kokoro-backed TTS wrapper with interrupt support.
+# Usage:
+#   kokoro-speak speak "Hello world"
+#   echo "Hello world" | kokoro-speak speak
+#   kokoro-speak stop
+#
+# Env:
+#   KOKORO_MODEL   Path to kokoro-v1.0.onnx
+#   KOKORO_VOICES  Path to voices-v1.0.bin
+#   KOKORO_VOICE   Voice name, default af_sarah
+#   KOKORO_LANG    Language code, default en-us
+#   KOKORO_SPEED   Speech speed, default 1.0
+
+set -euo pipefail
+
+PIDFILE="/tmp/kokoro-speak.pid"
+LOGFILE="/tmp/kokoro-speak.log"
+MODEL="${KOKORO_MODEL:-$HOME/.local/share/kokoro/models/kokoro-v1.0.onnx}"
+VOICES="${KOKORO_VOICES:-$HOME/.local/share/kokoro/models/voices-v1.0.bin}"
+VOICE="${KOKORO_VOICE:-af_sarah}"
+LANG="${KOKORO_LANG:-en-us}"
+SPEED="${KOKORO_SPEED:-1.0}"
+KOKORO_BIN="${KOKORO_BIN:-$HOME/.local/bin/kokoro-tts}"
+
+stop_existing() {
+    if [[ -f "$PIDFILE" ]]; then
+        local pid
+        pid="$(cat "$PIDFILE" 2>/dev/null || true)"
+        if [[ -n "${pid:-}" ]]; then
+            kill "$pid" 2>/dev/null || true
+        fi
+        rm -f "$PIDFILE"
+    fi
+}
+
+cmd_stop() {
+    stop_existing
+}
+
+cmd_speak() {
+    local text="${1:-}"
+    if [[ -z "$text" ]]; then
+        text="$(cat)"
+    fi
+    text="${text//$'\r'/}"
+    [[ -z "$text" ]] && exit 0
+
+    if [[ ! -x "$KOKORO_BIN" ]]; then
+        echo "[kokoro-speak] kokoro-tts not found at $KOKORO_BIN" >&2
+        exit 127
+    fi
+
+    stop_existing
+
+    local tmp
+    tmp="$(mktemp)"
+    trap 'rm -f "$tmp"' EXIT
+    printf '%s\n' "$text" > "$tmp"
+
+    "$KOKORO_BIN" "$tmp" --stream --model "$MODEL" --voices "$VOICES" --voice "$VOICE" --lang "$LANG" --speed "$SPEED" \
+        &>"$LOGFILE" &
+    echo $! > "$PIDFILE"
+    wait "$(cat "$PIDFILE")" 2>/dev/null || true
+    rm -f "$PIDFILE"
+}
+
+case "${1:-speak}" in
+    speak) shift; cmd_speak "${1:-}" ;;
+    stop) cmd_stop ;;
+    *) echo "Usage: kokoro-speak speak [TEXT] | stop" >&2; exit 1 ;;
+esac

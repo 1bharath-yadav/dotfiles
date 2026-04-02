@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# whisper-assistant: hold-to-record voice assistant.
+# whisper-assistant: hold-to-record transcript capture.
 # Usage: whisper-assistant start | stop
-# Keybind: bindl SUPER,semicolon → start   bindr SUPER,semicolon → stop
+# Keybind: bind SUPER,semicolon → toggle voice assistant overlay
 
 set -euo pipefail
 
@@ -15,11 +15,7 @@ cmd_start() {
   # Kill any stale recording
   [[ -f "$PIDFILE" ]] && kill "$(cat "$PIDFILE")" 2>/dev/null
 
-  # Open sidebar to Assistant tab
-  "$QS_BIN" -c ii ipc call sidebarLeft open
-  "$QS_BIN" -c ii ipc call voiceAssistantShortcut trigger
-
-  notify "🎙 Listening… (hold SUPER+;)"
+  notify "🎙 Listening…"
   ffmpeg -y -f pulse -i default "$WAVFILE" &>/tmp/whisper-assistant-ffmpeg.log &
   echo $! > "$PIDFILE"
 }
@@ -40,8 +36,8 @@ cmd_stop() {
     notify "⚠ No speech detected"; exit 0
   fi
 
-  notify "💬 $text"
-  echo "$text" | ~/.local/bin/voice-assistant pipe
+  notify "💬 Transcript ready"
+  "$QS_BIN" -c ii ipc call voiceAssistantOverlay transcript "$text"
 }
 
 case "$1" in

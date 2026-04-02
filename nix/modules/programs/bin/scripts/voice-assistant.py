@@ -13,12 +13,13 @@ Verified against docs.letta.com for:
 
 Modes:
   text          interactive REPL (default)
-  pipe          stdin → Letta → IPC + TTS (called by whisper-assistant)
+  pipe          stdin → Letta → IPC + Kokoro TTS (called by whisper-assistant)
   cancel        cancel the active streamed run
   pipe-set L V  directly update memory block label L to value V, then exit
 """
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -91,24 +92,52 @@ def _keyring_save(blob: dict) -> None:
 
 
 def get_api_key() -> str | None:
+    env_key = os.environ.get("LETTA_API_KEY", "").strip()
+    if env_key:
+        return env_key
+    try:
+        result = subprocess.run(
+            ["secrets", "get", "letta_key"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        key = result.stdout.strip()
+        if key:
+            return key
+    except Exception:
+        pass
     blob = _keyring_load()
     return blob.get("apiKeys", {}).get(_KEYRING_KEY, "").strip() or None
 
 
 def save_api_key(key: str) -> None:
+    key = key.strip()
+    try:
+        result = subprocess.run(
+            ["secrets", "store", "letta_key", key],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if result.returncode == 0:
+            return
+    except Exception:
+        pass
     blob = _keyring_load()
-    blob.setdefault("apiKeys", {})[_KEYRING_KEY] = key.strip()
+    blob.setdefault("apiKeys", {})[_KEYRING_KEY] = key
     _keyring_save(blob)
 
 
 def prompt_for_api_key(pipe_mode: bool = False) -> str:
     if pipe_mode:
         _ipc("voiceAssistant", "status", "error")
-        _ipc("voiceAssistant", "response", "[Error] No Letta API key set. Run: voice-assistant text")
+        _ipc("voiceAssistant", "response", "[Error] No Letta API key set. Run: secrets store letta_key or start voice-assistant text")
         sys.exit(1)
 
     print("\n┌─ First-run setup ───────────────────────────────────────────┐")
-    print("│  No Letta API key found in keyring.                         │")
+    print("│  No Letta API key found in secrets/env.                     │")
     print("│  Get yours at: https://app.letta.com → Settings → API Keys  │")
     print("└─────────────────────────────────────────────────────────────┘")
     try:
@@ -121,7 +150,7 @@ def prompt_for_api_key(pipe_mode: bool = False) -> str:
         print("No key entered. Exiting.")
         sys.exit(1)
     save_api_key(key)
-    print("✓ Key saved to keyring. Change later with /key in the REPL.\n")
+    print("✓ Key saved. Change later with /key in the REPL.\n")
     return key
 
 
@@ -150,9 +179,9 @@ def _ipc(target: str, event: str, payload: str = "") -> None:
 
 
 def _speak(text: str) -> None:
-    piper = Path.home() / ".local" / "bin" / "piper-speak"
-    if piper.exists():
-        subprocess.run([str(piper), text], check=False)
+    kokoro = Path.home() / ".local" / "bin" / "kokoro-speak"
+    if kokoro.exists():
+        subprocess.Popen([str(kokoro), "speak", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def get_active_agent_id() -> str | None:
@@ -439,13 +468,19 @@ def _extract_chunk_text(chunk) -> tuple[str, str]:
     Return (reply_token, thinking_token) from a Letta streaming chunk.
 
     Letta SDK chunk types (message_type field):
-      assistant_message   — the actual reply; .content is list[TextContent]
-      internal_monologue  — inner thoughts; .content is str or list
-      reasoning           — some models emit this for CoT
+      assistant_message   — the actual reply; .content is list[TextContent] or str
+      internal_monologue  — inner thoughts; text is in .reasoning field (step streaming)
+                            or .content (token streaming delta)
+      reasoning           — some models emit this for CoT; text in .reasoning or .content
+      thinking            — alias used by some providers
       tool_call_message   — tool invocation (skip)
       tool_return_message — tool result (skip)
       usage_statistics    — token counts (skip)
       heartbeat / ping    — keepalive (skip)
+
+    IMPORTANT: For step streaming (Letta default), internal_monologue arrives as a
+    complete message with the thought in .reasoning (NOT .content). Always check
+    .reasoning first for think-type chunks.
     """
     mtype = (getattr(chunk, "message_type", None) or
              getattr(chunk, "event", None) or
@@ -453,43 +488,55 @@ def _extract_chunk_text(chunk) -> tuple[str, str]:
              getattr(chunk, "kind", None) or "").lower()
 
     # ── Assistant reply ──────────────────────────────────────────────────
-    if mtype in ("assistant_message",):
+    if mtype == "assistant_message":
         c = getattr(chunk, "content", None)
-        if isinstance(c, str):
+        if isinstance(c, str) and c.strip():
             return c, ""
-        if isinstance(c, list) and c:
-            # SDK wraps text in TextContent objects
-            parts = []
-            for item in c:
-                t = getattr(item, "text", None)
-                if isinstance(t, str):
-                    parts.append(t)
-            return "".join(parts), ""
+        if isinstance(c, list):
+            parts = [getattr(item, "text", None) or "" for item in c
+                     if getattr(item, "text", None)]
+            if parts:
+                return "".join(parts), ""
+        # token-streaming delta fallback
+        delta = getattr(chunk, "delta", None)
+        if isinstance(delta, str) and delta:
+            return delta, ""
         return "", ""
 
     # ── Inner thoughts / reasoning ───────────────────────────────────────
     if mtype in ("internal_monologue", "reasoning", "thinking"):
+        # Step streaming: Letta puts the full thought in .reasoning
+        r = getattr(chunk, "reasoning", None) or getattr(chunk, "thought", None)
+        if isinstance(r, str) and r.strip():
+            return "", r.strip()
+        # Token streaming or alternate schema: check .content
         c = getattr(chunk, "content", None)
         if isinstance(c, str) and c.strip():
-            return "", c
-        if isinstance(c, list) and c:
-            parts = []
-            for item in c:
-                t = getattr(item, "text", None)
-                if isinstance(t, str):
-                    parts.append(t)
-            return "", "".join(parts)
-        # Also check dedicated reasoning field
-        r = getattr(chunk, "reasoning", None) or getattr(chunk, "thought", None) or ""
-        return "", str(r) if r else ""
+            return "", c.strip()
+        if isinstance(c, list):
+            parts = [getattr(item, "text", None) or "" for item in c
+                     if getattr(item, "text", None)]
+            if parts:
+                return "", "".join(parts)
+        # token-streaming delta fallback
+        delta = getattr(chunk, "delta", None)
+        if isinstance(delta, str) and delta:
+            return "", delta
+        return "", ""
 
     # ── Skip everything else (tool calls, pings, usage stats, etc.) ──────
     return "", ""
 
 
-def _stream_response(client, agent_id: str, message: str, on_token=None, on_thinking=None):
+def _stream_response(client, agent_id: str, message: str, on_token=None, on_thinking=None, on_stream_start=None):
+    """Stream a message. Callbacks:
+      on_thinking(chunk)    — called for each internal_monologue/reasoning chunk
+      on_stream_start()     — called once, before the first reply token (after all thinking)
+      on_token(chunk)       — called for each assistant_message token
+    """
     stream = stream_message(client, agent_id, message)
     final_parts = []
+    stream_started = [False]
     for chunk in stream:
         # Track run_id for cancel support
         run_id = _chunk_attr(chunk, "run_id", "message_id", "messageId", "id")
@@ -502,6 +549,11 @@ def _stream_response(client, agent_id: str, message: str, on_token=None, on_thin
             on_thinking(think_token)
 
         if reply_token:
+            # Fire stream_start once, on the first reply token (after all thinking)
+            if not stream_started[0]:
+                stream_started[0] = True
+                if on_stream_start:
+                    on_stream_start()
             final_parts.append(reply_token)
             if on_token:
                 on_token(reply_token)
@@ -523,7 +575,6 @@ def run_pipe() -> None:
         agent_id = resolve_agent_id(client)
         if not agent_id:
             raise RuntimeError("No active agent selected. Open voice-assistant text mode and run /agents use or /agents new.")
-        _ipc("voiceAssistant", "userMessage", query)
         _ipc("voiceAssistant", "status", "thinking")
         _ipc("voiceAssistant", "agentId", agent_id)
         agent = _get_agent_by_ref(client, agent_id)
@@ -532,6 +583,8 @@ def run_pipe() -> None:
 
         # Lazy thinking bubble: opened on the first real thinking chunk,
         # subsequent chunks stream via "thinking", closed before reply starts.
+        # streamStart is fired AFTER thinkingEnd so the assistant bubble is
+        # always the last item when tokens arrive — never a think bubble.
         _thinking_open = [False]
         def _on_thinking(chunk: str) -> None:
             if not _thinking_open[0]:
@@ -540,14 +593,23 @@ def run_pipe() -> None:
             else:
                 _ipc("voiceAssistant", "thinking", chunk)
 
-        _ipc("voiceAssistant", "streamStart")
+        def _on_stream_start():
+            # Close thinking bubble (if open) before opening the reply bubble
+            if _thinking_open[0]:
+                _ipc("voiceAssistant", "thinkingEnd")
+                _thinking_open[0] = False
+            _ipc("voiceAssistant", "streamStart")
+
         text = _stream_response(
             client,
             agent_id,
             query,
             on_token=lambda chunk: _ipc("voiceAssistant", "token", chunk),
             on_thinking=_on_thinking,
+            on_stream_start=_on_stream_start,
         )
+        # thinkingEnd already fired in _on_stream_start; only fire it here if
+        # the model produced thoughts but NO reply tokens (edge case).
         if _thinking_open[0]:
             _ipc("voiceAssistant", "thinkingEnd")
         _ipc("voiceAssistant", "streamEnd")

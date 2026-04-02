@@ -11,6 +11,10 @@ VENV_DIR="$HOME/.local/state/voice-assistant/venv"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PY_SCRIPT="$SCRIPT_DIR/voice-assistant.py"
 
+if [[ -z "${LETTA_API_KEY:-}" ]] && command -v secrets >/dev/null 2>&1; then
+    export LETTA_API_KEY="$(secrets get letta_key 2>/dev/null || true)"
+fi
+
 # ── Venv bootstrap (first run or after wipe) ──────────────────────────────────
 if [[ ! -x "$VENV_DIR/bin/python" ]]; then
     echo "[voice-assistant] Creating venv at $VENV_DIR …" >&2
