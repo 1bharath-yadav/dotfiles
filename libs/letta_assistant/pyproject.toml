@@ -1,0 +1,23 @@
+[project]
+name = "letta-assistant"
+version = "0.1.0"
+description = "Modular Letta desktop assistant backend"
+requires-python = ">=3.11"
+dependencies = [
+  "PySide6>=6.6",
+  "letta-client"
+  "whisperx"
+]
+
+[project.scripts]
+letta-assistant = "letta_assistant.letta_assistant:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

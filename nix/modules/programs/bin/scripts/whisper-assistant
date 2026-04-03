@@ -1,47 +1,76 @@
 #!/usr/bin/env bash
-# whisper-assistant: hold-to-record transcript capture.
-# Usage: whisper-assistant start | stop
-# Keybind: bind SUPER,semicolon → toggle voice assistant overlay
+# whisper-assistant: direct record-then-transcribe helper.
+# Usage: whisper-assistant [seconds]
 
 set -euo pipefail
 
-PIDFILE="/tmp/whisper-assistant.pid"
-WAVFILE="/tmp/whisper-assistant.wav"
-QS_BIN="/usr/bin/quickshell"
+QS_BIN="quickshell"
+MODEL="${WHISPER_MODEL:-$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin}"
+SECONDS_TO_RECORD="${WHISPER_SECONDS:-${1:-5}}"
+WAVFILE="${WHISPER_WAVFILE:-/tmp/whisper-assistant.wav}"
 
-notify() { notify-send -t 2500 -i audio-input-microphone "Voice Assistant" "$1"; }
+_ipc() { "$QS_BIN" -c ii ipc call voiceAssistant "$@" 2>/dev/null || true; }
 
-cmd_start() {
-  # Kill any stale recording
-  [[ -f "$PIDFILE" ]] && kill "$(cat "$PIDFILE")" 2>/dev/null
-
-  notify "🎙 Listening…"
-  ffmpeg -y -f pulse -i default "$WAVFILE" &>/tmp/whisper-assistant-ffmpeg.log &
-  echo $! > "$PIDFILE"
+_record() {
+  rm -f "$WAVFILE"
+  if command -v pw-record >/dev/null 2>&1; then
+    timeout "${SECONDS_TO_RECORD}s" pw-record \
+      --rate 16000 \
+      --channels 1 \
+      --format s16 \
+      "$WAVFILE" >/tmp/whisper-assistant-pw-record.log 2>&1 || true
+  else
+    timeout "${SECONDS_TO_RECORD}s" ffmpeg -y \
+      -f pulse -i default \
+      -ac 1 -ar 16000 -c:a pcm_s16le \
+      "$WAVFILE" >/tmp/whisper-assistant-ffmpeg.log 2>&1 || true
+  fi
 }
 
-cmd_stop() {
-  [[ ! -f "$PIDFILE" ]] && exit 0
-
-  kill "$(cat "$PIDFILE")" 2>/dev/null
-  rm -f "$PIDFILE"
-  sleep 0.3   # let ffmpeg flush
-
-  if ! command -v whisper-cli &>/dev/null; then
-    notify "⚠ whisper-cli not found"; exit 1
-  fi
-  text=$(whisper-cli -m "${WHISPER_MODEL:-$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin}" -f "$WAVFILE" -nt -np --beam-size 1 --ov-e-device GPU 2>/dev/null | tr -d '\n')
-
-  if [[ -z "$text" ]]; then
-    notify "⚠ No speech detected"; exit 0
-  fi
-
-  notify "💬 Transcript ready"
-  "$QS_BIN" -c ii ipc call voiceAssistantOverlay transcript "$text"
+_transcribe() {
+  local buf=""
+  while IFS= read -r line; do
+    line="${line//$'\r'/}"
+    line="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == *"]"* ]]; then
+      line="${line#*]}"
+    fi
+    line="${line#"${line%%[![:space:]]*}"}"
+    [[ -z "$line" ]] && continue
+    [[ -n "$buf" ]] && buf+=" "
+    buf+="$line"
+  done < <(whisper-cli \
+    -m "$MODEL" \
+    -f "$WAVFILE" \
+    -nt -np \
+    --beam-size 1 \
+    --ov-e-device GPU \
+    2>/dev/null) || true
+  printf '%s' "$buf"
 }
 
-case "$1" in
-  start) cmd_start ;;
-  stop)  cmd_stop  ;;
-  *) echo "Usage: whisper-assistant start|stop" >&2; exit 1 ;;
-esac
+main() {
+  _ipc status listening
+  _record
+  _ipc status thinking
+
+  if [[ ! -s "$WAVFILE" ]]; then
+    _ipc status ready
+    exit 0
+  fi
+
+  if ! command -v whisper-cli >/dev/null 2>&1; then
+    _ipc status error
+    exit 1
+  fi
+
+  local text
+  text="$(_transcribe)"
+  if [[ -n "${text// }" ]]; then
+    _ipc transcript "$text"
+  fi
+  _ipc status ready
+}
+
+main "$@"

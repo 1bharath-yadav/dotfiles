@@ -1,0 +1,364 @@
+#!/usr/bin/env bash
+# voice-assistant-daemon: persistent Letta daemon for Quickshell UI.
+# Usage: voice-assistant-daemon [pipe|text|cancel]
+#   pipe   — read one line from stdin, stream/return response via QS IPC
+#   text   — read one line from stdin, print command/text response to stdout
+#   cancel — signal the daemon to abort current run
+
+set -euo pipefail
+
+VENV_DIR="$HOME/.local/state/voice-assistant/venv"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+PKG_DIR="$DOTFILES_DIR/libs/letta_assistant"
+PYTHON="$VENV_DIR/bin/python"
+CANCEL_FILE="/tmp/voice-assistant-cancel"
+QS_BIN="quickshell"
+
+_ipc() { "$QS_BIN" -c ii ipc call voiceAssistant "$@" 2>/dev/null || true; }
+
+_ensure_venv() {
+  if [[ ! -f "$PYTHON" ]]; then
+    python3 -m venv "$VENV_DIR" >&2
+    "$VENV_DIR/bin/pip" install -q -e "$PKG_DIR" >&2
+  fi
+}
+
+_get_api_key() {
+  local key="${LETTA_API_KEY:-}"
+  if [[ -z "$key" ]]; then
+    key=$(secret-tool lookup letta_key sk 2>/dev/null || true)
+  fi
+  echo "$key"
+}
+
+cmd_pipe() {
+  local text
+  text=$(cat)
+  [[ -z "${text// }" ]] && exit 0
+
+  rm -f "$CANCEL_FILE"
+  _ensure_venv
+
+  local api_key
+  api_key=$(_get_api_key)
+  [[ -z "$api_key" ]] && { _ipc status error; exit 1; }
+
+  export LETTA_API_KEY="$api_key"
+
+  _ipc status thinking
+
+  "$PYTHON" - pipe "$text" <<'PYEOF'
+import json
+import os
+import subprocess
+import sys
+import traceback
+
+mode = sys.argv[1]
+text = sys.argv[2]
+qs = ["quickshell", "-c", "ii", "ipc", "call", "voiceAssistant"]
+
+def ipc(*args):
+    try:
+        subprocess.run(qs + list(args), capture_output=True, timeout=5)
+    except Exception:
+        pass
+
+cancel_file = "/tmp/voice-assistant-cancel"
+
+def send_json(event_name, payload):
+    try:
+        ipc(event_name, json.dumps(payload, ensure_ascii=False))
+    except Exception:
+        pass
+
+def make_jsonable(value):
+    if hasattr(value, "model_dump"):
+        try:
+            return make_jsonable(value.model_dump())
+        except Exception:
+            return str(value)
+    if isinstance(value, dict):
+        return {key: make_jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [make_jsonable(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+def event_payload(event):
+    payload = {}
+    for key in (
+        "message_type",
+        "type",
+        "reasoning",
+        "content",
+        "stop_reason",
+        "error_type",
+        "message",
+    ):
+        value = getattr(event, key, None)
+        if value is not None:
+            payload[key] = make_jsonable(value)
+    for attr in ("tool_calls", "tool_returns", "usage_statistics"):
+        value = getattr(event, attr, None)
+        if value is not None:
+            payload[attr] = make_jsonable(value)
+    return payload
+
+try:
+    from letta_assistant.letta_assistant import run_command_line
+    from letta_assistant.services import letta_service as svc
+    from letta_assistant.utils.state import load_state, save_state
+
+    state_flags = {"thinking_started": False, "stream_started": False}
+    api_key = os.environ.get("LETTA_API_KEY", "")
+    client = svc.init_client(api_key)
+
+    saved = load_state()
+    agent_id = saved.get("agent_id")
+    conversation_id = saved.get("conversation_id")
+    if not agent_id:
+        if mode == "pipe":
+            ipc("status", "error")
+            send_json("error", {"message": "No active agent in saved state"})
+        else:
+            print("[ERROR] No active agent in saved state", file=sys.stderr)
+        sys.exit(1)
+
+    agent = svc.get_agent(client, agent_id)
+    def should_cancel():
+        return os.path.exists(cancel_file)
+
+    def on_stream_start():
+        state_flags["stream_started"] = True
+        if mode == "pipe":
+            ipc("streamStart")
+
+    def on_thinking(chunk):
+        if not chunk:
+            return
+        if mode != "pipe":
+            return
+        if not state_flags["thinking_started"]:
+            ipc("thinkingStart", chunk)
+            state_flags["thinking_started"] = True
+        else:
+            ipc("thinking", chunk)
+
+    def on_token(chunk):
+        if not chunk:
+            return
+        if mode == "pipe":
+            ipc("token", chunk)
+        else:
+            print(chunk, end="", flush=True)
+
+    def on_event(event):
+        et = event.message_type
+
+        if mode != "pipe":
+            return
+
+        if et == "tool_call_message":
+            send_json("toolCall", event_payload(event))
+
+        elif et == "tool_return_message":
+            send_json("toolReturn", event_payload(event))
+
+        elif et == "approval_request_message":
+            send_json("approvalRequest", event_payload(event))
+
+        elif et == "usage_statistics":
+            send_json("usageStatistics", event_payload(event))
+
+        elif et == "stop_reason":
+            send_json("stopReason", event_payload(event))
+
+        elif et == "error_message":
+            send_json("error", event_payload(event))
+            ipc("status", "error")
+
+    if mode == "pipe":
+        ipc("agentId", agent_id)
+        ipc("modelName", getattr(agent, "model", "") or "")
+
+    result, next_agent, next_conversation, meta = run_command_line(
+        client,
+        agent_id,
+        conversation_id,
+        text,
+        on_thinking=on_thinking,
+        on_token=on_token,
+        on_stream_start=on_stream_start,
+        on_event=on_event,
+        should_cancel=should_cancel,
+        echo=False,
+    )
+
+    if next_agent != agent_id or next_conversation != conversation_id:
+        save_state(next_agent, next_conversation)
+
+    if mode == "pipe":
+        ipc("agentId", next_agent or "")
+        ipc("conversationId", next_conversation or "")
+        try:
+            next_agent_state = svc.get_agent(client, next_agent)
+            ipc("modelName", getattr(next_agent_state, "model", "") or "")
+        except Exception:
+            pass
+        if state_flags["thinking_started"]:
+            ipc("thinkingEnd")
+        if state_flags["stream_started"]:
+            ipc("streamEnd")
+        if result and (not meta.get("streamed") or "[ERROR]" in result or "[PENDING]" in result):
+            ipc("response", result)
+        ipc("status", "ready" if "[ERROR]" not in result else "error")
+    else:
+        if result:
+            if meta.get("streamed"):
+                if result.startswith("[ERROR]") or result.startswith("[PENDING]"):
+                    print(result)
+                else:
+                    print()
+            else:
+                print(result)
+
+except Exception as e:
+    message = {
+        "message": str(e),
+        "traceback": traceback.format_exc(),
+    }
+    if mode == "pipe":
+        send_json("error", message)
+        ipc("status", "error")
+        if state_flags["stream_started"]:
+            ipc("streamEnd")
+    else:
+        print(f"[ERROR] {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+}
+
+cmd_text() {
+  local text
+  text=$(cat)
+  [[ -z "${text// }" ]] && exit 0
+
+  rm -f "$CANCEL_FILE"
+  _ensure_venv
+
+  local api_key
+  api_key=$(_get_api_key)
+  [[ -z "$api_key" ]] && { echo "[ERROR] Missing LETTA_API_KEY" >&2; exit 1; }
+
+  export LETTA_API_KEY="$api_key"
+
+  "$PYTHON" - text "$text" <<'PYEOF'
+import json
+import os
+import subprocess
+import sys
+import traceback
+
+mode = sys.argv[1]
+text = sys.argv[2]
+qs = ["quickshell", "-c", "ii", "ipc", "call", "voiceAssistant"]
+
+def ipc(*args):
+    try:
+        subprocess.run(qs + list(args), capture_output=True, timeout=5)
+    except Exception:
+        pass
+
+cancel_file = "/tmp/voice-assistant-cancel"
+
+def send_json(event_name, payload):
+    try:
+        ipc(event_name, json.dumps(payload, ensure_ascii=False))
+    except Exception:
+        pass
+
+def make_jsonable(value):
+    if hasattr(value, "model_dump"):
+        try:
+            return make_jsonable(value.model_dump())
+        except Exception:
+            return str(value)
+    if isinstance(value, dict):
+        return {key: make_jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [make_jsonable(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
+def event_payload(event):
+    payload = {}
+    for key in ("message_type", "type", "reasoning", "content", "stop_reason", "error_type", "message"):
+        value = getattr(event, key, None)
+        if value is not None:
+            payload[key] = make_jsonable(value)
+    for attr in ("tool_calls", "tool_returns", "usage_statistics"):
+        value = getattr(event, attr, None)
+        if value is not None:
+            payload[attr] = make_jsonable(value)
+    return payload
+
+try:
+    from letta_assistant.letta_assistant import run_command_line
+    from letta_assistant.services import letta_service as svc
+    from letta_assistant.utils.state import load_state, save_state
+
+    api_key = os.environ.get("LETTA_API_KEY", "")
+    client = svc.init_client(api_key)
+    saved = load_state()
+    agent_id = saved.get("agent_id")
+    conversation_id = saved.get("conversation_id")
+    if not agent_id:
+        print("[ERROR] No active agent in saved state", file=sys.stderr)
+        sys.exit(1)
+
+    def should_cancel():
+        return os.path.exists(cancel_file)
+
+    def on_token(chunk):
+        if chunk:
+            print(chunk, end="", flush=True)
+
+    result, next_agent, next_conversation, meta = run_command_line(
+        client,
+        agent_id,
+        conversation_id,
+        text,
+        on_token=on_token,
+        should_cancel=should_cancel,
+        echo=False,
+    )
+    if next_agent != agent_id or next_conversation != conversation_id:
+        save_state(next_agent, next_conversation)
+    if result:
+        if meta.get("streamed"):
+            if result.startswith("[ERROR]") or result.startswith("[PENDING]"):
+                print(result)
+            else:
+                print()
+        else:
+            print(result)
+except Exception as e:
+    print(f"[ERROR] {e}", file=sys.stderr)
+    print(traceback.format_exc(), file=sys.stderr)
+    sys.exit(1)
+PYEOF
+}
+
+cmd_cancel() {
+  touch "$CANCEL_FILE"
+}
+
+case "${1:-pipe}" in
+  pipe)   cmd_pipe   ;;
+  text)   cmd_text   ;;
+  cancel) cmd_cancel ;;
+  *) echo "Usage: voice-assistant-daemon [pipe|text|cancel]" >&2; exit 1 ;;
+esac

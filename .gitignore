@@ -1,2 +1,52 @@
+# Letta AI state
 **/.letta/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Python build and distribution
+build/
+dist/
+*.egg-info/
+*.whl
+*.tar.gz
+.eggs/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+.npm
+
+# Build artifacts
+*.o
+*.so
+*.a
+
+# Temporary files
+*.tmp
+*.log
+.#*
+
+# Shell script artifacts
+*.sh.bak
 

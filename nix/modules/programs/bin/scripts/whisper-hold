@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# whisper-hold: record while SUPER+H held, transcribe with whisper-cli, paste result.
-# Usage: whisper-hold start | stop
+# whisper-hold: dictation helper using whisper-cli, paste result at cursor.
+# Usage: whisper-hold start | stop | toggle
 
 PIDFILE="/tmp/whisper-hold.pid"
 WAVFILE="/tmp/whisper-hold.wav"
@@ -48,8 +48,17 @@ cmd_stop() {
   fi
 }
 
+cmd_toggle() {
+  if [[ -f "$PIDFILE" ]]; then
+    cmd_stop
+  else
+    cmd_start
+  fi
+}
+
 case "$1" in
   start) cmd_start ;;
   stop)  cmd_stop  ;;
+  toggle) cmd_toggle ;;
   *) echo "Usage: whisper-hold start|stop" >&2; exit 1 ;;
 esac
