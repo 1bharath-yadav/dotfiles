@@ -1,4 +1,4 @@
-# AUR / chaotic-aur packages.
+# AUR / chaotic-aur packages.(illogical-impulse dependencies will be handled by end4ots)
 # Installed with yay when available.
 
 antigravity-tools-bin
@@ -8,21 +8,6 @@ chaotic-mirrorlist
 claude-desktop-bin
 datui-bin
 grimblast-git
-illogical-impulse-audio
-illogical-impulse-backlight
-illogical-impulse-basic
-illogical-impulse-bibata-modern-classic-bin
-illogical-impulse-fonts-themes
-illogical-impulse-hyprland
-illogical-impulse-kde
-illogical-impulse-microtex-git
-illogical-impulse-microtex-git-debug
-illogical-impulse-portal
-illogical-impulse-python
-illogical-impulse-quickshell-git
-illogical-impulse-screencapture
-illogical-impulse-toolkit
-illogical-impulse-widgets
 kde-material-you-colors
 koodo-reader-bin
 kvantum-theme-catppuccin-git

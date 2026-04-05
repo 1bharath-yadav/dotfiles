@@ -31,3 +31,5 @@ postgresql
 tlp
 tlp-rdw
 tlpui
+ollama
+ollama-vulkun

@@ -26,7 +26,6 @@
   pkgs.clinfo
   pkgs.libva-utils
   pkgs.nvtopPackages.intel
-  pkgs.ollama
   pkgs.vulkan-tools
   pkgs.whisper-cpp-vulkan
 

@@ -35,6 +35,7 @@ ntfs-3g
 sof-firmware
 linux-firmware-intel
 zram-generator
+intel-ucode
 
 # Camera / Intel media stack
 clinfo
