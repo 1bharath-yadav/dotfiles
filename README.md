@@ -1,46 +1,63 @@
 # dotfiles
 
-A unified, Nix-powered configuration environment for **Arch Linux**, **WSL2**, and **Android (nix-on-droid)**.
+A declarative personal environment for **Arch Linux**, **WSL2**, and **Termux**.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 git clone https://github.com/1bharath-yadav/dotfiles ~/.dotfiles
 cd ~/.dotfiles
 
-# First-run bootstrap (detects OS and installs system packages + Nix)
-./setup/bootstrap.sh <arch|wsl|android>
+# First-run bootstrap
+./setup/bootstrap.sh <arch|wsl|termux>
 
-# Apply Home Manager user environment
+# Overall update
 ./update.sh
+
+# Individual layer
+./setup/main.sh apply <pacman|home|system|external|all> [os]
 ```
 
-## 🏗️ Structure
+## Structure
 
 ```text
 .dotfiles/
-├── flake.nix          # Home Manager + nix-on-droid entrypoint
-├── nix/               # Nix modules and host definitions
-│   ├── hosts/         # Host-specific settings (arch, wsl, phone)
-│   └── modules/       # Domain bundles: packages/ and programs/ (configs)
-├── setup/             # Bootstrap logic and OS-specific helpers
-├── shell-sources/     # Topic-based Zsh aliases, functions, and paths
-└── update.sh          # Idempotent refresh (HM switch + end4dots sync)
+├── flake.nix              # Home Manager flake entrypoint
+├── nix/
+│   ├── hosts/             # archer-arch.nix, archer-wsl.nix
+│   ├── modules/
+│   │   ├── packages/      # common.nix, arch-home.nix, wsl.nix, external.txt
+│   │   └── programs/      # per-tool configs + bin/scripts/
+│   └── system/            # arch-system.nix, apply.sh, diff.sh
+├── setup/
+│   ├── arch/packages/     # pacman/AUR manifests (native-core, desktop, services, aur)
+│   ├── lib.sh             # shared helpers
+│   └── main.sh            # bootstrap/apply/update dispatcher
+├── shell-sources/         # zsh aliases, functions, paths
+└── update.sh              # overall sync wrapper
 ```
 
-## 📦 Package Ownership
+## Package Ownership
 
-*   **Pacman / APT:** System bootstrap, drivers, and **KDE desktop apps** on Arch (Dolphin, Ark, etc.) for native plugin/service stability.
-*   **Home Manager:** Portable user environment, CLI tools, and core app configurations (Neovim, Tmux, Zsh, Yazi).
-*   **Python:** Managed via `uv`. `uv tool` for global CLIs; project-local dependencies via `pyproject.toml`.
+| Layer | What | Source |
+|-------|------|--------|
+| pacman/AUR | kernel, drivers, Wayland, system services, KDE/GTK desktop | `setup/arch/packages/*.txt` |
+| system nix | GPU tools, ollama, hardware-heavy binaries | `nix/system/arch-system.nix` |
+| Home Manager | user CLI, shell/editor config, portable apps | `nix/modules/packages/*.nix` |
+| external | mise runtimes, uv/cargo/npm CLIs | `nix/modules/packages/external.txt` |
 
-## 🔄 Updating
+Runtime versions (Python, Node, Rust, Bun) are pinned in `nix/modules/programs/mise/default.nix`.
 
-Run `~/.dotfiles/update.sh` to:
-1. Sync `end4dots` (Arch/Hyprland) with upstream using a two-branch rebase strategy.
-2. Perform a smart Home Manager rebuild (only runs if `.nix` files have changed).
-3. Propagate the environment to the systemd user session and reload Hyprland.
+## Commands
 
-## 🤖 Agents & Automation
+| Command | Action |
+|---------|--------|
+| `./update.sh` | overall sync: end4dots + HM rebuild + session reload |
+| `./setup/main.sh apply all arch` | apply all layers for Arch |
+| `./setup/main.sh apply home` | rebuild Home Manager only |
+| `dots-apply arch` | wrapper: apply all for Arch |
+| `sync-external-tools` | install mise runtimes + uv/cargo/npm CLIs |
 
-See [AGENTS.md](./AGENTS.md) for detailed architecture decisions, working agreements, and the mission statement for the custom automation tools included in this repository.
+## Agents
+
+See [AGENTS.md](./AGENTS.md) for architecture decisions, working agreements, and automation details.

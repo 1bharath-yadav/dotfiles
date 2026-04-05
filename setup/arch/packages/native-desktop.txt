@@ -1,0 +1,46 @@
+# Desktop-integrated Arch packages managed by pacman.
+# Keep desktop stack, portals, KDE/GTK apps, and end4dots-adjacent apps here.
+
+# Wayland / Hyprland stack
+wayland
+xorg-xwayland
+mesa
+hyprland
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+sddm
+qt5-wayland
+qt6-wayland
+dex
+hyprpaper
+hyprpolkitagent
+kde-cli-tools
+kvantum
+kvantum-qt5
+nwg-displays
+nwg-look
+plasma-browser-integration
+qt6ct
+speech-dispatcher
+udiskie
+wl-screenrec
+xsettingsd
+
+# KDE / GTK / desktop apps
+ark
+dolphin
+filelight
+gparted
+kamoso
+kdeconnect
+kdenlive
+kdesu
+konsole
+libreoffice-still
+mpv
+partitionmanager
+zenity
+
+# Desktop utilities
+desktop-file-utils
+scrcpy

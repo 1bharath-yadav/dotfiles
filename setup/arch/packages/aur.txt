@@ -1,0 +1,37 @@
+# AUR / chaotic-aur packages.
+# Installed with yay when available.
+
+antigravity-tools-bin
+blackarch-keyring
+chaotic-keyring
+chaotic-mirrorlist
+claude-desktop-bin
+datui-bin
+grimblast-git
+illogical-impulse-audio
+illogical-impulse-backlight
+illogical-impulse-basic
+illogical-impulse-bibata-modern-classic-bin
+illogical-impulse-fonts-themes
+illogical-impulse-hyprland
+illogical-impulse-kde
+illogical-impulse-microtex-git
+illogical-impulse-microtex-git-debug
+illogical-impulse-portal
+illogical-impulse-python
+illogical-impulse-quickshell-git
+illogical-impulse-screencapture
+illogical-impulse-toolkit
+illogical-impulse-widgets
+kde-material-you-colors
+koodo-reader-bin
+kvantum-theme-catppuccin-git
+libayatana-appindicator-glib
+noise-suppression-for-voice
+pam-gnupg
+pacseek
+sddm-silent-theme
+torrra-bin
+whisper.cpp-openvino
+yay
+zen-browser-bin

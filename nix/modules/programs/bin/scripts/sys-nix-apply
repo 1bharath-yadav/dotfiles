@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_home() {
+  if [[ -n "${SUDO_USER:-}" ]] && command -v getent >/dev/null 2>&1; then
+    getent passwd "$SUDO_USER" | cut -d: -f6
+  else
+    printf '%s\n' "$HOME"
+  fi
+}
+
+USER_HOME="$(resolve_home)"
+DOTFILES="${DOTFILES:-$USER_HOME/.dotfiles}"
+
+exec sudo bash "$DOTFILES/nix/system/apply.sh" "$@"

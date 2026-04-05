@@ -9,7 +9,7 @@ set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 FIX="${1:-}"
-PACMAN_MANIFEST="$DOTFILES/setup/arch_linux/pacman-explicit.txt"
+PACMAN_MANIFEST_DIR="$DOTFILES/setup/arch/packages"
 HM_PROGRAM_PKGS=$(printf '%s\n' git zsh tmux direnv)
 
 # ── colors ─────────────────────────────────────────────────────────────────
@@ -34,8 +34,8 @@ nix_pkgs=$(
 )
 
 pacman_manifest=$(
-  if [[ -f "$PACMAN_MANIFEST" ]]; then
-    grep -v '^#' "$PACMAN_MANIFEST" | grep -v '^$' | awk '{print $1}' | sort -u
+  if [[ -d "$PACMAN_MANIFEST_DIR" ]]; then
+    grep -h -v '^#' "$PACMAN_MANIFEST_DIR"/*.txt 2>/dev/null | grep -v '^$' | awk '{print $1}' | sort -u
   fi
 )
 
@@ -50,7 +50,7 @@ pacman_aur=$(echo "$pacman_aur" | normalize_pkg_names | sort -u)
 
 # ── find drift: pacman packages not tracked anywhere in dotfiles ───────────
 echo ""
-echo "${YEL}==> Native pacman packages not tracked in Nix or pacman-explicit.txt:${RST}"
+echo "${YEL}==> Native pacman packages not tracked in Nix or setup/arch/packages/*.txt:${RST}"
 drift_native=$(comm -23 <(echo "$pacman_native") <(echo "$tracked_pkgs") | grep -v '^$' || true)
 if [[ -z "$drift_native" ]]; then
   echo "${GRN}  ✓ No drift in native packages${RST}"
@@ -59,7 +59,7 @@ else
 fi
 
 echo ""
-echo "${YEL}==> AUR packages not tracked in Nix or pacman-explicit.txt:${RST}"
+echo "${YEL}==> AUR packages not tracked in Nix or setup/arch/packages/*.txt:${RST}"
 drift_aur=$(comm -23 <(echo "$pacman_aur") <(echo "$tracked_pkgs") | grep -v '^$' || true)
 if [[ -z "$drift_aur" ]]; then
   echo "${GRN}  ✓ No drift in AUR packages${RST}"
@@ -81,7 +81,7 @@ if [[ "$FIX" == "--fix" ]]; then
   echo ""
   echo "${YEL}# Decide ownership for each package:${RST}"
   echo "${YEL}#   - portable user tools/apps -> nix/modules/packages/*.nix${RST}"
-  echo "${YEL}#   - system-integrated / desktop-stack apps -> setup/arch_linux/pacman-explicit.txt${RST}"
+  echo "${YEL}#   - system-integrated / desktop-stack apps -> setup/arch/packages/*.txt${RST}"
   printf '%s\n%s' "$drift_native" "$drift_aur" \
     | grep '[a-z]' \
     | sed 's/^/    # package-ownership: /' \

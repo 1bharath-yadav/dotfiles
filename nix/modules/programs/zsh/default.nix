@@ -27,6 +27,8 @@ in
       hme = "nh home edit $HOME/.dotfiles";
       nhc = "nh clean all --keep-since 4d --keep 3";
       nhh = "nh home";
+      dotsa = "dots-apply";
+      dotsu = "dots-update";
     };
 
     autosuggestion = {

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+MANIFEST="$DOTFILES/nix/modules/packages/external.txt"
+
+has() { command -v "$1" >/dev/null 2>&1; }
+
+read_manifest() {
+  grep -v '^#' "$MANIFEST" | grep -v '^$' || true
+}
+
+install_mise_tools() {
+  has mise || return 0
+  mise install
+}
+
+install_uv_tools() {
+  has uv || return 0
+  read_manifest | awk -F: '$1 == "uv" { print $2 }' | while read -r pkg; do
+    [[ -n "$pkg" ]] || continue
+    uv tool install "$pkg"
+  done
+}
+
+install_cargo_tools() {
+  has cargo || return 0
+  read_manifest | awk -F: '$1 == "cargo" { print $2 }' | while read -r pkg; do
+    [[ -n "$pkg" ]] || continue
+    cargo install "$pkg"
+  done
+}
+
+install_pnpm_tools() {
+  has pnpm || return 0
+  read_manifest | awk -F: '$1 == "pnpm" { print $2 }' | while read -r pkg; do
+    [[ -n "$pkg" ]] || continue
+    pnpm add -g "$pkg"
+  done
+}
+
+install_npm_tools() {
+  has npm || return 0
+  read_manifest | awk -F: '$1 == "npm" { print $2 }' | while read -r pkg; do
+    [[ -n "$pkg" ]] || continue
+    npm install -g "$pkg"
+  done
+}
+
+main() {
+  [[ -f "$MANIFEST" ]] || exit 0
+  install_mise_tools
+  install_uv_tools
+  install_cargo_tools
+  install_pnpm_tools
+  install_npm_tools
+}
+
+main "$@"

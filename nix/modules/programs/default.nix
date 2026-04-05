@@ -9,6 +9,7 @@
     ./starship
     ./nvim
     ./direnv
+    ./mise
     ./npm
   ];
 }
