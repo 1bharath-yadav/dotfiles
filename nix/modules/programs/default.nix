@@ -5,10 +5,10 @@
     ./bin
     ./git
     ./zsh
-    ./tmux
     ./starship
     ./nvim
     ./direnv
+    ./tmux
     ./mise
   ];
 }

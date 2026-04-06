@@ -20,6 +20,15 @@ _DEFAULTS: dict = {
     "base_url": None,           # None → SDK default (https://api.letta.com)
     "embedding_model": None,    # None → agent-level default
     "embedding_endpoint": None,
+    # UI cache settings
+    "ui_reasoning": "off",
+    "ui_reasoning_effort": "medium",
+    "ui_verbosity_level": "medium",
+    "ui_parallel_tool_calls": "on",
+    "ui_temperature": 0.7,
+    "ui_context_window": 272000,
+    "ui_enable_max_tokens": "off",
+    "ui_max_tokens": 4096,
 }
 
 

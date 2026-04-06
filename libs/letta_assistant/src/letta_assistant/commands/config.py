@@ -10,7 +10,12 @@ from letta_assistant import config as app_cfg
 
 # ===== /config =====
 
-_SETTABLE_KEYS = {"base_url", "embedding_model", "embedding_endpoint"}
+_SETTABLE_KEYS = {
+    "base_url", "embedding_model", "embedding_endpoint",
+    "ui_reasoning", "ui_reasoning_effort", "ui_verbosity_level",
+    "ui_parallel_tool_calls", "ui_temperature", "ui_context_window",
+    "ui_enable_max_tokens", "ui_max_tokens"
+}
 
 
 def cmd_config(client: Letta, agent_id: str, args: str = "") -> str:
