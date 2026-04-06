@@ -213,7 +213,7 @@ sync_end4dots() {
   [[ "$os" == arch ]] || return 0
   [[ -d "$END4DOTS" ]] || return 0
 
-  log "Syncing end4dots (two-branch: main=upstream mirror, archer=your changes)"
+  log "Syncing end4dots with upstream (merge strategy to preserve scheduler + assistant module)"
 
   cd "$END4DOTS"
   git remote get-url upstream >/dev/null 2>&1 || git remote add upstream https://github.com/end-4/dots-hyprland.git
@@ -224,23 +224,32 @@ sync_end4dots() {
     stashed=true
   fi
 
+  # Update main branch (upstream mirror)
   git checkout main -q
   git fetch upstream -q
-  if ! git rebase upstream/main -q; then
-    warn "Rebase conflict on end4dots main — aborting"
-    git rebase --abort 2>/dev/null || true
+  if ! git merge -m "chore: sync main with upstream" upstream/main -q 2>&1 | grep -qE "conflict|CONFLICT"; then
+    log "main branch merged with upstream"
+  else
+    warn "Merge conflict on main — resolve or abort with: git merge --abort"
+    git merge --abort 2>/dev/null || true
     git checkout archer -q
     $stashed && git stash pop -q || true
     return 1
   fi
-  git push origin main --force -q 2>/dev/null || true
+  git push origin main -q 2>/dev/null || true
 
+  # Merge main into archer (your custom work), respecting .gitattributes protection
   git checkout archer -q
-  if ! git rebase main -q; then
-    warn "Rebase conflict on end4dots archer branch"
+  git config merge.ours.driver true 2>/dev/null || true
+  
+  if ! git merge -m "chore: merge upstream features into archer branch" main -q 2>&1 | grep -qE "conflict|CONFLICT"; then
+    log "archer branch merged with main (upstream features + your scheduler)"
+  else
+    warn "Merge conflict on archer — your assistant module is protected (merge=ours)"
+    warn "Review conflicts and commit: git add . && git commit"
     return 1
   fi
-  git push origin archer --force -q 2>/dev/null || true
+  git push origin archer -q 2>/dev/null || true
   $stashed && git stash pop -q || true
 
   "$END4DOTS/setup" install

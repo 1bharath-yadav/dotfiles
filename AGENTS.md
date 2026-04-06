@@ -259,3 +259,28 @@ This system uses end-4's dots-hyprland as the base shell config (https://github.
   `~/.config/quickshell/ii/modules/ii/assistant/qmldir`.
 - Lesson: every new .qml file added to a Quickshell module directory MUST have a
   corresponding entry in that directory's `qmldir` — the file alone is not enough.
+
+### 2026-04-06 (session 8 — Git Recovery & Dotfiles Management)
+- **Recovered scheduler work from reflog** after rebase loss in end4dots.
+  Used `git reflog` → `git reset --soft f2e0a4bd` → committed at `ac7470d4`.
+  Learned: commits are never actually deleted; they live in reflog until garbage collected.
+- **Moved `.letta/` out of git** to `~/.local/state/letta_assistant/` (XDG-compliant).
+  Reason: `.letta/` contains local runtime state (API keys, conversation history), not config.
+  letta_assistant `config/__init__.py` already uses correct XDG path.
+- **Created `.gitattributes` in end4dots** with `merge=ours` rules to protect:
+  - `dots/.config/quickshell/ii/modules/ii/assistant/**` (your scheduler)
+  - `dots/.config/starship.toml` (kept deleted; you use ~/.dotfiles version via symlink)
+  - `.letta/` (export-ignore, won't sync)
+- **Changed `sync_end4dots()` in lib.sh from rebase to merge** strategy (lines 211-256):
+  - Old: `git rebase upstream/main` (linear but risky—lost commits if it fails)
+  - New: `git merge upstream/main` (safe—both histories preserved, conflicts are explicit)
+  - Removed `--force` push; merges create safe merge commits, no history rewriting
+  - Added `git config merge.ours.driver true` for automatic conflict resolution on protected files
+- **Created `bharath-dotfiles-management` skill** at `~/.agents/skills/`:
+  - Documents your three competing goals: keep scheduler, merge upstream, manage local state
+  - Includes deep git learning on rebase vs. merge semantics, reflog recovery, merge strategies
+  - Provides checklist for safe update.sh runs and conflict resolution patterns
+  - Intended as persistent reference for similar conflicts in the future
+- **Key insight**: merge-based sync is safer for personal forks with custom work.
+  Rebase keeps history linear but orphans commits on failure; merge preserves both histories.
+- **Next**: Test `update.sh` to verify scheduler + upstream features merge cleanly.
