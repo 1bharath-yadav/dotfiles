@@ -39,12 +39,9 @@ Never mix: GPU tools go in system layer, user apps go in HM.
 | pacman / AUR         | Kernel, drivers, display stack, root services, illogical-impulse, KDE/GTK apps |
 | **Nix system layer** | GPU/media tools, ollama, shared heavy binaries, pre-login shells         |
 | **Nix Home Manager** | Portable user CLI tools available in nixpkgs                             |
-| **mise**             | Runtime/version management for Python, Node, Rust, Bun                   |
-| `uv tool install`    | Python CLI apps (marimo, jupyter, piper-tts)                             |
+| **mise**             | Primary runtime (Python, Node, Rust, Go) & global CLI tool manager       |
+| **uv**               | Preferred Python project manager (use with mise for runtime sync)        |
 | `uvx`                | Ephemeral one-shot Python tools (duckdb, manim)                          |
-| `cargo install`      | Rust tools not in nixpkgs or needing latest                              |
-| `pnpm -g`            | Preferred Node CLI installer                                              |
-| `npm -g`             | Node CLI fallback only when pnpm is not viable                           |
 | `pkg` (Termux)       | Termux-native Android packages                                           |
 
 See `nix/modules/packages/external.txt` for machine-readable external tools.
@@ -107,6 +104,28 @@ See `nix/modules/packages/external.txt` for machine-readable external tools.
 | `refresh-apps`    | rebuild desktop caches + signal Quickshell                           |
 | `dev.sh`          | environment diagnostics                                              |
 
+## letta_assistant REPL — agent & conversation commands
+
+| Command | Accepts | Effect |
+|---|---|---|
+| `/agents` | — | List all agents (index, name, id, model, active marker) |
+| `/new <n>` | `--model` | Create agent + conversation, activate immediately |
+| `/use <ref>` | index\|name\|id | Switch active agent, creates fresh conversation |
+| `/retrieve <ref>` | index\|name\|id | Full agent detail (name, id, model, tags) |
+| `/update <ref>` | `--name` `--desc` | Rename or describe an agent |
+| `/pin <ref>` / `/unpin <ref>` | index\|name\|id | `client.agents.update(pinned=True/False)` |
+| `/delete <ref>` | index\|name\|id | Confirm-prompt then delete; clears saved state if active |
+| `/resume` | — | List conversations with active marker |
+| `/resume <ref>` | index\|id | Switch conversation; saves to state file |
+| `/new [name]` (no model flag) | optional name | Create named conversation; activate |
+| `/clear` | — | `agents.messages.reset()` after confirm |
+| `/compact` | `sliding_window`\|`summary` | `agents.messages.compact(method=…)` |
+| `/search <q>` | text | Client-side search over `conversations.messages.list()` |
+| `/context` | — | Count messages by type in active conversation |
+
+`_resolve(ref, agents)` accepts 1-based index, exact id, or case-insensitive name everywhere.
+State is always persisted via `state.save_state(agent_id, conv_id, model_id)` after a switch.
+
 ---
 
 ## Nix Aliases (`shell-sources/aliases/nix.sh`)
@@ -128,14 +147,32 @@ See `nix/modules/packages/external.txt` for machine-readable external tools.
 
 ---
 
+- Never use emojis 
+
 ## Secrets Management
 
-`secrets` (GPG-anchored CLI) is the single source of truth.
-Scripts call `secret-tool lookup <key>` lazily — never hardcode keys.
+`secret-tool` (GNOME Keyring / libsecret) is the single source of truth.
+All secrets stored with `service=sensvault, username=<key-name>`.
+Scripts call `secret-tool lookup service sensvault username <key>` lazily — never hardcode keys.
 
-| Secret      | Key       | Used by          |
-| ----------- | --------- | ---------------- |
-| `letta_key` | Letta API | voice-assistant  |
+Sync to/from rclone remote (GDrive etc.) via `secrets-sync` (`~/.local/bin/secrets-sync`).
+Per-project env injection via `secrets-inject` (`~/.local/bin/secrets-inject`) + `~/.secrets/projects/<project>.map`.
+
+| Secret            | Key               | Used by           |
+| ----------------- | ----------------- | ----------------- |
+| `letta_key`       | Letta API         | voice-assistant   |
+| `bw_client_id`    | Bitwarden CLI     | keys.sh bwlogin   |
+| `bw_client_secret`| Bitwarden CLI     | keys.sh bwlogin   |
+| `bw_password`     | Bitwarden vault   | keys.sh bwunlock  |
+
+Store a new secret:
+```zsh
+secret-tool store --label="My key" service sensvault username my_key_name
+```
+
+---
+
+This system uses end-4's dots-hyprland as the base shell config (https://github.com/end-4/dots-hyprland.git). The Quickshell UI lives at ~/.local/share/end4dots/dots/.config/quickshell/ii/. The voice assistant module is at modules/ii/assistant/ and communicates with the Python backend via IPC target "voiceAssistant". The Letta assistant backend lives at ~/.dotfiles/libs/letta_assistant/ and is invoked by ~/.local/bin/voice-assistant-daemon.
 
 ---
 
@@ -145,7 +182,11 @@ Scripts call `secret-tool lookup <key>` lazily — never hardcode keys.
 - `config.lib.file.mkOutOfStoreSymlink` preferred for live-edited configs.
 - System Nix profile (`/nix/var/nix/profiles/system`) is completely separate from HM.
 - `btop`, `nvtopPackages.intel`, `ollama`, and hardware/media-heavy tools belong in `nix/system/arch-system.nix`.
-- nix-on-droid removed; Termux uses plain `pkg` + `setup/termux/bootstrap.sh`.
+- System Nix profile PATH/XDG wiring: `apply.sh` writes `/etc/profile.d/nix-system.sh` (login shells), patches `/etc/environment` (pam_env/SDDM), and writes `/etc/sudoers.d/nix-system-path` (so `sudo btop` etc. work). Without the sudoers drop-in, `sudo` strips PATH via `secure_path` and can't find system-profile binaries.
+- btop GPU box: Intel Xe GPU detected via `/dev/dri/card1`; `shown_boxes` must include `gpu0` explicitly — btop does not auto-show it even when compiled with `-DBTOP_GPU=ON`.
+- `.s` files in `shell-sources/` are intentional — unsourced reference snippets. Only `*.sh` files are sourced by `20-dotfiles-cache.zsh`.
+- `letta-code` is an npm package (`@letta-ai/letta-code`), installed via pnpm global. `PNPM_HOME=~/.local/share/pnpm` is the global bin dir; added to PATH in `env.zsh`.
+- `setup/arch_linux/` (ghost folder, only had `pacman.conf`) merged into `setup/arch/` and deleted.
 - end4dots `setup install` uses `cp -f` — overwrites hyprland.conf; `update.sh` patches this.
 
 ---
@@ -168,7 +209,37 @@ Scripts call `secret-tool lookup <key>` lazily — never hardcode keys.
 - Updated `flake.nix`: removed nix-on-droid, added `systemPackages` inspectable output.
 - Updated `.ai/setup-agent.md`: added Phase 4 (system packages) and two-layer table.
 
-### 2026-04-05 (session 3)
+### 2026-04-06 (session 6)
+- Produced `implementation.md` at `~/.dotfiles/implementation.md`: full plan for two-mode centered AgentWindow UI.
+- Architecture: `AgentWindow.qml` replaces `AssistantWindow.qml`; adds `AgentChatColumn`, `AgentWorkspacePane`, `AgentToolFeed`, `AgentMemoryView`, `AgentStatusBar`. All existing controller/session/streaming files unchanged.
+- Mode A (chat): 42% width, centered, height debounced. Mode B (agent, Ctrl+O): 88% width fixed height, chat column stays 40% left, workspace pane right.
+- Flicker fixes: debounced height timer (64ms), AGENT mode uses fixed height (no binding), single geometry state machine via QML `states`/`transitions` (no competing `Behavior`), GlobalShortcut for Ctrl+O (not Keys.onPressed).
+- GlobalStates: add `agentModeActive: bool`. AssistantRoot: swap sourceComponent to AgentWindow.
+- New files go into `~/.dotfiles/config/quickshell/ii/` stow package (not upstream end4dots path).
+- Implementation ordered in 12 steps; Steps 1–3 are load-bearing (state, window, geometry); Steps 4–9 are incremental feature additions.
+
+### 2026-04-06 (session 5)
+- **letta_assistant config module** (`config/__init__.py`): new persistent app config layer at
+  `~/.local/state/letta_assistant/config.json`. Manages `base_url`, `embedding_model`,
+  `embedding_endpoint`. `api_key` is runtime-only (env/keyring, never written to disk).
+  Env vars (`LETTA_API_KEY`, `LETTA_BASE_URL`) always take priority over persisted values.
+- **`letta_service.py`**: `init_client` / `init_async_client` now read `base_url` from
+  `app_cfg.get_base_url()` (env → config.json → SDK default) instead of hardcoding.
+- **`commands/config.py`**: added `cmd_config` — `/config show|set <key> <val>|unset <key>`.
+  Keys: `base_url · embedding_model · embedding_endpoint`. Routed via `/config set|unset|show`
+  in `run_command_line`; agent-level subcommands (`system`, `doctor`, etc.) unchanged.
+- **`commands/models.py`**: `/model use` now accepts any `provider/model` handle even if not
+  in the listed models (BYOK / unlisted). Added `/model embed [set|unset <key>]` for
+  `embedding_model` and `embedding_endpoint` config.
+- **`letta_assistant.py`**: imports `app_cfg`; `/config set|unset|show` intercepted before
+  COMMANDS dispatch; HELP_TEXT updated with `/model embed` and `/config set/unset` docs.
+- **`AssistantController.qml`**: updated `commandSubcommands` for `config` (added show/set/unset)
+  and `model` (added embed); updated `commandCatalog` description for config; updated
+  `helpText` to document new `/model embed` and `/config set/unset` commands.
+  All slash commands continue to go through `daemonBin text` — no IPC changes needed.
+- Fixed mise config: `@letta-ai/letta-code` is npm (not pnpm/pip), requires `node = "lts"`. Corrected to `"npm:@letta-ai/letta-code"`. Removed bogus `pnpm:letta` and pip entries that were never installable.
+- Removed ghost `setup/arch_linux/` folder (only had `pacman.conf`); merged into `setup/arch/`.
+- `.s` files in `shell-sources/` are intentional unsourced reference snippets — do not rename.
 - Restructured package ownership into 4 clear layers: pacman/AUR, system nix, Home Manager, external managers.
 - Split `setup/arch_linux/pacman-explicit.txt` into `setup/arch/packages/{native-core,native-desktop,native-services,aur}.txt`.
 - Renamed numbered HM package files to semantic names: `common.nix`, `arch-home.nix`, `wsl.nix`, `optional.nix`.
@@ -178,3 +249,13 @@ Scripts call `secret-tool lookup <key>` lazily — never hardcode keys.
 - Pinned mise runtime versions (Python 3.12.13, Node 25.9.0, Rust 1.94.0, Bun 1.3.11) in `nix/modules/programs/mise/default.nix`.
 - Added real `uv:`, `cargo:`, `npm:` entries to `external.txt` based on current installed tools.
 - Updated `AGENTS.md`, `README.md`, `.ai/setup-agent.md` to reflect new structure.
+
+### 2026-04-06 (session 7)
+- Fixed Quickshell load error: `AgentSettingsPane is not a type` caused entire error chain
+  (IllogicalImpulseFamily → VoiceAssistant.Assistant → AssistantRoot → AgentWindow).
+- Root cause: `AgentSettingsPane.qml` existed in the assistant module directory but was
+  missing from `qmldir` — so Quickshell's module loader couldn't resolve it as a type.
+- Fix: added `AgentSettingsPane 1.0 AgentSettingsPane.qml` to
+  `~/.config/quickshell/ii/modules/ii/assistant/qmldir`.
+- Lesson: every new .qml file added to a Quickshell module directory MUST have a
+  corresponding entry in that directory's `qmldir` — the file alone is not enough.

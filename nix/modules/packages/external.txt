@@ -1,31 +1,9 @@
-# External package managers — single source of truth for non-Nix tools.
-# Prefix format: <manager>:<package>
+# External package managers — non-Nix tools.
 #
-# Runtime versions for mise are pinned in nix/modules/programs/mise/default.nix.
+# Primary runtime versions and CLI tools are now managed by mise
+# in `nix/modules/programs/mise/default.nix`.
+#
 # sync-external-tools runs `mise install` to materialize them.
-
-# ── Python CLI tools (uv) ─────────────────────────────────────────────────────
-uv:marimo
-uv:euporie
-uv:jupyter
-uv:piper-tts
-uv:kokoro-tts
-uv:edge-tts
-uv:whisperx
-uv:open-webui
-uv:optimum
-
-# ── Ephemeral Python tools (uvx) ──────────────────────────────────────────────
-uvx:duckdb
-uvx:manim
-
-# ── Rust tools (cargo) ────────────────────────────────────────────────────────
-cargo:fig2json
-cargo:rtk
-
-# ── Node tools (npm) ──────────────────────────────────────────────────────────
-npm:@google/gemini-cli
-npm:@letta-ai/letta-code
 
 # ── Termux (pkg) ──────────────────────────────────────────────────────────────
 pkg:termux-api

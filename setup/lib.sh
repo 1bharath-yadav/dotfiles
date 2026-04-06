@@ -42,7 +42,7 @@ nix_files_changed() {
   local last_gen_commit
   last_gen_commit=$(cat "$HOME/.local/state/home-manager/last-switch" 2>/dev/null || echo "")
   if [[ -z "$last_gen_commit" ]]; then return 0; fi
-  git -C "$DOTFILES" diff --name-only HEAD "$last_gen_commit" -- '*.nix' flake.lock \
+  git -C "$DOTFILES" diff --name-only "$last_gen_commit" -- '*.nix' flake.lock \
     | grep -q . 2>/dev/null && return 0 || return 1
 }
 
@@ -324,14 +324,22 @@ overall_update() {
       if [[ "${PACMAN_FORCE:-0}" == "1" ]]; then
         apply_arch_packages
       fi
+
+      local nix_changed=false
       if [[ "${NIX_FORCE:-0}" == "1" ]] || nix_files_changed; then
+        nix_changed=true
+      fi
+
+      if [[ "$nix_changed" == "true" ]]; then
         apply_home_manager "$os"
       else
         log "No .nix changes since last switch — skipping Home Manager rebuild (NIX_FORCE=1 to override)"
       fi
-      if [[ "${SYSTEM_NIX_FORCE:-0}" == "1" ]]; then
+
+      if [[ "${SYSTEM_NIX_FORCE:-0}" == "1" ]] || [[ "$nix_changed" == "true" ]]; then
         apply_system_nix "$os"
       fi
+
       if [[ "${EXTERNAL_FORCE:-0}" == "1" ]]; then
         sync_external_tools
       fi

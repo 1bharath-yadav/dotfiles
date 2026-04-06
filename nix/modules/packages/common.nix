@@ -9,6 +9,7 @@
     "$HOME/.nix-profile/bin"
     "$HOME/bin"
     "$HOME/.local/bin"
+    "/nix/var/nix/profiles/system/bin"
   ];
 
   home.sessionVariables = {

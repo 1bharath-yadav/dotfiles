@@ -17,13 +17,28 @@
 
   xdg.configFile."mise/config.toml".text = ''
     [tools]
-    python = "3.12.13"
-    node = "25.9.0"
-    rust = "1.94.0"
-    bun = "1.3.11"
+    python = "3.12"
+    node = "lts"          # required by letta-code and gemini-cli
+    rust = "latest"
+    uv = "latest"
+    pnpm = "latest"
+    "github:cli/cli" = "2"
 
+    # # Node global tools (pnpm: prefix uses mise-managed pnpm)
+    # "pnpm:@letta-ai/letta-code" = "latest"
+    # "pnpm:@google/gemini-cli" = "latest"
+    #
     [settings]
     legacy_version_file = true
-    idiomatic_version_file_enable_tools = ["python", "node", "rust", "bun"]
+    idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
+    install_before = "7d"
+    jobs = 8
+    status.missing_tools = "if_other_versions_installed"
+
+    [settings.cargo]
+    binstall = true
+
+    [settings.github]
+    gh_cli_tokens = true
   '';
 }

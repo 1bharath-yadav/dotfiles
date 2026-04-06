@@ -1,159 +1,190 @@
-"""Development commands: /export, /recompile, /server"""
+"""Development commands: /export, /import, /clone, /ade, /recompile, /terminal, /server"""
 
 from __future__ import annotations
 
+import io
+import os
+import pathlib
+import subprocess
+
 from letta_client import Letta
+from letta_client import APIStatusError as ApiError
+
+from letta_assistant.utils import state
 
 
-# ===== EXPORT COMMAND =====
+_EXPORT_DIR = pathlib.Path.home() / "letta-exports"
+
+
+# ===== /export =====
 
 def cmd_export(client: Letta, agent_id: str, args: str = "") -> str:
-    """Export agent as AgentFile (.af). Usage: /export [format]"""
+    """Export agent as .af file.
+
+    /export            — write to ~/letta-exports/<agent.name>.af
+    /export <path>     — write to explicit path
+    """
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
-    
+
     try:
-        # Get agent and export to bytes
         agent = client.agents.retrieve(agent_id)
-        agent_file = client.agents.export_file(agent_id=agent_id)
-        
-        filename = f"{agent.name}.af"
-        return f"[OK] Exported to: {filename}\nSize: {len(agent_file)} bytes"
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+    except ApiError as e:
+        return f"[ERROR] retrieving agent: {e.status_code}: {e.body}"
+
+    dest = pathlib.Path(args.strip()) if args.strip() else (
+        _EXPORT_DIR / f"{agent.name}.af"
+    )
+
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        schema_str: str = client.agents.export_file(agent_id=agent_id)
+        raw: bytes = schema_str.encode()
+        dest.write_bytes(raw)
+        size = len(raw)
+        return f"[OK] Exported '{agent.name}' → {dest}\n  size: {size} bytes"
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
+    except OSError as e:
+        return f"[ERROR] writing file: {e}"
 
 
-# ===== IMPORT COMMAND =====
+# ===== /import =====
 
 def cmd_import(client: Letta, args: str = "") -> str:
-    """Import agent from file. Usage: /import <file_path>"""
+    """Import an agent from a .af file and activate it.
+
+    /import <file_path>
+    """
     if not args.strip():
         return "Usage: /import <file_path>"
-    
+
+    file_path = pathlib.Path(args.strip())
+    if not file_path.exists():
+        return f"[ERROR] File not found: {file_path}"
+
     try:
-        file_path = args.strip()
+        # SDK requires an open file handle in binary mode, not bytes
         with open(file_path, "rb") as f:
-            file_bytes = f.read()
-        
-        # Extract name from path (remove extension)
-        import_name = file_path.split("/")[-1].replace(".af", "").replace(".json", "")
-        
-        # Import agent from bytes
-        new_agent = client.agents.import_file(file=file_bytes, name=import_name)
-        return f"[OK] Imported: {new_agent.name} (ID: {new_agent.id})"
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+            result = client.agents.import_file(file=f)
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
+    except OSError as e:
+        return f"[ERROR] reading file: {e}"
+
+    # import_file returns AgentImportFileResponse(agent_ids=[...])
+    # retrieve the first imported agent to get its name
+    imported_id = result.agent_ids[0]
+    try:
+        agent = client.agents.retrieve(imported_id)
+    except ApiError as e:
+        return f"[ERROR] retrieving imported agent: {e.status_code}: {e.body}"
+
+    saved = state.load_state()
+    state.save_state(agent.id, saved.get("conversation_id"), saved.get("model_id"))
+    return f"[OK] Imported '{agent.name}' (id={agent.id})\n  Now active."
 
 
-# ===== CLONE COMMAND =====
+# ===== /clone =====
 
 def cmd_clone(client: Letta, agent_id: str, args: str = "") -> str:
-    """Clone an agent. Usage: /clone [new_name]"""
+    """Clone active agent by export→import via in-memory BytesIO.
+
+    /clone [new_name]
+
+    Uses export_file + import_file so all memory blocks and tools
+    are preserved — not a shallow client.agents.create() copy.
+    """
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
-    
+
     try:
         agent = client.agents.retrieve(agent_id)
-        new_name = args.strip() or f"{agent.name}_clone"
-        
-        # Create new agent with same settings
-        cloned = client.agents.create(
-            model=agent.model,
-            name=new_name,
-        )
-        return f"[OK] Cloned to: {new_name} (ID: {cloned.id})"
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+    except ApiError as e:
+        return f"[ERROR] retrieving agent: {e.status_code}: {e.body}"
 
+    new_name = args.strip() or f"{agent.name}_clone"
 
-# ===== RECOMPILE COMMAND =====
-
-def cmd_recompile(client: Letta, agent_id: str, args: str = "") -> str:
-    """Recompile agent and conversation. Usage: /recompile"""
-    if not agent_id:
-        return "[ERROR] No active agent. Use /resume <id> first."
-    
     try:
-        # Reset conversation to recompile
-        client.agents.messages.reset(agent_id=agent_id, add_default_initial_messages=True)
-        return "[OK] Agent recompiled and conversation reset."
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+        schema_str: str = client.agents.export_file(agent_id=agent_id)
+    except ApiError as e:
+        return f"[ERROR] exporting: {e.status_code}: {e.body}"
+
+    # Wrap the raw str bytes in BytesIO — import_file accepts file-like objects.
+    # Pass name= directly so the SDK sets it server-side; no schema mutation needed.
+    buf = io.BytesIO(schema_str.encode())
+    buf.name = f"{new_name}.af"
+
+    try:
+        result = client.agents.import_file(file=buf, name=new_name)
+    except ApiError as e:
+        return f"[ERROR] importing clone: {e.status_code}: {e.body}"
+
+    cloned_id = result.agent_ids[0]
+    try:
+        cloned = client.agents.retrieve(cloned_id)
+    except ApiError as e:
+        return f"[ERROR] retrieving cloned agent: {e.status_code}: {e.body}"
+
+    return f"[OK] Cloned as '{cloned.name}' (id={cloned.id})."
 
 
-# ===== ADE COMMAND =====
+# ===== /ade =====
 
 def cmd_ade(client: Letta, agent_id: str, args: str = "") -> str:
-    """Open Agent Development Environment. Usage: /ade"""
+    """Open agent in Letta ADE (Agent Development Environment).
+
+    /ade   — opens https://app.letta.com/agents/<id>/edit in browser
+    """
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
-    
+
+    url = f"https://app.letta.com/agents/{agent_id}/edit"
     try:
-        agent = client.agents.retrieve(agent_id)
-        # Construct ADE URL
-        ade_url = f"https://app.letta.com/agents/{agent.id}/edit"
-        return f"[ADE] {ade_url}\n(Opening in browser...)"
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+        subprocess.run(["xdg-open", url], check=False)
+    except FileNotFoundError:
+        return f"[WARN] xdg-open not found. Open manually:\n  {url}"
+
+    return f"[OK] Opening ADE:\n  {url}"
 
 
-# ===== DOCTOR COMMAND =====
+# ===== /recompile =====
 
-def cmd_doctor(client: Letta, agent_id: str, args: str = "") -> str:
-    """Audit and refine memory structure. Usage: /doctor"""
+def cmd_recompile(client: Letta, agent_id: str, args: str = "") -> str:
+    """Reset messages and reinject default initial messages.
+
+    /recompile
+    """
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
-    
+
     try:
-        agent = client.agents.retrieve(agent_id)
-        blocks = client.agents.blocks.list(agent_id=agent_id)
-        tools = client.agents.tools.list(agent_id=agent_id)
-        
-        lines = ["[HEALTH] Agent Health Check:"]
-        lines.append(f"  Name: {agent.name}")
-        lines.append(f"  Model: {agent.model}")
-        lines.append(f"  Memory blocks: {len(blocks.items) if blocks.items else 0}")
-        lines.append(f"  Tools: {len(tools.items) if tools.items else 0}")
-        lines.append("  Status: [OK] Healthy")
-        return "\n".join(lines)
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
+        client.agents.messages.reset(
+            agent_id=agent_id,
+            add_default_initial_messages=True,
+        )
+        return "[OK] Recompiled — message history reset with default initial messages."
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
 
 
-# ===== INIT COMMAND =====
-
-def cmd_init(client: Letta, agent_id: str, args: str = "") -> str:
-    """Deep memory initialization. Usage: /init"""
-    if not agent_id:
-        return "[ERROR] No active agent. Use /resume <id> first."
-    
-    try:
-        # Show memory initialization info
-        return "[OK] Memory initialized.\n(Run /memory to view structure)"
-    except Exception as e:
-        return f"[ERROR] {str(e)}"
-
-
-# ===== TERMINAL COMMAND =====
+# ===== /terminal =====
 
 def cmd_terminal(client: Letta, args: str = "") -> str:
-    """Set up terminal shortcuts. Usage: /terminal [--revert]"""
+    """Manage terminal shortcuts. Usage: /terminal [--revert]"""
     if "--revert" in args:
         return "[OK] Terminal shortcuts reverted."
-    
     return "[OK] Terminal shortcuts installed.\nUse Ctrl+M to quick-send to agent."
 
 
-# ===== SERVER COMMAND =====
+# ===== /server =====
 
 def cmd_server(client: Letta, args: str = "") -> str:
-    """Start local server listener. Usage: /server [--env-name <name>]"""
+    """Start local server listener. Usage: /server [--env-name <n>]"""
     parts = args.split()
     env_name = "default"
-    
     if "--env-name" in parts:
         idx = parts.index("--env-name")
         if idx + 1 < len(parts):
             env_name = parts[idx + 1]
-    
     return f"[OK] Local server listening...\nEnvironment: {env_name}\n(Press Ctrl+C to stop)"

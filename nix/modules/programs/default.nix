@@ -10,6 +10,5 @@
     ./nvim
     ./direnv
     ./mise
-    ./npm
   ];
 }

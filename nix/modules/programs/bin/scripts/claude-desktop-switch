@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STORE_DIR="${HOME}/.local/share/claude-account-switch"
+CREDS_FILE="${HOME}/.claude/.credentials.json"
+STATE_FILE="${HOME}/.claude.json"
+
+mkdir -p "${STORE_DIR}/accounts"
+mkdir -p "$(dirname "$CREDS_FILE")"
+
+usage_help() {
+  cat <<EOF
+Usage:
+  $0 save <name>      Save current Claude account credentials
+  $0 switch <name>    Switch to saved Claude account credentials
+  $0 list             List saved accounts
+  $0 remove <name>    Remove saved account
+  $0 usage            Show simple Claude usage info
+EOF
+}
+
+require_creds() {
+  if [[ ! -f "$CREDS_FILE" ]]; then
+    echo "Credentials not found at: $CREDS_FILE"
+    echo "Log in to Claude Desktop first."
+    exit 1
+  fi
+}
+
+save_account() {
+  local name="${1:?missing account name}"
+  require_creds
+  install -m 600 "$CREDS_FILE" "${STORE_DIR}/accounts/${name}.json"
+  echo "Saved account: $name"
+}
+
+switch_account() {
+  local name="${1:?missing account name}"
+  local src="${STORE_DIR}/accounts/${name}.json"
+
+  if [[ ! -f "$src" ]]; then
+    echo "Saved account not found: $name"
+    exit 1
+  fi
+
+  echo "Make sure Claude Desktop is fully closed."
+  install -m 600 "$src" "$CREDS_FILE"
+  echo "Switched credentials to: $name"
+  echo "Now reopen Claude Desktop."
+}
+
+list_accounts() {
+  find "${STORE_DIR}/accounts" -maxdepth 1 -type f -name '*.json' -printf '%f\n' | sed 's/\.json$//'
+}
+
+remove_account() {
+  local name="${1:?missing account name}"
+  rm -f "${STORE_DIR}/accounts/${name}.json"
+  echo "Removed: $name"
+}
+
+current_account_name() {
+  local hash current
+  current="$(sha256sum "$CREDS_FILE" | awk '{print $1}')"
+  for f in "${STORE_DIR}"/accounts/*.json; do
+    [[ -e "$f" ]] || continue
+    hash="$(sha256sum "$f" | awk '{print $1}')"
+    if [[ "$hash" == "$current" ]]; then
+      basename "$f" .json
+      return 0
+    fi
+  done
+  echo "unknown"
+}
+
+jget() {
+  local file="$1" key="$2" default="${3:-unknown}"
+  jq -r "$key // \"$default\"" "$file" 2>/dev/null || echo "$default"
+}
+
+usage_status() {
+  local acct plan sub
+
+  [[ -f "$CREDS_FILE" ]] && acct="$(current_account_name)"
+
+  if [[ -f "$STATE_FILE" ]]; then
+    plan="$(jget "$STATE_FILE" '.hasAvailableSubscription' 'unknown')"
+    sub="$(jget "$STATE_FILE" '.userID' 'unknown')"
+  else
+    plan="unknown"
+    sub="unknown"
+  fi
+
+  printf "\nClaude usage\n"
+  printf '%s\n' "text"
+  printf "Account : %s\n" "$acct"
+  printf "Logged in: %s\n" "$plan"
+  printf "User ID : %s\n" "$sub"
+  printf "\nDetailed 5h/weekly usage is tracked server-side.\n"
+  printf "Check: https://claude.ai/settings/usage\n\n"
+}
+
+case "${1:-}" in
+  save) shift; save_account "${1:-}" ;;
+  switch) shift; switch_account "${1:-}" ;;
+  list) list_accounts ;;
+  remove) shift; remove_account "${1:-}" ;;
+  usage) usage_status ;;
+  *) usage_help; exit 1 ;;
+esac

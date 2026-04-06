@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 
 from letta_client import Letta
+from letta_client import APIStatusError as ApiError
 from letta_assistant.services import letta_service as svc
 from letta_assistant.utils.content import content_to_text
 
@@ -22,21 +23,17 @@ def cmd_ask(
         return "[ERROR] No active agent. Use /resume <id> first."
     if not args.strip():
         return "Usage: /ask <text>"
-    
+
     try:
         response = svc.send_message(client, agent_id, args.strip())
-        
-        # Extract last assistant message from response.messages
-        assistant_message = None
         for msg in response.messages:
             if msg.message_type == "assistant_message":
-                assistant_message = msg
-        
-        if assistant_message and assistant_message.content:
-            return assistant_message.content
+                return content_to_text(msg.content)
         return "No response"
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
     except Exception as e:
-        return f"[ERROR] Error: {str(e)}"
+        return f"[ERROR] {e}"
 
 
 # ===== STREAM COMMAND (streaming) =====
@@ -53,121 +50,91 @@ def cmd_stream(
     should_cancel: callable = None,
     echo: bool = True,
 ) -> str:
-    """Send message with streaming. Usage: /stream <text>"""
+    """Send message with streaming. Usage: /stream <text>
+
+    Returns the full assistant reply as a string.
+    Tokens are printed to stdout as they arrive when echo=True.
+    Callbacks on_thinking/on_token/on_stream_start fire per chunk.
+    Models without extended thinking silently skip reasoning chunks.
+    Models without tool support silently skip tool_call/tool_return chunks.
+    """
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
     if not args.strip():
         return "Usage: /stream <text>"
-    
+
     try:
         reply = ""
-        stop_code = None
         stream_started = False
 
-        def extract_reasoning_text(event: object) -> str:
-            reasoning = getattr(event, "reasoning", "") or ""
-            if reasoning:
-                return reasoning
-
-            hidden_reasoning = getattr(event, "hidden_reasoning", "") or ""
-            if hidden_reasoning:
-                return hidden_reasoning
-
-            content = getattr(event, "content", None)
-            if content is not None:
-                return content_to_text(content)
-
-            return ""
-
-        stream = svc.stream_message(
-            client,
-            agent_id,
-            args.strip(),
-            conversation_id=conversation_id,
-            enable_thinking="true",
-            stream_tokens=True,
-            include_pings=False,
+        stream = client.agents.messages.stream(
+            agent_id=agent_id,
+            messages=[{"role": "user", "content": args.strip()}],
+            include_pings=True,
         )
 
-        for event in stream:
+        for chunk in stream:
             if should_cancel and should_cancel():
-                stop_code = "cancelled"
                 break
 
             if on_event:
-                on_event(event)
+                on_event(chunk)
 
-            event_type = event.message_type
-            
-            # Agent's internal reasoning (print live)
-            if event_type == "reasoning_message":
-                # Print reasoning in real-time
-                reasoning_text = extract_reasoning_text(event)
-                if reasoning_text:
+            msg_type = chunk.message_type
+
+            if msg_type == "ping":
+                continue
+
+            elif msg_type == "reasoning_message":
+                # Only present on models with extended thinking — skip silently if absent
+                text = chunk.reasoning
+                if text:
                     if echo:
-                        print(f"[THINKING] {reasoning_text}", flush=True)
-                        sys.stdout.flush()
-                if on_thinking:
-                    on_thinking(reasoning_text)
-            
-            # Tool invocation
-            elif event_type == "tool_call_message":
-                for tool_call in event.tool_calls:
-                    if echo:
-                        print(f"[TOOL] Calling {tool_call.name}...", flush=True)
-                        sys.stdout.flush()
-                    if on_token:
-                        on_token(f"\n[TOOL] Calling {tool_call.name}...\n")
-            
-            # Tool results
-            elif event_type == "tool_return_message":
-                for tool_return in event.tool_returns:
-                    status = "[OK]" if tool_return.status == "success" else "[ERROR]"
-                    if echo:
-                        print(f"{status} Tool returned", flush=True)
-                        sys.stdout.flush()
-                    if on_token:
-                        on_token(f"{status} Tool returned\n")
-            
-            # Assistant response text (stream tokens live)
-            elif event_type == "assistant_message":
+                        print(f"[THINKING] {text}", flush=True)
+                    if on_thinking:
+                        on_thinking(text)
+
+            elif msg_type == "tool_call_message":
+                # tool_calls is a list; may be empty or absent on some models
+                tool_calls_list = chunk.tool_calls
+                if tool_calls_list:
+                    for tc in tool_calls_list:
+                        if echo:
+                            print(f"[TOOL] {tc.name}({tc.arguments})", flush=True)
+                        if on_token:
+                            on_token(f"\n[TOOL] {tc.name}({tc.arguments})\n")
+
+            elif msg_type == "tool_return_message":
+                # tool_returns is a list; may be empty or absent on some models
+                tool_returns_list = chunk.tool_returns
+                if tool_returns_list:
+                    for tr in tool_returns_list:
+                        if echo:
+                            print(f"[RETURN:{tr.status}] {tr.tool_return}", flush=True)
+                        if on_token:
+                            on_token(f"[RETURN:{tr.status}] {tr.tool_return}\n")
+
+            elif msg_type == "assistant_message":
                 if not stream_started:
                     stream_started = True
                     if on_stream_start:
                         on_stream_start()
-                # Print and accumulate
-                text = content_to_text(event.content)
+                text = content_to_text(chunk.content)
                 if echo:
                     print(text, end="", flush=True)
-                    sys.stdout.flush()
                 reply += text
                 if on_token:
                     on_token(text)
-            
-            # Execution stopped (check for errors)
-            elif event_type == "stop_reason":
-                stop_code = event.stop_reason
-            
-            # Execution error
-            elif event_type == "error_message":
-                err_msg = f"[ERROR] {event.error_type}: {event.message}"
-                if echo:
-                    print(err_msg, flush=True)
-                    sys.stdout.flush()
-                return err_msg
-        
-        # Newline after streaming content
+
         if echo:
             print(flush=True)
-            sys.stdout.flush()
-        
-        # Check final stop reason
-        if stop_code and stop_code != "end_turn":
-            return f"[PENDING] Execution stopped: {stop_code}"
-        
+
         return reply if reply else "No response"
+
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
     except Exception as e:
-        return f"[ERROR] Error: {str(e)}"
+        return f"[ERROR] {e}"
 
 
 # ===== HISTORY COMMAND =====
@@ -181,28 +148,24 @@ def cmd_history(
     """View conversation history. Usage: /history [limit]"""
     if not agent_id:
         return "[ERROR] No active agent. Use /resume <id> first."
-    
+
     try:
         limit = int(args.strip()) if args.strip() else 10
-        messages = svc.get_messages(
-            client,
-            agent_id,
-            limit=limit,
-            conversation_id=conversation_id,
-        )
-        
-        if not messages.items or len(messages.items) == 0:
-            return "No messages in history."
-        
-        lines = [f"[HISTORY] Last {limit} messages:"]
-        for msg in messages.items:
-            # Use message_type to determine the sender
-            sender = msg.message_type.replace("_message", "").title()
-            # Content is string or list of content parts
-            content = content_to_text(msg.content)
-            lines.append(f"  {sender}: {str(content)[:60]}...")
-        return "\n".join(lines)
     except ValueError:
         return "Usage: /history [limit]"
+
+    try:
+        result = svc.get_messages(client, agent_id, limit=limit, conversation_id=conversation_id)
+        msgs = list(result)
+        if not msgs:
+            return "No messages in history."
+        lines = [f"[HISTORY] Last {limit} messages:"]
+        for msg in msgs:
+            role = msg.message_type.replace("_message", "").title()
+            text = content_to_text(msg.content)
+            lines.append(f"  {role}: {text[:60]}...")
+        return "\n".join(lines)
+    except ApiError as e:
+        return f"[ERROR] {e.status_code}: {e.body}"
     except Exception as e:
-        return f"[ERROR] Error: {str(e)}"
+        return f"[ERROR] {e}"

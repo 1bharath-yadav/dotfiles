@@ -23,8 +23,9 @@ from typing import Callable
 from letta_client import Letta
 
 from letta_assistant.services import letta_service as svc
-from letta_assistant.commands import agents, conversations, config, memory, messages, tools, skills, dev
+from letta_assistant.commands import agents, conversations, config, memory, messages, tools, skills, dev, models
 from letta_assistant.utils import state
+from letta_assistant import config as app_cfg
 
 # ===== STARTUP SEQUENCE =====
 
@@ -236,11 +237,15 @@ COMMANDS: dict[str, Callable] = {
     # Agents (from agents.py)
     "agents": agents.cmd_agents_list,
     "new": agents.cmd_new_agent,
+    "use": agents.cmd_use_agent,
     "retrieve": agents.cmd_retrieve,
     "update": agents.cmd_update,
     "delete": agents.cmd_delete,
     "pin": agents.cmd_pin,
     "unpin": agents.cmd_unpin,
+    
+    # Models (from models.py)
+    "models": models.cmd_model,
     
     # Conversations (from conversations.py)
     "resume": conversations.cmd_resume,
@@ -255,6 +260,7 @@ COMMANDS: dict[str, Callable] = {
     "doctor": config.cmd_doctor,
     "statusline": config.cmd_statusline,
     "sleeptime": config.cmd_sleeptime,
+    "appconfig": config.cmd_config,   # also reachable via /config set|unset|show
     
     # Messages
     "ask": messages.cmd_ask,
@@ -262,7 +268,8 @@ COMMANDS: dict[str, Callable] = {
     "history": messages.cmd_history,
     
     # Memory
-    "blocks": memory.cmd_blocks,
+    "memfs": memory.cmd_fs,
+    "memory": memory.cmd_memory,
     "passages": memory.cmd_passages,
     
     # Tools
@@ -289,90 +296,59 @@ COMMANDS: dict[str, Callable] = {
 }
 
 HELP_TEXT = """
-[LETTA ASSISTANT COMMANDS]
+[LETTA ASSISTANT — COMMANDS]
 
-AGENTS
-  /agents          List all agents
-  /new <name>      Create new agent
-  /retrieve <id>   Get agent details
-  /update <id>     Update agent
-  /delete <id>     Delete agent
-  /pin <id>        Pin agent
-  /unpin <id>      Unpin agent
-  /agent           Show active agent
-  /model [id]      Show or set active model
+/agent  list | new <n> [--model <id>] | use <ref> | show <ref>
+        update <ref> --name <n> | delete <ref> | pin <ref> | unpin <ref>
+        model [id]
 
-CONVERSATIONS
-  /resume [id]     List/resume conversations
-  /clear           Clear all messages
-  /compact [mode]  Summarize history
-  /search <text>   Search messages
-  /context         Show context window
-  /new             Create conversation
+/conv   list | new [name] | use <ref> | clear | compact [sliding_window|summary]
+        search <query> | context | history [n]
 
-MESSAGES
-  /ask <text>      Send message (single)
-  /stream <text>   Send message (stream)
-  /history [n]     Show last n messages
+/memfs  [no args displays fallback] | json | fs_tree
+        mkdir <name> | rmdir <id>
+        upload <f_id> <path> | rmfile <f_id> <file_id>
+/memory list | tree_json | read <path> | write <path> | delete <path> | commit [msg] | log
+/mem    passages [query]
 
-MEMORY
-  /blocks [label]  View memory blocks
-  /passages [q]    Search archival memory
+/chat   ask <text> | stream <text>
 
-FILES
-  /files list      List folders
-  /files add       Upload file to folder
-  /files attach    Folder attach (pending)
+/model  [list [filter]] | use <handle|index>  (any provider/model string)
+        set temp|max_tokens|ctx|reasoning|parallel <val>
+        info <ref> | embed [set <key> <val> | unset <key>]
 
-TOOLS
-  /tools           List available tools
-  /attached        List attached tools
-  /attach <id>     Add tool
-  /detach <id>     Remove tool
+/config show | set <key> <val> | unset <key>
+        (keys: base_url · embedding_model · embedding_endpoint)
+        system [text] | init | doctor | sleeptime [on|off]
+        tools | attach <id> | detach <id>
+        secret [list|set <n> <value>|delete <n>]
+        mcp [list|add|tools <server>|attach <server>]
 
-CONFIGURATION
-  /system [text]   View/set system prompt
-  /status          Show active agent status
-  /init            Reinitialize memory
-  /doctor          Audit memory
-  /statusline      Configure status bar
-  /sleeptime       Configure reflection
+/dev    export | import <file> | clone [name] | recompile
 
-SKILLS & MCP
-  /mcp [action]    Manage MCP servers
-  /secret [cmd]    Manage secrets
-  /skill <desc>    Create custom skill
-  /skills          List available skills
-
-DEVELOPMENT
-  /export          Export as file
-  /import <file>   Import from file
-  /clone [name]    Clone agent
-  /recompile       Reset and recompile
-  /ade             Open editor
-  /terminal        Setup shortcuts
-  /server          Start listener
-
-SYSTEM
-  /help            Show this help
-  /exit, /quit     Exit REPL
+/status — show model, agent, token state
+/help   — show this help
+/exit   — quit REPL
 """.strip()
 
 CONVERSATION_COMMANDS = {"clear", "compact", "search"}
 CONTEXT_ONLY_COMMANDS = {"context"}
 AGENT_COMMANDS = {
-    "system", "init", "doctor", "statusline", "sleeptime",
+    "models", "system", "init", "doctor", "statusline", "sleeptime",
     "ask", "stream", "history",
-    "blocks", "passages",
+    "memfs", "memory", "passages",
     "attached", "attach", "detach",
     "skill",
     "export", "clone", "recompile", "ade",
 }
 GLOBAL_COMMANDS = {
-    "agents", "retrieve", "update", "delete", "pin", "unpin",
-    "tools", "mcp", "secret", "skills",
+    "agents", "use", "retrieve", "update", "delete", "pin", "unpin",
+    "tools", "secret", "skills",
     "import", "terminal", "server",
 }
+
+# Commands that are global-scoped but also need agent_id (passed as positional arg)
+MCP_COMMANDS = {"mcp"}
 
 
 def get_help_text() -> str:
@@ -401,15 +377,8 @@ def _split_subcommand(args: str) -> tuple[str, str]:
 
 
 def _cmd_model(client: Letta, agent_id: str, args: str = "") -> str:
-    """Show or set active agent model. Usage: /model [model_id]"""
-    if not agent_id:
-        return "[ERROR] No active agent. Use /resume <id> first."
-    if not args.strip():
-        agent = svc.get_agent(client, agent_id)
-        return f"[MODEL] {agent.model}"
-    model_id = args.strip()
-    svc.update_agent(client, agent_id, model=model_id)
-    return f"[OK] Model set to: {model_id}"
+    """Delegate to the full /model dispatcher (list / use / set / info / show)."""
+    return models.cmd_model(client, agent_id, args)
 
 
 def _cmd_agent(client: Letta, agent_id: str, args: str = "") -> str:
@@ -498,9 +467,78 @@ def run_command_line(
     cmd = parts[0]
     args = parts[1] if len(parts) > 1 else ""
 
-    # Grouped command aliases (UI sugar).
+    # ── Merged 8-command UI routing ────────────────────────────────────────────
+    # /agent <sub> → agent management (maps to internal commands)
+    # /conv  <sub> → conversation management
+    # /mem   <sub> → memory
+    # /chat  <sub> → messaging
+    # /config <sub>→ tools, secrets, mcp, system config, app config
+    # /dev   <sub> → developer operations
+    # /help, /status, /stop → handled as pure client-side above
     subcmd, rest = _split_subcommand(args)
-    if cmd == "resume" and subcmd:
+
+    if cmd == "agent":
+        if not subcmd or subcmd == "list":
+            cmd, args = "agents", ""
+        elif subcmd == "model":
+            cmd, args = "model", rest
+        elif subcmd in {"new", "use", "show", "update", "delete", "pin", "unpin"}:
+            sub_map = {"show": "retrieve"}
+            cmd, args = sub_map.get(subcmd, subcmd), rest
+        # else fall through to unknown-command handler
+
+    elif cmd == "conv":
+        if not subcmd or subcmd == "list":
+            cmd, args = "resume", ""
+        elif subcmd == "new":
+            # no args → new conversation; args → new agent (hijacked meaning)
+            args = rest
+            cmd = "new"
+        elif subcmd == "use":
+            cmd, args = "resume", rest
+        elif subcmd in {"clear", "compact", "search", "context", "history"}:
+            cmd, args = subcmd, rest
+        # else fall through
+
+    elif cmd == "mem":
+        if subcmd in {"passages"}:
+            cmd, args = subcmd, rest
+    elif cmd == "memfs" or cmd == "memory":
+        pass  # Just fall through, cmd is unchanged
+
+    elif cmd == "chat":
+        if subcmd in {"ask", "stream"}:
+            cmd, args = subcmd, rest
+        elif not subcmd:
+            return "Usage: /chat ask <text>  |  /chat stream <text>", current_agent, current_conversation, meta
+
+    elif cmd == "config":
+        if subcmd in {"system", "init", "doctor", "sleeptime", "statusline"}:
+            cmd, args = subcmd, rest
+        elif subcmd in {"tools"}:
+            cmd, args = "tools", rest
+        elif subcmd in {"attach"}:
+            cmd, args = "attach", rest
+        elif subcmd in {"detach"}:
+            cmd, args = "detach", rest
+        elif subcmd in {"secret"}:
+            cmd, args = "secret", rest
+        elif subcmd in {"mcp"}:
+            cmd, args = "mcp", rest
+        elif subcmd in {"set", "unset", "show", ""}:
+            # App-level config — handled inline below
+            pass
+        elif not subcmd:
+            return "Usage: /config [show|set <k> <v>|unset <k>|system|init|doctor|sleeptime|tools|attach|detach|secret|mcp]", current_agent, current_conversation, meta
+
+    elif cmd == "dev":
+        if subcmd in {"export", "import", "clone", "recompile", "ade", "terminal", "server"}:
+            cmd, args = subcmd, rest
+        elif not subcmd:
+            return "Usage: /dev [export|import|clone|recompile]", current_agent, current_conversation, meta
+
+    # Legacy flat aliases (keep REPL backwards-compatible)
+    elif cmd == "resume" and subcmd:
         if subcmd == "list":
             args = ""
         elif subcmd == "use":
@@ -510,56 +548,14 @@ def run_command_line(
             args = ""
         elif subcmd == "show":
             cmd, args = "retrieve", rest
-        elif subcmd == "new":
-            cmd, args = "new", rest
-        elif subcmd == "delete":
-            cmd, args = "delete", rest
-        elif subcmd == "export":
-            cmd, args = "export", rest
-        elif subcmd == "import":
-            cmd, args = "import", rest
-        elif subcmd == "use":
-            if not rest.strip():
-                return "Usage: /agents use <agent_id>", current_agent, current_conversation, meta
-            try:
-                svc.get_agent(client, rest.strip())
-            except Exception:
-                return f"[ERROR] Agent not found: {rest.strip()}", current_agent, current_conversation, meta
-            current_agent = rest.strip()
-            try:
-                conversation = client.conversations.create(agent_id=current_agent)
-                current_conversation = conversation.id
-                return (
-                    f"[OK] Using agent: {current_agent}\n[OK] Created conversation: {current_conversation}",
-                    current_agent,
-                    current_conversation,
-                    meta,
-                )
-            except Exception as exc:
-                return (
-                    f"[OK] Using agent: {current_agent}\n[WARN] Could not create conversation: {exc}",
-                    current_agent,
-                    current_conversation,
-                    meta,
-                )
+        elif subcmd in {"new", "delete", "export", "import", "use"}:
+            cmd, args = subcmd, rest
     elif cmd == "messages" and subcmd in {"ask", "stream", "history"}:
         cmd, args = subcmd, rest
-    elif cmd == "memory" and subcmd in {"blocks", "passages"}:
+    elif cmd == "memory" and subcmd in {"passages"}:
         cmd, args = subcmd, rest
-    elif cmd == "config" and subcmd in {"system", "init", "doctor", "statusline", "sleeptime"}:
-        cmd, args = subcmd, rest
-    elif cmd == "models" and subcmd:
-        if subcmd == "list":
-            cmd, args = "statusline", ""
-        elif subcmd == "current":
-            cmd, args = "model", ""
-        elif subcmd == "set":
-            cmd, args = "model", rest
     elif cmd == "skills" and subcmd == "create":
         cmd, args = "skill", rest
-    elif cmd == "dev" and subcmd:
-        if subcmd in {"export", "import", "clone", "recompile", "ade", "terminal", "server"}:
-            cmd, args = subcmd, rest
     elif cmd == "sleep" and subcmd in {"on", "off"}:
         cmd, args = "sleeptime", subcmd
     elif cmd == "secret" and subcmd:
@@ -574,6 +570,9 @@ def run_command_line(
 
     if cmd == "model":
         return _cmd_model(client, current_agent, args), current_agent, current_conversation, meta
+
+    if cmd == "config" and subcmd in {"set", "unset", "show", ""}:
+        return config.cmd_config(client, current_agent, args), current_agent, current_conversation, meta
 
     if cmd == "agent":
         return _cmd_agent(client, current_agent, args), current_agent, current_conversation, meta
@@ -623,8 +622,15 @@ def run_command_line(
         result = handler(client, current_agent, args, conversation_id=current_conversation)
     elif cmd in AGENT_COMMANDS:
         result = handler(client, current_agent, args)
+    elif cmd in MCP_COMMANDS:
+        result = handler(client, current_agent, args)
     elif cmd in GLOBAL_COMMANDS:
         result = handler(client, args)
+        # /use changes active agent+conversation — reload persisted state
+        if cmd == "use" and "[OK]" in result:
+            reloaded = state.load_state()
+            current_agent = reloaded.get("agent_id") or current_agent
+            current_conversation = reloaded.get("conversation_id") or current_conversation
     else:
         result = handler(client, args)
 

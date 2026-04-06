@@ -22,13 +22,13 @@ def get_state_file() -> Path:
 
 
 def load_state() -> dict:
-    """Load saved agent_id and conversation_id from state file.
+    """Load saved agent_id, conversation_id, and model_id from state file.
     
-    Returns: {"agent_id": str, "conversation_id": str} or {"agent_id": None, "conversation_id": None}
+    Returns: {"agent_id": str, "conversation_id": str, "model_id": str}
     """
     state_file = get_state_file()
     if not state_file.exists():
-        return {"agent_id": None, "conversation_id": None}
+        return {"agent_id": None, "conversation_id": None, "model_id": None}
     
     try:
         with open(state_file, "r") as f:
@@ -36,13 +36,14 @@ def load_state() -> dict:
         return {
             "agent_id": data.get("agent_id"),
             "conversation_id": data.get("conversation_id"),
+            "model_id": data.get("model_id"),
         }
     except (json.JSONDecodeError, IOError):
-        return {"agent_id": None, "conversation_id": None}
+        return {"agent_id": None, "conversation_id": None, "model_id": None}
 
 
-def save_state(agent_id: str, conversation_id: str) -> None:
-    """Save agent_id and conversation_id to state file."""
+def save_state(agent_id: str, conversation_id: str, model_id: str | None = None) -> None:
+    """Save agent_id, conversation_id, and model_id to state file."""
     state_file = get_state_file()
     try:
         with open(state_file, "w") as f:
@@ -50,6 +51,7 @@ def save_state(agent_id: str, conversation_id: str) -> None:
                 {
                     "agent_id": agent_id,
                     "conversation_id": conversation_id,
+                    "model_id": model_id,
                 },
                 f,
                 indent=2,
@@ -57,6 +59,13 @@ def save_state(agent_id: str, conversation_id: str) -> None:
     except IOError as e:
         # Fail silently on state write errors
         print(f"[WARN] Could not save state: {e}", file=sys.stderr)
+
+
+def save_model(model_id: str) -> None:
+    """Update only the model_id in saved state. Preserves agent_id and conversation_id."""
+    state = load_state()
+    if state.get("agent_id") and state.get("conversation_id"):
+        save_state(state["agent_id"], state["conversation_id"], model_id)
 
 
 def clear_state() -> None:

@@ -6,6 +6,7 @@ blackarch-keyring
 chaotic-keyring
 chaotic-mirrorlist
 claude-desktop-bin
+claude-cowork-service
 datui-bin
 grimblast-git
 kde-material-you-colors
@@ -20,3 +21,4 @@ torrra-bin
 whisper.cpp-openvino
 yay
 zen-browser-bin
+google-cloud-cli

@@ -7,30 +7,72 @@ from typing import Any, Iterator
 
 from letta_client import Letta, AsyncLetta
 
+from letta_assistant import config as cfg
+
 
 # ===== CLIENT INITIALIZATION =====
 
 def init_client(api_key: str | None = None, base_url: str | None = None) -> Letta:
-    """Initialize Letta synchronous client."""
-    key = api_key or os.getenv("LETTA_API_KEY")
+    """Initialize Letta synchronous client.
+
+    Resolution order: explicit arg → config.get_api_key() (env) → error.
+    base_url: explicit arg → config.get_base_url() (env or persisted) → SDK default.
+    """
+    key = api_key or cfg.get_api_key()
     if not key:
         raise ValueError("LETTA_API_KEY not set. Run: export LETTA_API_KEY=sk-...")
-    return Letta(api_key=key, base_url=base_url)
+    url = base_url or cfg.get_base_url()
+    return Letta(api_key=key, base_url=url)
 
 
 def init_async_client(api_key: str | None = None, base_url: str | None = None) -> AsyncLetta:
     """Initialize Letta async client."""
-    key = api_key or os.getenv("LETTA_API_KEY")
+    key = api_key or cfg.get_api_key()
     if not key:
         raise ValueError("LETTA_API_KEY not set. Run: export LETTA_API_KEY=sk-...")
-    return AsyncLetta(api_key=key, base_url=base_url)
+    url = base_url or cfg.get_base_url()
+    return AsyncLetta(api_key=key, base_url=url)
 
 
 # ===== MODELS =====
 
 def get_models(client: Letta) -> Any:
-    """GET /api/v1/models"""
+    """GET /api/v1/models - returns page with items list"""
     return client.models.list()
+
+
+def list_models(client: Letta) -> list[dict]:
+    """List available models as normalized dicts.
+
+    Real SDK fields (letta-client 1.10.x):
+      .model       — model identifier (e.g. "gpt-4o", "claude-sonnet-4-5")
+      .handle      — provider/model handle (e.g. "anthropic/claude-sonnet-4-5")
+      .name        — short name
+      .display_name — human-readable name
+
+    Returns: [{"id": handle, "name": display_name}, ...]
+    """
+    models = list(client.models.list())
+    return [
+        {
+            "id": m.handle or m.model,
+            "name": m.display_name or m.name or m.model,
+        }
+        for m in models
+    ]
+
+
+def update_agent_model(client: Letta, agent_id: str, model_id: str) -> Any:
+    """Update agent's model. model_id must be provider/model-name format.
+    
+    Args:
+        client: Letta client
+        agent_id: Agent ID to update
+        model_id: Model identifier (e.g. anthropic/claude-sonnet-4-5)
+    
+    Returns: Updated agent object
+    """
+    return client.agents.update(agent_id, model=model_id)
 
 
 # ===== AGENTS =====
@@ -75,11 +117,6 @@ def delete_agent(client: Letta, agent_id: str) -> Any:
 
 # ===== MESSAGES (CONVERSATIONS) =====
 
-def resolve_conversation_id(conversation_id: str | None = None) -> str:
-    """Return a usable conversation selector for message APIs."""
-    return conversation_id or "default"
-
-
 def send_message(client: Letta, agent_id: str, text: str) -> Any:
     """POST /api/v1/agents/{agent_id}/messages (non-streaming)"""
     return client.agents.messages.create(
@@ -94,18 +131,24 @@ def stream_message(
     text: str,
     conversation_id: str | None = None,
     *,
-    enable_thinking: str = "true",
-    stream_tokens: bool = True,
-    include_pings: bool = False,
+    include_pings: bool = True,
 ) -> Iterator[Any]:
-    """POST /api/v1/conversations/{conversation_id}/messages (streaming)."""
-    return client.conversations.messages.create(
-        resolve_conversation_id(conversation_id),
+    """POST /api/v1/agents/{agent_id}/messages/stream — yields chunk objects.
+
+    include_pings defaults to True to prevent Cloudflare 524 timeouts on
+    long tool chains (keepalive pings sent every 30 s).
+
+    Each chunk has a .message_type field:
+      "reasoning_message"  → .reasoning (str)
+      "tool_call_message"  → .tool_call.name / .tool_call.arguments
+      "tool_return_message"→ .tool_return (str), .status (str)
+      "assistant_message"  → .content (str)
+      "ping"               → keepalive, ignore
+    Every chunk also carries .run_id and .seq_id for stream resumption.
+    """
+    return client.agents.messages.stream(
         agent_id=agent_id,
         messages=[{"role": "user", "content": text}],
-        enable_thinking=enable_thinking,
-        stream_tokens=stream_tokens,
-        streaming=True,
         include_pings=include_pings,
     )
 
@@ -254,21 +297,22 @@ def delete_secret(client: Letta, secret_id: str) -> Any:
 # ===== STREAMING HELPERS =====
 
 def extract_chunk_text(chunk: Any) -> tuple[str, str]:
-    """Extract reply and thinking text from stream chunk.
-    
-    Returns: (reply_token, thinking_token)
+    """Extract (reply_text, thinking_text) from a stream chunk.
+
+    Dispatches on chunk.message_type — no getattr/hasattr/isinstance.
+
+    Chunk fields (from SDK types):
+      reasoning_message  → .reasoning  (str, always present)
+      assistant_message  → .content    (str | List[...])
+    All other types return ("", "").
     """
-    reply_token = ""
-    thinking_token = ""
-    
-    chunk_type = getattr(chunk, "type", None)
-    
-    if chunk_type == "assistant_message":
-        reply_token = getattr(chunk, "content", "")
-    elif chunk_type == "reasoning_message":
-        thinking_token = getattr(chunk, "reasoning", "")
-    
-    return (reply_token, thinking_token)
+    msg_type = chunk.message_type
+
+    if msg_type == "assistant_message":
+        return (chunk.content or "", "")
+    if msg_type == "reasoning_message":
+        return ("", chunk.reasoning or "")
+    return ("", "")
 
 
 def process_stream(
@@ -277,33 +321,40 @@ def process_stream(
     on_stream_start: callable = None,
     on_token: callable = None,
 ) -> str:
-    """Process streaming response with callbacks.
-    
+    """Consume a stream from stream_message(), firing callbacks per chunk.
+
+    Handles: reasoning_message, tool_call_message, tool_return_message,
+             assistant_message, ping (ignored).
+
     Args:
-        stream: Iterator from stream_message()
-        on_thinking: Called with thinking token
-        on_stream_start: Called before first reply token
-        on_token: Called with each reply token
-    
-    Returns: Full reply text
+        stream:        Iterator from stream_message()
+        on_thinking:   Called with reasoning text
+        on_stream_start: Called before first assistant token
+        on_token:      Called with each assistant text token
+
+    Returns: full assistant reply text
     """
     full_reply = ""
     stream_started = False
-    
+
     for chunk in stream:
+        msg_type = chunk.message_type
+
+        if msg_type == "ping":
+            continue
+
         reply_token, thinking_token = extract_chunk_text(chunk)
-        
+
         if thinking_token and on_thinking:
             on_thinking(thinking_token)
-        
+
         if reply_token:
             if not stream_started:
+                stream_started = True
                 if on_stream_start:
                     on_stream_start()
-                stream_started = True
-            
             full_reply += reply_token
             if on_token:
                 on_token(reply_token)
-    
+
     return full_reply
