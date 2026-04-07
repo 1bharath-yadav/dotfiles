@@ -150,6 +150,18 @@ def _on_event(event, mode: str, state: dict) -> None:
             ipc("streamStart")
         ipc("token", content)
 
+    elif msg_type == "approval_request_message":
+        # Handle client-side tool permission requests
+        if hasattr(event, "tool_call") and event.tool_call:
+            tc = event.tool_call
+            tc_dict = {
+                "tool_call_id": tc.tool_call_id,
+                "name": tc.name,
+                "arguments": tc.arguments
+            }
+            ipc("approvalRequest", json.dumps(tc_dict))
+            ipc("status", "approval")
+
     elif msg_type == "stop_reason":
         ipc("stopReason", json.dumps({"stop_reason": str(event.stop_reason)}))
 

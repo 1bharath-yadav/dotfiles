@@ -23,7 +23,7 @@ from typing import Callable
 from letta_client import Letta
 
 from letta_assistant.services import letta_service as svc
-from letta_assistant.commands import agents, conversations, config, memory, messages, tools, skills, dev, models
+from letta_assistant.commands import agents, conversations, config, memory, messages, tools, skills, dev, models, approval
 from letta_assistant.utils import state
 from letta_assistant import config as app_cfg
 
@@ -254,6 +254,9 @@ COMMANDS: dict[str, Callable] = {
     "search": conversations.cmd_search,
     "context": conversations.cmd_context,
     
+    # Approvals
+    "approve": approval.cmd_approve,
+    
     # Configuration (from config.py)
     "system": config.cmd_system,
     "init": config.cmd_init,
@@ -331,7 +334,7 @@ HELP_TEXT = """
 /exit   — quit REPL
 """.strip()
 
-CONVERSATION_COMMANDS = {"clear", "compact", "search"}
+CONVERSATION_COMMANDS = {"clear", "compact", "search", "approve"}
 CONTEXT_ONLY_COMMANDS = {"context"}
 AGENT_COMMANDS = {
     "models", "system", "init", "doctor", "statusline", "sleeptime",
@@ -466,6 +469,68 @@ def run_command_line(
     parts = line[1:].split(maxsplit=1)
     cmd = parts[0]
     args = parts[1] if len(parts) > 1 else ""
+
+    if cmd == "approve":
+        # /approve triggers the agent to continue, so it must stream back.
+        # We construct the precise approval block instead of standard text.
+        parts_args = args.split(maxsplit=2)
+        if len(parts_args) < 2:
+            return "[ERROR] Usage: /approve <tool_call_id> <approve|deny> [message]", current_agent, current_conversation, meta
+            
+        tc_id = parts_args[0]
+        action = parts_args[1].lower()
+        status = "success" if action in ["approve", "allow", "yes", "true", "success"] else "error"
+        tc_ret = "Tool execution approved by user." if status == "success" else "Tool execution denied by user."
+        if len(parts_args) > 2:
+            tc_ret = parts_args[2]
+
+        approval_payload = [{
+            "type": "approval",
+            "approvals": [{
+                "type": "tool",
+                "tool_call_id": tc_id,
+                "tool_return": tc_ret,
+                "status": status,
+            }]
+        }]
+        
+        # Now stream the response by faking messages.cmd_stream internals
+        # We can't easily pass raw dicts to cmd_stream, so we'll just stream it directly here
+        try:
+            reply = ""
+            stream_started = False
+            stream = client.agents.messages.stream(
+                agent_id=current_agent,
+                messages=approval_payload,
+                include_pings=True,
+            )
+            for chunk in stream:
+                if should_cancel and should_cancel():
+                    break
+                if on_event:
+                    on_event(chunk)
+                msg_type = chunk.message_type
+                if msg_type == "ping":
+                    continue
+                elif msg_type == "reasoning_message" and chunk.reasoning:
+                    if echo: print(f"[THINKING] {chunk.reasoning}", flush=True)
+                    if on_thinking: on_thinking(chunk.reasoning)
+                elif msg_type == "assistant_message":
+                    if not stream_started:
+                        stream_started = True
+                        if on_stream_start: on_stream_start()
+                    text = chunk.content or ""
+                    if text and not isinstance(text, str):
+                        from letta_assistant.utils.content import content_to_text
+                        text = content_to_text(text)
+                    if echo: print(text, end="", flush=True)
+                    reply += text
+                    if on_token: on_token(text)
+            if echo: print(flush=True)
+            meta["streamed"] = True
+            return reply if reply else "No response", current_agent, current_conversation, meta
+        except Exception as e:
+            return f"[ERROR] Failed to stream approval: {e}", current_agent, current_conversation, meta
 
     # ── Merged 8-command UI routing ────────────────────────────────────────────
     # /agent <sub> → agent management (maps to internal commands)
