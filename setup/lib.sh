@@ -213,7 +213,7 @@ sync_end4dots() {
   [[ "$os" == arch ]] || return 0
   [[ -d "$END4DOTS" ]] || return 0
 
-  log "Syncing end4dots with upstream (merge strategy to preserve scheduler + assistant module)"
+  log "Syncing end4dots with upstream (agent-driven merge strategy)"
 
   cd "$END4DOTS"
   git remote get-url upstream >/dev/null 2>&1 || git remote add upstream https://github.com/end-4/dots-hyprland.git
@@ -238,15 +238,15 @@ sync_end4dots() {
   fi
   git push origin main -q 2>/dev/null || true
 
-  # Merge main into archer (your custom work), respecting .gitattributes protection
+  # Merge main into archer allowing standard conflicts
   git checkout archer -q
-  git config merge.ours.driver true 2>/dev/null || true
   
   if ! git merge -m "chore: merge upstream features into archer branch" main -q 2>&1 | grep -qE "conflict|CONFLICT"; then
-    log "archer branch merged with main (upstream features + your scheduler)"
+    log "archer branch merged cleanly with main (upstream features added)"
   else
-    warn "Merge conflict on archer — your assistant module is protected (merge=ours)"
-    warn "Review conflicts and commit: git add . && git commit"
+    warn "MERGE CONFLICT detected! The AI Agent must now inspect the conflicts."
+    warn "Read the conflict markers, analyze upstream features vs your custom code, and manually blend them."
+    warn "When done, commit with: git add . && git commit"
     return 1
   fi
   git push origin archer -q 2>/dev/null || true
@@ -255,12 +255,12 @@ sync_end4dots() {
   "$END4DOTS/setup" install
 
   local hconf="$HOME/.config/hypr/hyprland.conf"
-  if [[ -f "$hconf" ]] && ! grep -q 'source=custom/env.conf' "$hconf"; then
+  if [[ -f "$hconf" ]] && ! grep -q "source=custom/env.conf" "$hconf"; then
     cp "$END4DOTS/dots/.config/hypr/hyprland.conf" "$hconf"
     log "Re-patched hyprland.conf with source=custom/env.conf"
   fi
 
-  find "$HOME/.config/hypr" -maxdepth 1 -name '*.new' -delete 2>/dev/null || true
+  find "$HOME/.config/hypr" -maxdepth 1 -name "*.new" -delete 2>/dev/null || true
 }
 
 reload_user_session() {
