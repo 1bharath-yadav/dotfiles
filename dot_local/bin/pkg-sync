@@ -2,4 +2,7 @@
 set -euo pipefail
 
 sudo pacman -Syu
-mise upgrade || true
+mise upgrade
+mise prune
+
+echo 'system + tooling sync complete'

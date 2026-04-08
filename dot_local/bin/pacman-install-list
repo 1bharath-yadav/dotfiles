@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+pkg_file="${1:-$HOME/.config/pacman/Packages}"
+grep -v '^[[:space:]]*#' "$pkg_file" | sed '/^[[:space:]]*$/d' | sudo pacman -S --needed -

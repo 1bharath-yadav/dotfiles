@@ -1,9 +1,23 @@
 [tools]
+# runtimes
 node = "22"
 python = "3.12"
 rust = "stable"
 uv = "latest"
 pnpm = "latest"
+
+# js / ts global clis
+"npm:@openai/codex" = "latest"
+"npm:@google/gemini-cli" = "latest"
+"npm:@letta-ai/letta-code" = "latest"
+
+# python global clis
+"uv:aider-chat" = "latest"
+"uv:edge-tts" = "latest"
+"uv:huggingface-hub" = "latest"
+
+# rust global clis
+"cargo:git-delta" = "latest"
 
 [settings]
 experimental = true

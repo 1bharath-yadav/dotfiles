@@ -1,44 +1,41 @@
 # dotfiles
 
-simple chezmoi-first personal dotfiles.
+chezmoi-first personal dotfiles.
+
+## structure
+- `dot_config/pacman/Packages` → system/global apps
+- `dot_config/mise/config.toml` → runtimes + global dev CLIs
+- `dot_local/bin/` → workflows
+- `AGENTS.md` → agent rules + current state
 
 ## package strategy
+- pacman: system packages, desktop apps, native deps, mise itself
+- mise: runtimes + reproducible global developer CLIs
+- pnpm: project js deps
+- uv: project python deps / uvx one-shots
+- cargo: project rust deps
 
-- pacman: system packages, base build deps, mise itself
-- mise: node/python/rust runtimes and tool versions
-- pnpm: js/ts packages
-- uv: python deps, venvs, tools
-- cargo: rust crates and project deps
-
-## install base
-
+## bootstrap
 ```bash
 sudo pacman -S mise git base-devel gcc openssl zlib
+pacman-install-list
+mise install
 ```
 
-then activate mise in shell and run:
-
+## sync
 ```bash
-tool-bootstrap
+pkg-sync
 ```
 
-## chezmoi
-
-```bash
-chezmoi init /home/archer/dotfiles
-chezmoi diff
-chezmoi apply
-```
-
-## useful commands
-
-- `pku` → system update
-- `pkua` → pacman + mise update
-- `tb` → install runtime tools from mise
-- `tu` → upgrade runtime/tooling layer
-- `mdoc` → inspect toolchain health
-- `mug node@22` → set global node
-- `mug python@3.12` → set global python
-- `pna <pkg>` → add js dependency
-- `uva <pkg>` → add python dependency
-- `ciu <crate>` / `cib <crate>` → install rust cli
+## key commands
+- `pki` install packages from manifest
+- `pku` pacman update
+- `pkua` pacman + mise update
+- `tb` bootstrap tooling
+- `tu` update tooling
+- `mdoc` doctor
+- `mug <tool@ver>` set global mise tool
+- `pna <pkg>` add js dep
+- `uva <pkg>` add python dep
+- `rageenc <file>` encrypt secret
+- `ragedec <file.age>` decrypt secret

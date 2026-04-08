@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-command -v mise >/dev/null 2>&1 && mise upgrade
-command -v uv >/dev/null 2>&1 && uv tool upgrade --all || true
-command -v cargo-install-update >/dev/null 2>&1 && cargo-install-update -a || true
+mise upgrade
+mise prune
 
 echo 'tool update complete'

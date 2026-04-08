@@ -2,32 +2,31 @@
 - branch: chizmoi
 - mode: chezmoi-first
 - roots: dot_*, private_*
+- package-manifests: dot_config/pacman/Packages, dot_config/mise/config.toml
+- workflows: dot_local/bin
 - exclude: end4dots, quickshell, hyprland-base
 - exclude: flake, nix, setup, libs
-- package-owners: pacman system, mise runtimes, pnpm js, uv python, cargo rust
+- package-owners: pacman system, mise runtimes+global-clis, pnpm js-projects, uv python-projects, cargo rust-projects
 - prefer pnpm over npm
-- secrets: rage/age
-- structured-secrets: sops+age
+- secrets: rage/age, sops+age for structured files
 - rage-key: ~/.config/rage/key.txt
 - ssh-private: ~/.ssh/* 600
 - ssh-public: ~/.ssh/*.pub 644
 - never commit plaintext secrets
 - never commit private keys
 - encrypt repo secrets as *.age
-- native age first, ssh recipient fallback
+- native age first, ssh fallback only
 - never encrypt in place
-- scripts: keep small, composable, ~/.local/bin
-- remote: git@github-personal.com:1bharath-yadav/dotfiles.git
+- scripts must stay small and composable
+- remote: https://github.com/1bharath-yadav/dotfiles.git
 - commit:
 - git status --short
 - git add <specific-files>
 - git commit -m "<type>: <why>"
 - git push origin chizmoi
 - current-state:
-- branch chizmoi active
-- remote set to github-personal ssh
-- quickshell removed
-- flake/nix/setup removed
-- mise strategy active
-- tool scripts active: bootstrap/update/doctor/pkg-sync/rage/ssh
+- package manifests added for pacman and mise
+- package ownership doc added
+- package scripts simplified around pacman+mises
+- aliases updated for package workflows
 - next update: overwrite current-state only, max 10 lines
