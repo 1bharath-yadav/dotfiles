@@ -3,6 +3,7 @@
 - mode: chezmoi-first
 - roots: dot_*, private_*
 - package-manifests: dot_config/pacman/Packages, dot_config/mise/config.toml
+- agent-workspace: dot_agen/
 - workflows: dot_local/bin
 - exclude: end4dots, quickshell, hyprland-base
 - exclude: flake, nix, setup, libs
@@ -25,8 +26,9 @@
 - git commit -m "<type>: <why>"
 - git push origin chizmoi
 - current-state:
-- package manifests added for pacman and mise
-- package ownership doc added
-- package scripts simplified around pacman+mises
-- aliases updated for package workflows
+- dot_agen/ added for agent workspace
+- education moved to zen_spaces/education/
+- old-dotfiles and .dotfiles removed
+- lettabot files moved to ~/.letta/
+- ~/AGENTS.md created for filesystem navigation
 - next update: overwrite current-state only, max 10 lines

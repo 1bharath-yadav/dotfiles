@@ -1,0 +1,58 @@
+# agents.yaml - declarative agent manifest
+# These agents run 24/7 to support Bharath's goals
+
+agents:
+  - name: learner
+    purpose: GATE prep, IITM coursework, spiritual study
+    workspace: ~/zen_spaces
+    focus:
+      - GATE Data Science & AI
+      - IITM BSc courses
+      - Sanskrit, vedas, meditation
+    schedule: continuous
+    tools: [read, write, web_search, task]
+
+  - name: builder
+    purpose: startup work, product development
+    workspace: ~/projects
+    focus:
+      - suzen (learning platform)
+      - sarthak (project)
+      - letta_assistant
+    schedule: continuous
+    tools: [read, write, bash, edit, web_search, task]
+
+  - name: coordinator
+    purpose: system management, dotfiles, agent orchestration
+    workspace: ~/dotfiles
+    focus:
+      - dotfiles maintenance
+      - package management
+      - agent workflows
+    schedule: continuous
+    tools: [read, write, bash, edit, memory, task]
+
+workflows:
+  - name: daily-sync
+    trigger: scheduled
+    schedule: "0 6 * * *"
+    steps:
+      - agent: coordinator
+        action: sync_dotfiles
+      - agent: learner
+        action: summarize_progress
+      - agent: builder
+        action: summarize_progress
+
+  - name: gate-prep
+    trigger: manual
+    steps:
+      - agent: learner
+        action: review_topics
+      - agent: learner
+        action: practice_problems
+
+metadata:
+  owner: Bharath Yadav
+  created: 2026-04-09
+  version: 1
