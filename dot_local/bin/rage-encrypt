@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $# -lt 1 ]]; then echo 'usage: rage-encrypt <file> [out.age]' >&2; exit 1; fi
+in="$1"
+out="${2:-$1.age}"
+pub="$(rage-pub)"
+rage -r "$pub" "$in" -o "$out"

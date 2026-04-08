@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p "$HOME/.config/rage"
+[[ -f "$HOME/.config/rage/key.txt" ]] && { echo 'rage key already exists'; exit 0; }
+rage-keygen -o "$HOME/.config/rage/key.txt"
+chmod 600 "$HOME/.config/rage/key.txt"
+grep 'public key' "$HOME/.config/rage/key.txt"

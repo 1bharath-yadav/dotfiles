@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
-exec bash "$DOTFILES/setup/main.sh" update "$@"

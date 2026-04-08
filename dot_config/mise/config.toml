@@ -1,0 +1,16 @@
+[tools]
+node = "22"
+python = "3.12"
+rust = "stable"
+uv = "latest"
+pnpm = "latest"
+
+[settings]
+experimental = true
+jobs = 4
+legacy_version_file = true
+idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
+pipx_uvx = true
+
+[settings.cargo]
+binstall = true

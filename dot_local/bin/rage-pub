@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+grep 'public key' "$HOME/.config/rage/key.txt" | sed 's/^# public key: //'

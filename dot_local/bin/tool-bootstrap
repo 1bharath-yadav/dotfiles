@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo 'mise not found. install it first with: sudo pacman -S mise' >&2
+  exit 1
+fi
+
+mise install
+
+if command -v cargo >/dev/null 2>&1; then
+  cargo install cargo-binstall || true
+fi
+
+echo 'tool bootstrap complete'

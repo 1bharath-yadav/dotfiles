@@ -1,0 +1,13 @@
+sourceDir = "{{ .chezmoi.sourceDir }}"
+
+[edit]
+command = "nvim"
+apply = false
+
+[git]
+autoadd = true
+autocommit = false
+autopush = false
+
+[add]
+secrets = "error"

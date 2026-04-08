@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $# -lt 1 ]]; then echo 'usage: rage-decrypt <file.age> [outfile]' >&2; exit 1; fi
+in="$1"
+if [[ $# -ge 2 ]]; then
+  rage -d -i "$HOME/.config/rage/key.txt" "$in" > "$2"
+else
+  rage -d -i "$HOME/.config/rage/key.txt" "$in"
+fi
