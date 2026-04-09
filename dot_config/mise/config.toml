@@ -12,10 +12,10 @@ pnpm = "latest"
 "npm:@letta-ai/letta-code" = "latest"
 
 # python global clis
-"uv:aider-chat" = "latest"
-"uv:edge-tts" = "latest"
-"uv:huggingface-hub" = "latest"
-
+# "uv:aider-chat" = "latest"
+# "uv:edge-tts" = "latest"
+# "uv:huggingface-hub" = "latest"
+#
 # rust global clis
 "cargo:git-delta" = "latest"
 
@@ -24,7 +24,6 @@ experimental = true
 jobs = 4
 legacy_version_file = true
 idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
-pipx_uvx = true
 
 [settings.cargo]
 binstall = true

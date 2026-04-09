@@ -1,4 +1,4 @@
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+# load core environment and history settings
 [[ -f "$ZDOTDIR/env.zsh" ]] && source "$ZDOTDIR/env.zsh"
 
 has() { command -v "$1" >/dev/null 2>&1; }
@@ -17,8 +17,14 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
 
-for f in "$ZDOTDIR"/init/*.zsh(.N); do
-  source "$f"
+# load all modular configs           # clean modular system
+for f in $ZDOTDIR/*.zsh; do
+  [ -r "$f" ] && source "$f"
 done
 
-alias dots='${EDITOR:-nvim} $HOME/.dotfiles'
+# load all init scripts from the old setup
+for f in "$ZDOTDIR"/init/*.zsh(.N); do
+  [ -r "$f" ] && source "$f"
+done
+
+alias dots='${EDITOR:-nvim} $HOME/dotfiles'
