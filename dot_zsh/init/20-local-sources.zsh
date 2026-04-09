@@ -1,4 +1,4 @@
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-for f in "$DOTFILES_DIR"/shell-sources/**/*.sh(.N); do
-  source "$f"
+# Load shell-sources from ZDOTDIR
+for f in "$ZDOTDIR"/shell-sources/**/*.sh(.N); do
+  [[ -f "$f" ]] && source "$f"
 done

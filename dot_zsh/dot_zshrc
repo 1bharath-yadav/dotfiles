@@ -22,28 +22,6 @@ for f in $ZDOTDIR/*.zsh; do
   [ -r "$f" ] && source "$f"
 done
 
-
-# ── Dotfiles cache loader ──────────────────────────────────────────────────
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-_DOTFILES_CACHE="$HOME/.zsh_dotfiles_cache"
-_CACHE_TTL=86400
-
-_load_dotfiles() {
-  local stale=1
-  if [[ -f "$_DOTFILES_CACHE" ]]; then
-    local ct; ct=$(stat -c %Y "$_DOTFILES_CACHE" 2>/dev/null || stat -f %m "$_DOTFILES_CACHE")
-    (( $(date +%s) - ct < _CACHE_TTL )) && stale=0
-  fi
-  if (( stale )); then
-    { echo "# dotfiles cache — $(date)"
-      for f in "$DOTFILES_DIR"/shell-sources/**/*.sh(.N); do
-        [[ -f "$f" ]] && { echo "# ── $f"; cat "$f"; echo; }
-      done
-    } > "$_DOTFILES_CACHE"
-  fi
-  source "$_DOTFILES_CACHE"
-}
-_load_dotfiles
 # load all init scripts from the old setup
 for f in "$ZDOTDIR"/init/*.zsh(.N); do
   [ -r "$f" ] && source "$f"
