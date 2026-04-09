@@ -36,7 +36,7 @@ _load_dotfiles() {
   fi
   if (( stale )); then
     { echo "# dotfiles cache — $(date)"
-      for f in "$DOTFILES_DIR"/shell-sources/**/*.sh; do
+      for f in "$DOTFILES_DIR"/shell-sources/**/*.sh(.N); do
         [[ -f "$f" ]] && { echo "# ── $f"; cat "$f"; echo; }
       done
     } > "$_DOTFILES_CACHE"
