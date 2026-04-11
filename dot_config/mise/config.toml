@@ -19,6 +19,8 @@ pnpm = "latest"
 # rust global clis
 "cargo:git-delta" = "latest"
 
+"github:rtk-ai/rtk" = "latest"
+
 [settings]
 experimental = true
 jobs = 4
