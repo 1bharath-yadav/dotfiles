@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-branch="$(git branch --show-current)"
-git status --short
-git push origin "$branch"

@@ -4,7 +4,8 @@
 
 PIDFILE="/tmp/whisper-hold.pid"
 WAVFILE="/tmp/whisper-hold.wav"
-MODEL="$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin"
+#MODEL="$HOME/linux/whisper_models/ggml-base-models/ggml-base.bin"
+MODEL = "/home/archer/linux/whisper_models/ggml-large-v3-turbo.bin"
 
 notify() { notify-send -t 2000 -i audio-input-microphone "Whisper" "$1"; }
 

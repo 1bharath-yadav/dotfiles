@@ -20,12 +20,6 @@ orphans=$(pacman -Qtdq 2>/dev/null)
 ask "Remove orphaned packages?" && sudo pacman -Rns $orphans --noconfirm
 
 # Docker
-command -v docker &>/dev/null && systemctl is-active docker &>/dev/null && \
-echo -e "\n$(docker system df 2>/dev/null)" && ask "Clean Docker?" && docker system prune -a --volumes -f
-
-# Podman
-command -v podman &>/dev/null && echo -e "\n$(podman system df 2>/dev/null)" && \
-ask "Clean Podman?" && podman system prune -a --volumes -f
 
 # User cache
 echo -e "\n[Cache: $(du -sh ~/.cache 2>/dev/null | awk '{print $1}')]"
