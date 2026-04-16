@@ -15,9 +15,7 @@ export PYTHONUNBUFFERED=1
 # uv tool installs land in ~/.local/bin (already in PATH via home.sessionPath / paths.sh)
 export UV_TOOL_BIN_DIR="$HOME/.local/bin"
 export UV_TORCH_BACKEND=auto
-if command -v python3 >/dev/null; then
-  python() { command python3 "$@"; }
-fi
+
 
 # ── uv project management ─────────────────────────────────────────────────────
 alias uvi='uv add'              # add dep to current project

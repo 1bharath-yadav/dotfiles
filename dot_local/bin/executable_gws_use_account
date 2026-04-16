@@ -1,0 +1,24 @@
+# ~/.zshrc
+export GWS_CONFIG_ROOT="$HOME/.config/gws"
+
+# Switch to a named account by changing GOOGLE_WORKSPACE_CLI_CONFIG_DIR
+gws-use-account() {
+  local account=$1
+  local config_dir="$GWS_CONFIG_ROOT-$account"
+
+  case "$account" in
+    work|personal)
+      if [[ ! -d "$config_dir" ]]; then
+        echo "⚠️  No config dir for $account; creating one..."
+        mkdir -p "$config_dir"
+      fi
+
+      export GOOGLE_WORKSPACE_CLI_CONFIG_DIR="$config_dir"
+      echo "✅ gws: using $account ($GOOGLE_WORKSPACE_CLI_CONFIG_DIR)"
+      ;;
+    *)
+      echo "Usage: gws-use-account work|personal"
+      return 1
+      ;;
+  esac
+}

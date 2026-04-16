@@ -50,7 +50,7 @@ git:
 
 os:
   editPreset: "nvim-remote"
-  shellFunctionsFile: "~/.dotfiles/shell-sources/aliases/git.sh"
+  shellFunctionsFile: "~/dotfiles/dot_zsh/shell-sources/aliases/git.sh"
 
 # ── Custom Commands ────────────────────────────────────────────────────────
 # AI commits (files panel):

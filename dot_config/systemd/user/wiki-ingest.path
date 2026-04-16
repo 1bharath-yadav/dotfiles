@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch for new files to ingest into LLM-Wiki
+Documentation=file:///home/archer/.nanobot/workspace/ai_workflow_optimisation.md
+
+[Path]
+# Watch the inbox directory for new added files
+PathModified=%h/Sync/obsidian_vault/til/inbox
+# Also trigger if the directory itself changes (files moved into it)
+PathChanged=%h/Sync/obsidian_vault/til/inbox
+
+[Install]
+WantedBy=default.target

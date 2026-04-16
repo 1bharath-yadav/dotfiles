@@ -1,0 +1,14 @@
+[Unit]
+Description=LLM-Wiki Ingest Agent Service
+After=network.target
+
+[Service]
+Type=oneshot
+# Execute the ingest bash script configured in dot_local/bin
+ExecStart=%h/.local/bin/wiki-ingest.sh
+
+# Provide the path to ensure tools like opencode, nanobot, git, and chezmoi are accessible 
+Environment="PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin:%h/.local/share/mise/shims"
+
+[Install]
+WantedBy=default.target

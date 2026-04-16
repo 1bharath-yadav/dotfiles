@@ -20,6 +20,7 @@ pnpm = "latest"
 "cargo:git-delta" = "latest"
 
 "github:rtk-ai/rtk" = "latest"
+"github:googleworkspace/cli" = { version = "latest", exe = "gws" }
 
 [settings]
 experimental = true
@@ -29,3 +30,4 @@ idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
 
 [settings.cargo]
 binstall = true
+
