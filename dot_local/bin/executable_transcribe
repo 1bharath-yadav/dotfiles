@@ -1,0 +1,578 @@
+#!/usr/bin/env python3
+"""
+transcribe — real-time dictation + batch file transcription
+
+Modes:
+  transcribe --mode start        # begin live dictation (types as you speak)
+  transcribe --mode stop         # stop dictation session
+  transcribe audio.wav           # batch → audio.txt (same dir)
+  transcribe audio.wav --save    # also writes to Obsidian inbox
+"""
+
+import argparse
+import os
+import re
+import signal
+import subprocess
+import sys
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from pathlib import Path
+from queue import Empty, PriorityQueue
+from typing import List, Optional, Tuple
+
+# ── paths ──────────────────────────────────────────────────────────────────────
+WHISPER_CLI = "whisper-cli"
+MODEL = "/home/archer/linux/whisper_models/ggml-large-v3-turbo.bin"
+VAD_MODEL = "/home/archer/linux/whisper_models/ggml-base-models/ggml-vad.bin"
+INBOX = Path("/home/archer/Sync/obsidian_vault/til/inbox/daily-journal_transcripts")
+CHUNK_DIR = Path("/tmp/whisper-rec-chunks")
+REC_PID = Path("/tmp/whisper-rec.pid")
+SESSION_LOG = Path("/tmp/whisper-session.txt")  # rolling append during dictation
+WTYPE_CMD = "wtype"
+
+# ── Quickshell HUD state ───────────────────────────────────────────────────────
+QS_STATE_DIR = Path.home() / ".cache" / "qs-dictation"
+QS_STATUS = QS_STATE_DIR / "status"
+QS_TEXT   = QS_STATE_DIR / "text"
+
+def _qs_write(status: str, text: str | None = None) -> None:
+    try:
+        QS_STATE_DIR.mkdir(parents=True, exist_ok=True)
+        QS_STATUS.write_text(status, encoding="utf-8")
+        if text is not None:
+            with QS_TEXT.open("a", encoding="utf-8") as f:
+                f.write(text + " ")
+    except Exception:
+        pass
+
+
+# ── config ─────────────────────────────────────────────────────────────────────
+@dataclass(frozen=True)
+class Config:
+    chunk_secs: int = 8  # smaller = lower latency dictation
+    overlap_secs: int = 1  # overlap between chunks for context
+    whisper_threads: int = 4
+    max_workers: int = 2  # parallel whisper processes
+    gpu: bool = True
+    vad: bool = True
+    lang: str = "en"
+    entropy_thold: float = 2.8
+    beam_size: int = 5
+    best_of: int = 5
+    vad_threshold: float = 0.5
+    vad_min_speech: int = 250
+    vad_min_silence: int = 200
+    vad_max_speech: float = 25.0
+    vad_pad_ms: int = 30
+    vad_overlap: float = 0.1
+    # batch chunking (larger chunks for better accuracy on files)
+    batch_chunk_secs: int = 30
+    batch_overlap: int = 3
+
+
+CFG = Config()
+
+
+# ── helpers ────────────────────────────────────────────────────────────────────
+def run_cmd(cmd: List[str]) -> str:
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        raise RuntimeError(r.stderr.strip())
+    return r.stdout.strip()
+
+
+def probe_duration(path: Path) -> float:
+    out = run_cmd(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ]
+    )
+    return float(out)
+
+
+def to_wav16k(src: Path) -> Tuple[Path, bool]:
+    """Ensure file is 16kHz mono WAV. Returns (path, was_converted)."""
+    if src.suffix.lower() == ".wav":
+        import wave
+
+        try:
+            with wave.open(str(src)) as w:
+                if w.getframerate() == 16000 and w.getnchannels() == 1:
+                    return src, False
+        except Exception:
+            pass
+    dst = src.with_suffix("._16k.wav")
+    run_cmd(["ffmpeg", "-y", "-i", str(src), "-ar", "16000", "-ac", "1", str(dst)])
+    return dst, True
+
+
+def normalize(text: str) -> str:
+    text = text.replace("\n", " ")
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def merge_overlap(left: str, right: str, window: int = 40) -> str:
+    """Deduplicate overlapping words between consecutive chunks."""
+    if not left:
+        return right
+    if not right:
+        return left
+    lw = left.split()
+    rw = right.split()
+    tail = [re.sub(r"[^a-z0-9]", "", w.lower()) for w in lw[-window:]]
+    head = [re.sub(r"[^a-z0-9]", "", w.lower()) for w in rw[:window]]
+    for k in range(min(len(tail), len(head)), 0, -1):
+        if tail[-k:] == head[:k]:
+            return " ".join(lw + rw[k:])
+    return " ".join(lw + rw)
+
+
+# ── wtype ──────────────────────────────────────────────────────────────────────
+def wtype(text: str) -> None:
+    if not text.strip():
+        return
+    # Use '--' to safely pass text and release modifiers just in case
+    cmd = [WTYPE_CMD, text + " "]
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        print(f"[wtype] failed: {result.stderr.decode()}", file=sys.stderr)
+
+
+# ── whisper ────────────────────────────────────────────────────────────────────
+def build_whisper_cmd(chunk: Path, cfg: Config) -> List[str]:
+    cmd = [
+        WHISPER_CLI,
+        "-m",
+        MODEL,
+        "-f",
+        str(chunk),
+        "-t",
+        str(cfg.whisper_threads),
+        "-l",
+        cfg.lang,
+        "-nt",
+        "-np",
+        "-otxt",
+        "-et",
+        str(cfg.entropy_thold),
+        "-bs",
+        str(cfg.beam_size),
+        "-bo",
+        str(cfg.best_of),
+    ]
+    if cfg.gpu:
+        cmd[1:1] = ["-oved", "GPU"]
+    if cfg.vad and Path(VAD_MODEL).exists():
+        cmd += [
+            "--vad",
+            "-vm",
+            VAD_MODEL,
+            "-vt",
+            str(cfg.vad_threshold),
+            "-vspd",
+            str(cfg.vad_min_speech),
+            "-vsd",
+            str(cfg.vad_min_silence),
+            "-vmsd",
+            str(cfg.vad_max_speech),
+            "-vp",
+            str(cfg.vad_pad_ms),
+            "-vo",
+            str(cfg.vad_overlap),
+        ]
+    return cmd
+
+
+def transcribe_chunk(
+    idx: int, chunk: Path, cfg: Config
+) -> Tuple[int, str, Optional[str]]:
+    """Returns (index, text, error_or_None)."""
+    txt = Path(str(chunk) + ".txt")
+    try:
+        run_cmd(build_whisper_cmd(chunk, cfg))
+        text = txt.read_text(encoding="utf-8").strip() if txt.exists() else ""
+        txt.unlink(missing_ok=True)
+        print(f"  [chunk {idx:03d}] ✓  {len(text.split())} words", flush=True)
+        return idx, normalize(text), None
+    except Exception as e:
+        txt.unlink(missing_ok=True)
+        print(f"  [chunk {idx:03d}] ✗  {e}", file=sys.stderr, flush=True)
+        return idx, "", str(e)
+
+
+# ── batch helpers ──────────────────────────────────────────────────────────────
+def split_wav(wav: Path, chunk_dir: Path, duration: float, cfg: Config) -> List[Path]:
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+    step = cfg.batch_chunk_secs - cfg.batch_overlap
+    paths: List[Path] = []
+    start = 0.0
+    idx = 0
+    while start < duration:
+        length = min(cfg.batch_chunk_secs, duration - start)
+        if length < 0.5:
+            break
+        out = chunk_dir / f"chunk_{idx:04d}.wav"
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-ss",
+                f"{start:.3f}",
+                "-t",
+                f"{length:.3f}",
+                "-i",
+                str(wav),
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                str(out),
+            ],
+            capture_output=True,
+            check=True,
+        )
+        paths.append(out)
+        idx += 1
+        start += step
+    return paths
+
+
+def batch_transcribe(wav: Path, cfg: Config) -> str:
+    """Transcribe a complete file, return merged text."""
+    duration = probe_duration(wav)
+    print(f"[batch] {wav.name}  {duration:.1f}s")
+
+    if duration <= cfg.batch_chunk_secs:
+        chunks, chunk_dir = [wav], None
+    else:
+        chunk_dir = wav.parent / f".chunks_{wav.stem}"
+        chunks = split_wav(wav, chunk_dir, duration, cfg)
+        print(
+            f"[batch] {len(chunks)} chunks × {cfg.batch_chunk_secs}s  workers={cfg.max_workers}"
+        )
+
+    results: dict[int, str] = {}
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    with ThreadPoolExecutor(max_workers=cfg.max_workers) as pool:
+        futures = {
+            pool.submit(transcribe_chunk, i, c, cfg): i for i, c in enumerate(chunks)
+        }
+        for f in as_completed(futures):
+            idx, text, _ = f.result()
+            if text:
+                results[idx] = text
+
+    transcript = ""
+    for i in sorted(results):
+        transcript = merge_overlap(transcript, results[i])
+
+    if chunk_dir and chunk_dir.exists():
+        for p in chunk_dir.glob("*.wav"):
+            p.unlink(missing_ok=True)
+        try:
+            chunk_dir.rmdir()
+        except OSError:
+            pass
+
+    return normalize(transcript)
+
+
+# ── REAL-TIME DICTATION ────────────────────────────────────────────────────────
+#
+# Architecture:
+#   pw-record stdout pipe
+#       → ffmpeg segment muxer  (writes chunk_NNNN.wav every N seconds)
+#       → watcher thread        (polls for new completed chunk files)
+#       → ThreadPoolExecutor    (whisper per chunk, parallel)
+#       → writer thread         (priority-queue ordered merge + wtype + append session file)
+#
+def _segment_recorder(cfg: Config) -> subprocess.Popen:
+    """
+    pw-record | ffmpeg segment muxer → /tmp/whisper-rec-chunks/chunk_%04d.wav
+    Each segment is exactly cfg.chunk_secs seconds.
+    """
+    CHUNK_DIR.mkdir(parents=True, exist_ok=True)
+    # clear old chunks
+    for p in CHUNK_DIR.glob("chunk_*.wav"):
+        p.unlink(missing_ok=True)
+
+    pw = subprocess.Popen(
+        ["pw-record", "--format=s16", "--rate=16000", "--channels=1", "-"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    ffmpeg = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "s16le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            "-i",
+            "pipe:0",
+            "-f",
+            "segment",
+            "-segment_time",
+            str(cfg.chunk_secs),
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            str(CHUNK_DIR / "chunk_%04d.wav"),
+        ],
+        stdin=pw.stdout,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    pw.stdout.close()  # let ffmpeg own the pipe
+    return pw, ffmpeg
+
+
+def _watcher_thread(
+    stop_event: threading.Event, task_queue: PriorityQueue, cfg: Config
+):
+    """Poll CHUNK_DIR for new completed chunk files and enqueue them."""
+    seen: set = set()
+    idx = 0
+    while not stop_event.is_set():
+        chunks = sorted(CHUNK_DIR.glob("chunk_*.wav"))
+        # A chunk is "complete" when the NEXT one exists, or recording stopped
+        for i, path in enumerate(chunks):
+            if path.name in seen:
+                continue
+            is_last = i == len(chunks) - 1
+            if not is_last or stop_event.is_set():
+                seen.add(path.name)
+                task_queue.put((idx, path))
+                idx += 1
+        time.sleep(0.5)
+
+    # flush remaining chunks after stop
+    time.sleep(1.0)
+    for path in sorted(CHUNK_DIR.glob("chunk_*.wav")):
+        if path.name not in seen:
+            task_queue.put((idx, path))
+            idx += 1
+
+
+def _writer_thread(
+    stop_event: threading.Event,
+    result_queue: PriorityQueue,
+    session_file: Path,
+    do_wtype: bool,
+):
+    """Consume ordered results: merge → wtype delta → append to session file."""
+    transcript = ""
+    typed_len = 0
+    expected = 0
+    pending: dict = {}
+
+    while not stop_event.is_set() or not result_queue.empty():
+        try:
+            idx, text = result_queue.get(timeout=0.3)
+        except Empty:
+            continue
+
+        pending[idx] = text
+
+        # flush contiguous from expected
+        while expected in pending:
+            chunk_text = pending.pop(expected)
+            if chunk_text:
+                transcript = merge_overlap(transcript, chunk_text)
+                delta = transcript[typed_len:].lstrip()
+                if delta:
+                    if do_wtype:
+                        wtype(delta)
+                    # append to rolling session file
+                    with open(session_file, "a", encoding="utf-8") as f:
+                        f.write(delta + " ")
+                    # stream to QS HUD
+                    _qs_write("recording", delta)
+                typed_len = len(transcript)
+            expected += 1
+
+
+def start_dictation(cfg: Config = CFG, save: bool = False) -> None:
+    if REC_PID.exists():
+        print("[dictation] already running — stop first", file=sys.stderr)
+        sys.exit(1)
+
+    SESSION_LOG.write_text("")  # clear session
+    QS_TEXT.write_text("", encoding="utf-8")  # clear live text
+    _qs_write("recording")
+    print(f"[dictation] starting  chunk={cfg.chunk_secs}s  workers={cfg.max_workers}")
+    print(f"[dictation] session log → {SESSION_LOG}")
+    print("[dictation] speak now…  (stop with: transcribe --mode stop)\n")
+
+    pw_proc, ff_proc = _segment_recorder(cfg)
+
+    # save both PIDs so stop can kill them
+    REC_PID.write_text(f"{pw_proc.pid},{ff_proc.pid}")
+
+    stop_event = threading.Event()
+    task_queue: PriorityQueue = PriorityQueue()
+    result_queue: PriorityQueue = PriorityQueue()
+
+    def worker_loop():
+        with ThreadPoolExecutor(max_workers=cfg.max_workers) as pool:
+            pending_futures = {}
+            while not stop_event.is_set() or not task_queue.empty():
+                try:
+                    idx, path = task_queue.get(timeout=0.3)
+                except Empty:
+                    # collect finished futures
+                    done = [f for f in list(pending_futures) if f.done()]
+                    for f in done:
+                        i, text, _ = f.result()
+                        result_queue.put((i, text))
+                        del pending_futures[f]
+                    continue
+                f = pool.submit(transcribe_chunk, idx, path, cfg)
+                pending_futures[f] = idx
+            # drain remaining
+            for f, i in pending_futures.items():
+                idx2, text, _ = f.result()
+                result_queue.put((idx2, text))
+
+    watcher = threading.Thread(
+        target=_watcher_thread, args=(stop_event, task_queue, cfg), daemon=True
+    )
+    worker = threading.Thread(target=worker_loop, daemon=True)
+    writer = threading.Thread(
+        target=_writer_thread,
+        args=(stop_event, result_queue, SESSION_LOG, True),
+        daemon=True,
+    )
+
+    watcher.start()
+    worker.start()
+    writer.start()
+
+    # keep main thread alive, forward SIGTERM/SIGINT to children
+    def _handle_sig(sig, _):
+        print("\n[dictation] interrupted — stopping…")
+        stop_dictation()
+
+    signal.signal(signal.SIGINT, _handle_sig)
+    signal.signal(signal.SIGTERM, _handle_sig)
+
+    # block until user stops
+    pw_proc.wait()
+    stop_event.set()
+    worker.join(timeout=60)
+    writer.join(timeout=10)
+
+    _qs_write("idle")  # HUD fades out
+    final = SESSION_LOG.read_text(encoding="utf-8").strip()
+    print(f"\n[dictation] session complete — {len(final.split())} words")
+
+    if save and final:
+        INBOX.mkdir(parents=True, exist_ok=True)
+        out = INBOX / f"journel_{int(time.time())}.txt"
+        out.write_text(final + "\n", encoding="utf-8")
+        print(f"[dictation] saved → {out}")
+
+
+def stop_dictation() -> None:
+    if not REC_PID.exists():
+        print("[dictation] nothing running")
+        return
+    pids = REC_PID.read_text().strip().split(",")
+    for pid_str in pids:
+        try:
+            os.kill(int(pid_str), signal.SIGTERM)
+        except (ProcessLookupError, ValueError):
+            pass
+    REC_PID.unlink(missing_ok=True)
+    print("[dictation] stopped")
+
+
+# ── batch mode ─────────────────────────────────────────────────────────────────
+def batch_mode(src: Path, force: bool = False, save: bool = False) -> None:
+    if not src.exists():
+        print(f"[batch] not found: {src}", file=sys.stderr)
+        sys.exit(1)
+
+    out_txt = src.with_suffix(".txt")  # test.wav → test.txt (same directory)
+    if not save and out_txt.exists() and not force:
+        print(f"[batch] already exists (--force to overwrite): {out_txt}")
+        sys.exit(0)
+
+    wav, converted = to_wav16k(src)
+    try:
+        text = batch_transcribe(wav, CFG)
+    finally:
+        if converted:
+            wav.unlink(missing_ok=True)
+
+    if save and text:
+        INBOX.mkdir(parents=True, exist_ok=True)
+        inbox_out = INBOX / f"{src.stem}_transcript.txt"
+        inbox_out.write_text(text + "\n", encoding="utf-8")
+        print(f"[batch] inbox → {inbox_out} ({len(text.split())} words)")
+    else:
+        out_txt.write_text(text + "\n", encoding="utf-8")
+        print(f"[batch] saved → {out_txt}  ({len(text.split())} words)")
+
+
+# ── main ───────────────────────────────────────────────────────────────────────
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description="Real-time dictation + batch transcription via whisper-cli",
+        epilog="""
+Examples:
+  transcribe --mode start              # live dictation → types at cursor
+  transcribe --mode stop               # stop dictation
+  transcribe audio.wav                 # batch → audio.txt (same dir)
+  transcribe audio.wav --force         # overwrite existing
+  transcribe audio.wav --save          # also save to Obsidian inbox
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument("file", nargs="?", help="Audio/video file for batch mode")
+    ap.add_argument(
+        "--mode", choices=["start", "stop", "toggle"], help="Dictation mode"
+    )
+    ap.add_argument("--force", action="store_true", help="Overwrite existing .txt")
+    ap.add_argument("--save", action="store_true", help="Also save to Obsidian inbox")
+    args = ap.parse_args()
+
+    if args.mode == "toggle":
+        if REC_PID.exists():
+            stop_dictation()
+        else:
+            start_dictation(CFG, save=args.save)
+
+    elif args.mode == "start":
+        start_dictation(CFG, save=args.save)
+
+    elif args.mode == "stop":
+        stop_dictation()
+
+    elif args.file:
+        batch_mode(
+            Path(args.file).expanduser().resolve(), force=args.force, save=args.save
+        )
+
+    else:
+        ap.print_help()
+
+
+if __name__ == "__main__":
+    main()
+
