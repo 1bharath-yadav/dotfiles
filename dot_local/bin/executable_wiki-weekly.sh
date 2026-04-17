@@ -20,4 +20,4 @@ rm "$TEMP_FILE"
 echo "## [$(date '+%Y-%m-%d %H:%M')] ingest | Generated Weekly Synthesis for $WEEK_STR" >> "$VAULT/wiki/log.md"
 
 # Commit
-bash /home/archer/dotfiles/dot_local/bin/executable_wiki-commit.sh "Weekly Synthesis Rollup: $WEEK_STR"
+bash /home/archer/.local/bin/wiki-commit.sh "Weekly Synthesis Rollup: $WEEK_STR"
