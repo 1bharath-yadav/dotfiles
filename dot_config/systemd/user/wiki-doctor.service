@@ -1,14 +1,10 @@
 [Unit]
-Description=LLM-Wiki Ingest Agent Service
+Description=Wiki Link Doctor and Graph Validator
 After=network.target
 
 [Service]
 Type=oneshot
 WorkingDirectory=/home/archer/projects/externel/llm-wiki-agent
 ExecStart=/home/archer/projects/externel/llm-wiki-agent/.venv/bin/python \
-          /home/archer/projects/externel/llm-wiki-agent/tools/ingest.py \
-          /home/archer/Sync/obsidian_vault/til/inbox
+          /home/archer/projects/externel/llm-wiki-agent/tools/lint.py --save
 Environment="PATH=/home/archer/.local/bin:/usr/local/bin:/usr/bin:/bin"
-
-[Install]
-WantedBy=default.target
