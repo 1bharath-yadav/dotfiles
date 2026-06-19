@@ -1,12 +1,14 @@
 [Unit]
-Description=Watch for new files to ingest into LLM-Wiki
+Description=Watch inbox markdown files for LLM-Wiki ingest
 Documentation=file:///home/archer/.nanobot/workspace/ai_workflow_optimisation.md
 
 [Path]
-# Watch the inbox directory for new added files
-PathModified=%h/Sync/obsidian_vault/til/inbox
-# Also trigger if the directory itself changes (files moved into it)
-PathChanged=%h/Sync/obsidian_vault/til/inbox
+# Trigger when new markdown files appear in the inbox queue.
+# Keep a few depth levels to cover common folder structures.
+PathExistsGlob=%h/Sync/obsidian_vault/til/inbox/*.md
+PathExistsGlob=%h/Sync/obsidian_vault/til/inbox/*/*.md
+PathExistsGlob=%h/Sync/obsidian_vault/til/inbox/*/*/*.md
+Unit=wiki-ingest.service
 
 [Install]
 WantedBy=default.target

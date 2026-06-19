@@ -50,7 +50,7 @@ sync_end4dots() {
   git push origin archer -q 2>/dev/null || true
   $stashed && git stash pop -q || true
 
-  "$END4DOTS/setup" install
+  "$END4DOTS/setup" exp-update
 
   local hconf="$HOME/.config/hypr/hyprland.conf"
   if [[ -f "$hconf" ]] && ! grep -q "source=custom/env.conf" "$hconf"; then

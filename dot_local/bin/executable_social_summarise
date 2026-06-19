@@ -1,0 +1,580 @@
+#!/usr/bin/env python3
+"""
+social_summary.py
+
+Flow:
+  1. Fetch raw data → save social_data/fetch_TIMESTAMP.json
+  2. Swap model
+  3. Run nanobot agent → agent writes to Obsidian/latest.md
+  4. Revert model
+  5. Send latest.md to Telegram (plain text, no parse_mode)
+  6. Rename latest.md → timestamped file
+
+Usage:
+  python social_summary.py
+"""
+
+import argparse
+import glob
+import html
+import json
+import os
+import re
+import subprocess
+import tomllib
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+from pathlib import Path
+
+# ── CONFIG ────────────────────────────────────────────────────────────────────
+ZEROCLAW_CONFIG = Path.home() / ".zeroclaw" / "config.toml"
+USER_MD = Path.home() / ".zeroclaw" / "workspace" / "USER.md"
+SOCIAL_DATA_DIR = Path.home() / ".zeroclaw" / "workspace" / "social_data"
+OBSIDIAN_DIR = Path("/home/archer/Sync/obsidian_vault/til/raw/social_summaries")
+
+LOOKBACK_HOURS = 24
+
+ARXIV_FEEDS = ["cs.LG", "stat.ML", "cs.AI", "quant-ph", "cs.DS"]
+HN_MIN_SCORE = 100
+HN_KEYWORDS = [
+    "llm",
+    "ai",
+    "machine learning",
+    "linux",
+    "arch",
+    "nix",
+    "python",
+    "data science",
+    "gate",
+    "physics",
+    "quantum",
+    "meditation",
+    "vedanta",
+    "ancient",
+    "consciousness",
+    "open source",
+    "self-hosted",
+    "agent",
+]
+
+OBSIDIAN_DIR.mkdir(parents=True, exist_ok=True)
+SOCIAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# ── HELPERS ───────────────────────────────────────────────────────────────────
+def cutoff_ts():
+    return (datetime.now() - timedelta(hours=LOOKBACK_HOURS)).timestamp()
+
+
+def yesterday_gws():
+    return (datetime.now() - timedelta(hours=LOOKBACK_HOURS)).strftime("%Y/%m/%d")
+
+
+def http_get(url, headers=None, timeout=12):
+    req = urllib.request.Request(url, headers=headers or {})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read()
+
+
+def clean(s, n=200):
+    return re.sub(r"\s+", " ", str(s or "")).strip()[:n]
+
+
+def stable_id(source, title):
+    x = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40]
+    return f"{source}:{x}"
+
+
+# ── FETCHERS ──────────────────────────────────────────────────────────────────
+
+
+def fetch_gmail():
+    print("  gmail...", end=" ", flush=True)
+    query = f"is:unread after:{yesterday_gws()}"
+    r = subprocess.run(
+        [
+            "gws",
+            "gmail",
+            "users",
+            "messages",
+            "list",
+            "--params",
+            json.dumps({"userId": "me", "q": query, "maxResults": 25}),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if r.returncode != 0:
+        print("failed")
+        return []
+    try:
+        messages = json.loads(r.stdout).get("messages", [])
+    except Exception:
+        print("parse error")
+        return []
+    if not messages:
+        print("0 unread")
+        return []
+    items = []
+    for msg in messages[:25]:
+        gr = subprocess.run(
+            [
+                "gws",
+                "gmail",
+                "users",
+                "messages",
+                "get",
+                "--params",
+                json.dumps(
+                    {
+                        "userId": "me",
+                        "id": msg["id"],
+                        "format": "metadata",
+                        "metadataHeaders": ["From", "Subject"],
+                    }
+                ),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if gr.returncode != 0:
+            continue
+        try:
+            m = json.loads(gr.stdout)
+            h = {x["name"]: x["value"] for x in m.get("payload", {}).get("headers", [])}
+            title = clean(h.get("Subject", "(no subject)"), 100)
+            sender = clean(h.get("From", "?"), 60)
+            snippet = clean(m.get("snippet", ""), 140)
+            items.append(
+                {
+                    "id": stable_id("gmail", title + sender),
+                    "source": "gmail",
+                    "title": title,
+                    "meta": sender,
+                    "snippet": snippet,
+                    "url": f"https://mail.google.com/mail/u/0/#inbox/{msg['id']}",
+                }
+            )
+        except Exception:
+            continue
+    print(f"{len(items)} emails")
+    return items
+
+
+def fetch_telegram():
+    print("  telegram...", end=" ", flush=True)
+    try:
+        with open(ZEROCLAW_CONFIG, "rb") as f:
+            cfg = tomllib.load(f)
+        token = cfg["channels_config"]["telegram"]["bot_token"]
+    except Exception as e:
+        print(f"no token: {e}")
+        return []
+    try:
+        data = json.loads(
+            http_get(
+                f"https://api.telegram.org/bot{token}/getUpdates?limit=100&timeout=0"
+            )
+        )
+    except Exception as e:
+        print(f"failed: {e}")
+        return []
+    cutoff = cutoff_ts()
+    items = []
+    for u in data.get("result", []):
+        msg = u.get("message") or u.get("channel_post")
+        if not msg or msg.get("date", 0) < cutoff:
+            continue
+        chat = msg.get("chat", {})
+        name = (
+            chat.get("title") or chat.get("username") or chat.get("first_name") or "?"
+        )
+        text = clean(msg.get("text") or msg.get("caption") or "[media]", 180)
+        items.append(
+            {
+                "id": stable_id("telegram", f"{name}{text}"),
+                "source": "telegram",
+                "title": f"[{name}] {text}",
+                "meta": name,
+                "snippet": text,
+                "url": None,
+            }
+        )
+    print(f"{len(items)} messages")
+    return items
+
+
+def fetch_hn():
+    print("  hackernews...", end=" ", flush=True)
+    try:
+        since = int(cutoff_ts())
+        url = (
+            f"https://hn.algolia.com/api/v1/search?tags=story"
+            f"&numericFilters=created_at_i>{since},points>{HN_MIN_SCORE}"
+            f"&hitsPerPage=50"
+        )
+        hits = json.loads(http_get(url)).get("hits", [])
+    except Exception as e:
+        print(f"failed: {e}")
+        return []
+    kw = [k.lower() for k in HN_KEYWORDS]
+    scored = []
+    for h in hits:
+        title = clean(h.get("title", ""), 140)
+        if not title:
+            continue
+        points = h.get("points", 0)
+        cmts = h.get("num_comments", 0)
+        post_url = (
+            h.get("url") or f"https://news.ycombinator.com/item?id={h.get('objectID')}"
+        )
+        boost = 2 if any(k in title.lower() for k in kw) else 1
+        scored.append((points * boost, points, cmts, title, post_url))
+    scored.sort(reverse=True)
+    items = []
+    for _, pts, cmts, title, post_url in scored[:15]:
+        items.append(
+            {
+                "id": stable_id("hn", title),
+                "source": "hackernews",
+                "title": title,
+                "meta": f"{pts}pts {cmts}cmts",
+                "snippet": title,
+                "url": post_url,
+            }
+        )
+    print(f"{len(items)} posts")
+    return items
+
+
+def fetch_arxiv():
+    print("  arxiv...", end=" ", flush=True)
+    all_items = []
+    for cat in ARXIV_FEEDS:
+        try:
+            raw = http_get(
+                f"https://rss.arxiv.org/rss/{cat}",
+                headers={"User-Agent": "social_summary/1.0"},
+            )
+            root = ET.fromstring(raw)
+            for item in root.findall(".//item"):
+                title = clean(item.findtext("title") or "", 160)
+                if not title:
+                    continue
+                desc = clean(
+                    re.sub(r"<[^>]+>", "", item.findtext("description") or ""), 180
+                )
+                link = item.findtext("link") or ""
+                all_items.append(
+                    {
+                        "id": stable_id("arxiv", title),
+                        "source": "arxiv",
+                        "title": title,
+                        "meta": cat,
+                        "snippet": desc,
+                        "url": link,
+                    }
+                )
+        except Exception:
+            continue
+    seen, dedup = set(), []
+    for x in all_items:
+        k = x["title"].lower()
+        if k not in seen:
+            seen.add(k)
+            dedup.append(x)
+    print(f"{len(dedup)} papers")
+    return dedup[:30]
+
+
+# ── PHASE 1: FETCH ────────────────────────────────────────────────────────────
+
+
+def run_fetch(args):
+    run_all = not any([args.gmail, args.telegram, args.hackernews, args.arxiv])
+    print(f"[fetch] {datetime.now().strftime('%a %d %b %Y %H:%M')}")
+    items = []
+    if args.gmail or run_all:
+        items.extend(fetch_gmail())
+    if args.telegram or run_all:
+        items.extend(fetch_telegram())
+    if args.hackernews or run_all:
+        items.extend(fetch_hn())
+    if args.arxiv or run_all:
+        items.extend(fetch_arxiv())
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = SOCIAL_DATA_DIR / f"fetch_{ts}.json"
+    path.write_text(json.dumps(items, indent=2, ensure_ascii=False))
+    print(f"saved {len(items)} items -> {path}")
+    return str(path)
+
+
+# ── PHASE 2: nanobot agent writes latest.md ──────────────────────────────────
+PROMPT_TEMPLATE = """\
+Your task: Summarize today's social data and write the final digest.
+
+IMPORTANT:
+- Output MUST be Telegram HTML format (NOT markdown)
+- Use ONLY supported HTML tags: <b>, <i>, <a>, <code>, <pre>
+- DO NOT use markdown symbols like **, -, #, etc.
+- Keep output clean and readable in Telegram
+
+Instructions:
+- Read social data JSON and USER.MD profile
+- Filter only genuinely important items relevant to user interests
+- Keep it concise and high signal
+- After generating the digest, save it exactly to:
+  /home/archer/Sync/obsidian_vault/til/raw/social_summaries/latest.md
+- After saving, say exactly: Summary saved to latest.md
+
+Format (STRICT):
+
+<b>DAILY DIGEST — {date}</b>
+
+────────────
+
+<b>MAIL</b> <i>{{N}} relevant</i>
+• <b>{{Subject}}</b>
+  <i>{{Sender Name}}</i> · {{gmail_url}}
+  {{What matters / action needed}}
+
+• <b>{{Subject}}</b>
+  <i>{{Sender Name}}</i> · {{gmail_url}}
+  {{What matters / action needed}}
+
+<b>TELEGRAM</b> <i>{{N}} chats</i>
+• <b>{{Chat/Channel name}}</b>
+  {{Important update in one line}}
+
+• <b>{{Chat/Channel name}}</b>
+  {{Important update in one line}}
+
+<b>HACKER NEWS</b> <i>top {{N}}</i>
+• <a href="{{post_url}}">{{Post title}}</a>
+  <i>{{pts}} points</i> · {{Why it matters}}
+
+• <a href="{{post_url}}">{{Post title}}</a>
+  <i>{{pts}} points</i> · {{Why it matters}}
+
+<b>ARXIV</b> <i>{{N}} papers</i>
+• <a href="{{paper_url}}">{{Paper title}}</a>
+  <i>{{category}}</i> · {{Key takeaway}}
+
+• <a href="{{paper_url}}">{{Paper title}}</a>
+  <i>{{category}}</i> · {{Key takeaway}}
+
+────────────
+<i>social-digest</i>
+
+Rules:
+- Use • for bullets (plain unicode bullet, not HTML list)
+- Max 1–2 lines per item
+- Skip promos, newsletters, automated noise unless urgent
+- Only include items relevant to:
+  AI/ML, data science, Linux, quantum physics, GATE prep, meditation, vedanta, ancient texts, consciousness, open source tools
+- Omit any empty section completely
+- All links MUST use <a href="...">text</a>
+- Escape any unsafe HTML characters if needed
+
+[USER PROFILE / USER.MD]
+{user_md}
+
+[SOCIAL DATA]
+{social_data}
+"""
+
+
+def run_agent(fetch_path):
+    date_str = datetime.now().strftime("%a %d %b %Y %H:%M")
+    with open(fetch_path) as f:
+        social_data = f.read()
+
+    user_md = USER_MD.read_text() if USER_MD.exists() else "(no USER.md)"
+
+    prompt = PROMPT_TEMPLATE.format(
+        date=date_str,
+        user_md=user_md,
+        social_data=social_data,
+    )
+
+    print("[agent] running zeroclaw agent...")
+    subprocess.run(["zeroclaw", "agent", "--provider", "github-copilot", "-m", prompt], timeout=300)
+
+    latest_md = OBSIDIAN_DIR / "latest.md"
+    if latest_md.exists():
+        print(f"[agent] found latest.md: {latest_md}")
+        return latest_md
+    else:
+        print("[agent] ERROR: latest.md not created")
+        return None
+
+
+# ── PHASE 3: Send latest.md to Telegram (plain text), then rename ─────────────
+
+import html
+import json
+import re
+import urllib.parse
+import urllib.request
+from datetime import datetime
+
+MAX_LEN = 4000
+
+# Allowed Telegram tags
+ALLOWED_TAGS = ["b", "i", "a", "code"]
+
+
+def sanitize_html(text: str) -> str:
+    """
+    Proper Telegram-safe sanitizer:
+    - preserves <b>, <i>, <code>, <a href="..."> and </a>
+    - escapes everything else
+    """
+
+    placeholders = []
+
+    # FIXED regex (handles closing </a>)
+    pattern = r'</?(?:b|i|code|a)(?: href="[^"]+")?>'
+
+    def replace_tag(match):
+        placeholders.append(match.group(0))
+        return f"__TAG_{len(placeholders)-1}__"
+
+    text = re.sub(pattern, replace_tag, text)
+
+    text = html.escape(text)
+
+    for i, tag in enumerate(placeholders):
+        text = text.replace(f"__TAG_{i}__", tag)
+
+    return text
+
+
+def safe_chunk_html(text: str, max_len=4000):
+    chunks = []
+
+    while text:
+        if len(text) <= max_len:
+            chunks.append(text)
+            break
+
+        split = text[:max_len]
+
+        # 🔥 HARD FIX: avoid breaking inside tags
+        last_close = split.rfind(">")
+        last_open = split.rfind("<")
+
+        if last_open > last_close:
+            split = split[:last_open]
+
+        # 🔥 ALSO avoid breaking inside entities like &lt;
+        last_amp = split.rfind("&")
+        last_semicolon = split.rfind(";")
+        if last_amp > last_semicolon:
+            split = split[:last_amp]
+
+        chunks.append(split)
+        text = text[len(split) :]
+
+    return chunks
+
+
+def send_and_rename():
+    latest_md = OBSIDIAN_DIR / "latest.md"
+    if not latest_md.exists():
+        print("[telegram] latest.md not found")
+        return False
+
+    with open(latest_md, encoding="utf-8") as f:
+        raw_text = f.read().strip()
+
+    if not raw_text:
+        print("[telegram] empty file")
+        return False
+
+    # ✅ SANITIZE HTML (key step)
+    safe_text = sanitize_html(raw_text)
+
+    # Load config
+    try:
+        with open(ZEROCLAW_CONFIG, "rb") as f:
+            cfg = tomllib.load(f)
+        token = cfg["channels_config"]["telegram"]["bot_token"]
+        chat_id = str(cfg["channels_config"]["telegram"]["allowed_users"][0])
+    except Exception as e:
+        print(f"[telegram] config error: {e}")
+        return False
+
+    # ✅ SAFE CHUNKING (no broken tags)
+    chunks = safe_chunk_html(safe_text)
+
+    for i, chunk in enumerate(chunks):
+        data = urllib.parse.urlencode(
+            {
+                "chat_id": chat_id,
+                "text": chunk,
+                "parse_mode": "HTML",
+                "disable_web_page_preview": False,
+            }
+        ).encode()
+
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                resp = json.loads(r.read())
+                if not resp.get("ok"):
+                    print(f"[telegram] chunk {i+1} failed: {resp}")
+                    return False
+        except Exception as e:
+            print(f"[telegram] chunk {i+1} error: {e}")
+            return False
+
+    print(f"[telegram] sent ({len(chunks)} chunks)")
+
+    # Rename
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    new_name = OBSIDIAN_DIR / f"today-summary_{ts}.md"
+    latest_md.rename(new_name)
+    print(f"[rename] latest.md -> {new_name}")
+
+    return True
+
+
+# ── MAIN ──────────────────────────────────────────────────────────────────────
+
+
+def main():
+    p = argparse.ArgumentParser(description="Personal social media digest")
+    p.add_argument("--gmail", action="store_true")
+    p.add_argument("--telegram", action="store_true")
+    p.add_argument("--hackernews", action="store_true")
+    p.add_argument("--arxiv", action="store_true")
+    p.add_argument("--fetch-only", action="store_true")
+    p.add_argument("--no-send", action="store_true")
+    args = p.parse_args()
+
+    fetch_path = run_fetch(args)
+    if args.fetch_only:
+        return
+
+    run_agent(fetch_path)
+
+    if not args.no_send:
+        send_and_rename()
+    else:
+        latest_md = OBSIDIAN_DIR / "latest.md"
+        if latest_md.exists():
+            print(f"[no-send] latest.md created: {latest_md}")
+
+
+if __name__ == "__main__":
+    main()

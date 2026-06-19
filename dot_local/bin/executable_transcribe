@@ -25,7 +25,7 @@ from typing import List, Optional, Tuple
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 WHISPER_CLI = "whisper-cli"
-MODEL = "/home/archer/linux/whisper_models/ggml-large-v3-turbo.bin"
+MODEL = "/home/archer/linux/whisper_models/ggml-large-v3-turbo-q8_0.bin"
 VAD_MODEL = "/home/archer/linux/whisper_models/ggml-base-models/ggml-vad.bin"
 INBOX = Path("/home/archer/Sync/obsidian_vault/til/inbox/daily-journal_transcripts")
 CHUNK_DIR = Path("/tmp/whisper-rec-chunks")
@@ -36,7 +36,8 @@ WTYPE_CMD = "wtype"
 # ── Quickshell HUD state ───────────────────────────────────────────────────────
 QS_STATE_DIR = Path.home() / ".cache" / "qs-dictation"
 QS_STATUS = QS_STATE_DIR / "status"
-QS_TEXT   = QS_STATE_DIR / "text"
+QS_TEXT = QS_STATE_DIR / "text"
+
 
 def _qs_write(status: str, text: str | None = None) -> None:
     try:
@@ -575,4 +576,3 @@ Examples:
 
 if __name__ == "__main__":
     main()
-

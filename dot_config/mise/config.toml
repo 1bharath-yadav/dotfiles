@@ -1,26 +1,23 @@
 [tools]
 # runtimes
 node = "22"
-python = "3.12"
 rust = "stable"
-uv = "latest"
 pnpm = "latest"
 
 # js / ts global clis
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
-"npm:@letta-ai/letta-code" = "latest"
 
 # python global clis
 # "uv:aider-chat" = "latest"
 # "uv:edge-tts" = "latest"
 # "uv:huggingface-hub" = "latest"
-#
-# rust global clis
-"cargo:git-delta" = "latest"
 
+# rust global clis
+
+# GitHub‑provided binaries (no compilation)
 "github:rtk-ai/rtk" = "latest"
-"github:googleworkspace/cli" = { version = "latest", exe = "gws" }
+"github:zeroclaw-labs/zeroclaw" = "latest"
 
 [settings]
 experimental = true
@@ -30,4 +27,3 @@ idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
 
 [settings.cargo]
 binstall = true
-

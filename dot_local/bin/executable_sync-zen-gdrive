@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOCAL="/home/archer/zen_spaces"
+REMOTE="gdrive:zen_spaces"
+FILTER="/home/archer/.config/rclone/zen_spaces.filter"
+WORKDIR="/home/archer/.cache/rclone/bisync-zen_spaces"
+LOCAL_BACKUP="/home/archer/.rclone-bisync-backups/zen_spaces-local/$(date +%F)"
+REMOTE_BACKUP="gdrive:rclone-bisync-backups/zen_spaces-remote/$(date +%F)"
+LOGDIR="/home/archer/.local/state/rclone"
+mkdir -p "$WORKDIR" "$LOGDIR" "$(dirname "$LOCAL_BACKUP")"
+
+COMMON=(
+  "$LOCAL"
+  "$REMOTE"
+  --filters-file "$FILTER"
+  --workdir "$WORKDIR"
+  --backup-dir1 "$LOCAL_BACKUP"
+  --backup-dir2 "$REMOTE_BACKUP"
+  --resilient
+  --recover
+  --conflict-resolve newer
+  --conflict-loser pathname
+  --create-empty-src-dirs
+  --compare size,modtime
+  --modify-window 2s
+  --transfers 4
+  --checkers 8
+  --fast-list
+  --progress
+  --log-file "$LOGDIR/zen_spaces-bisync.log"
+  --log-level INFO
+)
+
+case "${1:-run}" in
+  init-dry-run)
+    rclone bisync "${COMMON[@]}" --resync --resync-mode path1 --dry-run
+    ;;
+  init)
+    rclone bisync "${COMMON[@]}" --resync --resync-mode path1
+    ;;
+  dry-run)
+    rclone bisync "${COMMON[@]}" --dry-run
+    ;;
+  run)
+    rclone bisync "${COMMON[@]}"
+    ;;
+  check)
+    rclone check "$LOCAL" "$REMOTE" --filters-file "$FILTER" --one-way --fast-list --progress
+    ;;
+  *)
+    echo "Usage: $0 {init-dry-run|init|dry-run|run|check}" >&2
+    echo "  init-dry-run : preview first bidirectional baseline upload" >&2
+    echo "  init         : first real baseline sync; local path wins on conflicts" >&2
+    echo "  dry-run      : preview normal bidirectional sync after init" >&2
+    echo "  run          : normal bidirectional sync after init" >&2
+    echo "  check        : compare local -> remote after a run" >&2
+    exit 2
+    ;;
+esac

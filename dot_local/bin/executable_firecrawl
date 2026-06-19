@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# firecrawl - CLI wrapper for the Firecrawl Docker service
+# Usage: firecrawl <command>
+#   Commands: start, stop, restart, status, logs
+
+FIRECRAWL_DIR="/home/archer/projects/externel/firecrawl"
+
+usage() {
+    echo "Usage: firecrawl <command>"
+    echo ""
+    echo "Commands:"
+    echo "  start    - Start Firecrawl (docker compose up -d)"
+    echo "  stop     - Stop Firecrawl (docker compose down)"
+    echo "  restart  - Restart Firecrawl"
+    echo "  status   - Show running containers"
+    echo "  logs     - Tail Firecrawl logs"
+    echo "  pull     - Pull latest images"
+    exit 1
+}
+
+if [ $# -lt 1 ]; then
+    usage
+fi
+
+cd "$FIRECRAWL_DIR" || {
+    echo "Error: Cannot find Firecrawl directory at $FIRECRAWL_DIR"
+    exit 1
+}
+
+CMD="$1"
+
+case "$CMD" in
+    start)
+        echo "Starting Firecrawl..."
+        docker compose up -d
+        echo "Firecrawl is up!"
+        ;;
+    stop)
+        echo "Stopping Firecrawl..."
+        docker compose down
+        echo "Firecrawl stopped."
+        ;;
+    restart)
+        echo "Restarting Firecrawl..."
+        docker compose down
+        docker compose up -d
+        echo "Firecrawl restarted!"
+        ;;
+    status)
+        echo "Firecrawl container status:"
+        docker compose ps
+        ;;
+    logs)
+        docker compose logs -f
+        ;;
+    pull)
+        echo "Pulling latest Firecrawl images..."
+        docker compose pull
+        echo "Done. Run 'firecrawl restart' to apply."
+        ;;
+    *)
+        echo "Error: Unknown command '$CMD'"
+        echo ""
+        usage
+        ;;
+esac
+EOF
+cat /tmp/firecrawl.sh
+#!/usr/bin/env bash
+# firecrawl - CLI wrapper for the Firecrawl Docker service
+# Usage: firecrawl <command>
+#   Commands: start, stop, restart, status, logs
+
+FIRECRAWL_DIR="/home/archer/projects/externel/firecrawl"
+
+usage() {
+    echo "Usage: firecrawl <command>"
+    echo ""
+    echo "Commands:"
+    echo "  start    - Start Firecrawl (docker compose up -d)"
+    echo "  stop     - Stop Firecrawl (docker compose down)"
+    echo "  restart  - Restart Firecrawl"
+    echo "  status   - Show running containers"
+    echo "  logs     - Tail Firecrawl logs"
+    echo "  pull     - Pull latest images"
+    exit 1
+}
+
+if [ $# -lt 1 ]; then
+    usage
+fi
+
+cd "$FIRECRAWL_DIR" || {
+    echo "Error: Cannot find Firecrawl directory at $FIRECRAWL_DIR"
+    exit 1
+}
+
+CMD="$1"
+
+case "$CMD" in
+    start)
+        echo "Starting Firecrawl..."
+        docker compose up -d
+        echo "Firecrawl is up!"
+        ;;
+    stop)
+        echo "Stopping Firecrawl..."
+        docker compose down
+        echo "Firecrawl stopped."
+        ;;
+    restart)
+        echo "Restarting Firecrawl..."
+        docker compose down
+        docker compose up -d
+        echo "Firecrawl restarted!"
+        ;;
+    status)
+        echo "Firecrawl container status:"
+        docker compose ps
+        ;;
+    logs)
+        docker compose logs -f
+        ;;
+    pull)
+        echo "Pulling latest Firecrawl images..."
+        docker compose pull
+        echo "Done. Run 'firecrawl restart' to apply."
+        ;;
+    *)
+        echo "Error: Unknown command '$CMD'"
+        echo ""
+        usage
+        ;;
+esac
