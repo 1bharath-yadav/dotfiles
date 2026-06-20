@@ -55,7 +55,7 @@ os:
 # ── Custom Commands ────────────────────────────────────────────────────────
 # AI commits (files panel):
 #   <c-c> copilot  <c-g> gemini  <c-x> codex  <c-l> ollama
-#   <c-A> fzf provider picker + edit in $EDITOR before commit
+#   <c-a> fzf provider picker + edit in $EDITOR before commit
 # Extras: O=open on GitHub  Y=yank SHA  I=interactive rebase N commits
 
 customCommands:
@@ -87,7 +87,7 @@ customCommands:
     command: "aicommit ollama"
     output: terminal
 
-  - key: "<c-A>"
+  - key: "<c-a>"
     context: "files"
     description: "AI commit (pick provider)"
     loadingText: "Loading providers..."

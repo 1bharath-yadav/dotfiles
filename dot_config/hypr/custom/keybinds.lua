@@ -51,12 +51,12 @@ hl.bind("SUPER + Comma", hl.dsp.workspace.toggle_special("hermes"), { descriptio
 hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "Move to right workspace" })
 hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Move to left workspace" })
 
--- Voice Assistant
-hl.bind(
-	"SUPER + ALT + H",
-	hl.dsp.exec_cmd("quickshell -c ii ipc call voiceAssistantOverlay toggle"),
-	{ description = "Voice assistant: toggle assistant overlay" }
-)
+-- -- Voice Assistant
+-- hl.bind(
+-- 	"SUPER + ALT + H",
+-- 	hl.dsp.exec_cmd("quickshell -c ii ipc call voiceAssistantOverlay toggle"),
+-- 	{ description = "Voice assistant: toggle assistant overlay" }
+-- )
 
 -- Dictation
 hl.bind("SUPER + H", hl.dsp.exec_cmd("~/.local/bin/transcribe --mode toggle"), { description = "Dictation toggle" })

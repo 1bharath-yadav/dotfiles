@@ -62,3 +62,5 @@ alias gpushdot='git push origin chizmoi'
 
 alias gdc='git-dot-commit'
 alias gdp='git-dot-push'
+
+alias z='zoxide'
