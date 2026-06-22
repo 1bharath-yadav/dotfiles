@@ -26,9 +26,9 @@
 - git commit -m "<type>: <why>"
 - git push origin chizmoi
 - current-state:
-- dot_agen/ added for agent workspace
-- education moved to zen_spaces/education/
-- old-dotfiles and .dotfiles removed
-- lettabot files moved to ~/.letta/
-- ~/AGENTS.md created for filesystem navigation
+- setup/linux.md rewritten: accurate bootstrap, real AUR list, key-command table
+- setup/aur-packages.txt added: full AUR backup (no -debug), regenerate cmd in header
+- README.md updated: structure tree, package-strategy table, quick-start, secrets
+- zsh plugins: prefer pacman (zsh-autosuggestions, zsh-syntax-highlighting) over OMZ clones
+- services confirmed: reflector.timer, hyprpolkitagent, docker, timedatectl Asia/Kolkata
 - next update: overwrite current-state only, max 10 lines
