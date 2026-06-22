@@ -58,7 +58,7 @@ return {
       "hrsh7th/nvim-cmp",
     },
     opts = {
-      workspaces = { { name = "notes", path = "/home/archer/Sync/obsidian_vault/til" } }, -- ← change to your vault
+      workspaces = { { name = "notes", path = "/home/archer/til" } }, -- ← change to your vault
       daily_notes = { folder = "daily", template = "daily.md" },
       completion = { nvim_cmp = true, min_chars = 2 },
       new_notes_location = "current_dir",

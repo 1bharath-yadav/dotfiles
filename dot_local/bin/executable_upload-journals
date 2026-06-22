@@ -1,0 +1,187 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#   "google-auth",
+#   "google-auth-oauthlib",
+#   "google-api-python-client",
+#   "tqdm",
+# ]
+# ///
+"""upload-journals — passphrase-decrypt credentials, then upload .mkv journals to YouTube (private).
+
+Credentials:  ~/.config/credentials/google_client_secret.json.age  (rage passphrase-encrypted)
+Token cache:  ~/.local/share/upload-journals/token.pickle
+Uploaded:     ~/journal/local/uploaded/
+Transcripts:  ~/til/inbox/journel-transcripts/
+
+First-time setup:
+  rage --passphrase -o ~/.config/credentials/google_client_secret.json.age \\
+    ~/.config/credentials/google_client_secret.json
+  rm ~/.config/credentials/google_client_secret.json
+"""
+
+import os
+import pickle
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from tqdm import tqdm
+
+# ── paths ──────────────────────────────────────────────────────────────────────
+CREDS_AGE = Path.home() / ".config" / "credentials" / "google_client_secret.json.age"
+TOKEN_DIR = Path.home() / ".local" / "share" / "upload-journals"
+TOKEN_FILE = TOKEN_DIR / "token.pickle"
+LOCAL_DIR = Path.home() / "journal" / "local"
+UPLOADED_DIR = LOCAL_DIR / "uploaded"
+TRANSCRIPT_INBOX = Path.home() / "til" / "inbox" / "journel-transcripts"
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+
+
+# ── credentials ────────────────────────────────────────────────────────────────
+def decrypt_credentials(tmp_dir: str) -> Path:
+    """Prompt for passphrase and decrypt credentials into a temp path."""
+    if not CREDS_AGE.exists():
+        print(
+            f"Credentials not found: {CREDS_AGE}\n"
+            "Setup:\n"
+            "  rage --passphrase -o ~/.config/credentials/google_client_secret.json.age \\\n"
+            "    ~/.config/credentials/google_client_secret.json\n"
+            "  rm ~/.config/credentials/google_client_secret.json",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    tmp_creds = Path(tmp_dir) / "google_client_secret.json"
+    # No capture_output — rage prompts the terminal directly for the passphrase.
+    result = subprocess.run(
+        ["rage", "--decrypt", "-o", str(tmp_creds), str(CREDS_AGE)],
+    )
+    if result.returncode != 0:
+        print("Decryption failed or cancelled.", file=sys.stderr)
+        sys.exit(1)
+    return tmp_creds
+
+
+def get_credentials(creds_file: Path):
+    """Load or refresh OAuth2 credentials, prompting browser flow if needed."""
+    TOKEN_DIR.mkdir(parents=True, exist_ok=True)
+    creds = None
+    if TOKEN_FILE.exists():
+        with open(TOKEN_FILE, "rb") as f:
+            creds = pickle.load(f)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(str(creds_file), SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open(TOKEN_FILE, "wb") as f:
+            pickle.dump(creds, f)
+
+    return creds
+
+
+# ── upload ─────────────────────────────────────────────────────────────────────
+def upload_video(youtube, file_path: Path) -> dict:
+    """Upload a single video as private and return the API response."""
+    file_size = file_path.stat().st_size
+    print(f"Uploading: {file_path.name} ({file_size / (1024**2):.1f} MB)")
+
+    request = youtube.videos().insert(
+        part="snippet,status",
+        body={
+            "snippet": {"title": file_path.stem},
+            "status": {"privacyStatus": "private"},
+        },
+        media_body=MediaFileUpload(str(file_path), resumable=True, chunksize=1024 * 1024),
+    )
+
+    response = None
+    pbar = tqdm(
+        total=file_size,
+        unit="B",
+        unit_scale=True,
+        unit_divisor=1024,
+        desc=file_path.name[:40],
+        dynamic_ncols=True,
+    )
+    uploaded = 0
+    while response is None:
+        status, response = request.next_chunk()
+        if status:
+            new_uploaded = int(status.resumable_progress)
+            pbar.update(new_uploaded - uploaded)
+            uploaded = new_uploaded
+    pbar.update(file_size - uploaded)
+    pbar.close()
+    return response
+
+
+def normalize_stem(stem: str) -> str:
+    """Ensure stem ends with -daily_journal."""
+    if stem.endswith("-daily_journal"):
+        return stem
+    cleaned = stem.replace("done", "").replace("-journal", "").rstrip("-")
+    return f"{cleaned}-daily_journal"
+
+# ── transcribe ─────────────────────────────────────────────────────────────────
+def transcribe(file_path: Path) -> None:
+    """Call the system transcribe command; saves output to TRANSCRIPT_INBOX."""
+    print(f"Transcribing {file_path.name}…")
+    TRANSCRIPT_INBOX.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.run(
+            ["transcribe", "--save", str(file_path)],
+            check=True,
+            env={**os.environ, "TRANSCRIBE_INBOX": str(TRANSCRIPT_INBOX)},
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Transcription failed: {e}", file=sys.stderr)
+    except FileNotFoundError:
+        print("Error: 'transcribe' command not found.", file=sys.stderr)
+
+
+# ── main ───────────────────────────────────────────────────────────────────────
+def main() -> None:
+    LOCAL_DIR.mkdir(parents=True, exist_ok=True)
+    UPLOADED_DIR.mkdir(parents=True, exist_ok=True)
+
+    files = sorted(LOCAL_DIR.glob("*.mkv"))
+    if not files:
+        print(f"No .mkv files in {LOCAL_DIR}")
+        return
+
+    print(f"Found {len(files)} video(s).")
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        creds_file = decrypt_credentials(tmp_dir)
+        youtube = build("youtube", "v3", credentials=get_credentials(creds_file))
+        # creds_file is wiped when tmp_dir exits
+
+    for file_path in files:
+        new_stem = normalize_stem(file_path.stem)
+        if new_stem != file_path.stem:
+            file_path = file_path.rename(file_path.with_stem(new_stem))
+
+        try:
+            upload_video(youtube, file_path)
+        except Exception as e:
+            print(f"Upload failed for {file_path.name}: {e}", file=sys.stderr)
+            continue
+
+        uploaded_path = UPLOADED_DIR / file_path.name
+        file_path.rename(uploaded_path)
+        print(f"Moved to uploaded: {uploaded_path.name}")
+
+        transcribe(uploaded_path)
+
+
+if __name__ == "__main__":
+    main()

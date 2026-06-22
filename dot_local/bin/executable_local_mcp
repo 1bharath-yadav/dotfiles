@@ -1,0 +1,170 @@
+#!/usr/bin/env -S uv run --script
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = ["fastmcp"]
+# ///
+
+"""Local FastMCP shell server for Archer's Linux host.
+
+Usage:
+    local_mcp
+    LOCAL_MCP_NGROK=0 local_mcp
+
+The server listens on http://127.0.0.1:2428/mcp and exposes a bash tool.
+By default it starts FastMCP quietly in the background, then runs:
+    ngrok http 2428
+"""
+
+import os
+import sys
+import subprocess
+from datetime import datetime
+from pathlib import Path
+
+from fastmcp import Context, FastMCP
+from fastmcp.server.dependencies import get_context
+
+
+HOST = os.environ.get("LOCAL_MCP_HOST", "127.0.0.1")
+PORT = int(os.environ.get("LOCAL_MCP_PORT", "2428"))
+HOME = Path.home()
+LOG_DIR = HOME / ".local/share/local-mcp/bash-logs"
+SERVER_LOG_DIR = HOME / ".local/share/local-mcp/server-logs"
+MAX_TIMEOUT_MS = 120_000
+
+mcp = FastMCP("Archer local Linux shell")
+
+
+def markdown_code_block(text: str) -> str:
+    """Wrap text in a Markdown fence that content cannot close."""
+    ticks = 0
+    current = 0
+    for char in text:
+        if char == "`":
+            current += 1
+            ticks = max(ticks, current)
+        else:
+            current = 0
+    fence = "`" * max(3, ticks + 1)
+    return f"{fence}\n{text}\n{fence}"
+
+
+def log_bash_command(command: str, output: str, cwd: Path) -> None:
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S.%f")
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    (LOG_DIR / f"{timestamp}.md").write_text(
+        f"# local_mcp bash log {timestamp}\n\n"
+        f"## Working Directory\n\n{markdown_code_block(str(cwd))}\n\n"
+        f"## Command\n\n{markdown_code_block(command)}\n\n"
+        f"## Output\n\n{markdown_code_block(output)}\n",
+    )
+
+
+def resolve_cwd(cwd: str | None) -> Path:
+    if not cwd:
+        return HOME
+    path = Path(cwd).expanduser()
+    if not path.is_absolute():
+        path = HOME / path
+    path = path.resolve()
+    if not path.exists() or not path.is_dir():
+        raise ValueError(f"Working directory does not exist: {path}")
+    return path
+
+
+def start_fastmcp_child() -> subprocess.Popen[str]:
+    SERVER_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S.%f")
+    log_path = SERVER_LOG_DIR / f"{timestamp}.log"
+    log_file = log_path.open("a")
+    env = os.environ.copy()
+    env["LOCAL_MCP_SERVER_ONLY"] = "1"
+    return subprocess.Popen(
+        [sys.executable, __file__],
+        stdout=log_file,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=env,
+    )
+
+
+def run_ngrok() -> int:
+    return subprocess.call(["ngrok", "http", str(PORT)])
+
+
+def stop_process(process: subprocess.Popen[str] | None) -> None:
+    if process is None or process.poll() is not None:
+        return
+    process.terminate()
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
+
+
+@mcp.tool()
+async def bash(commands: str, timeout_ms: int = 30_000, cwd: str | None = None) -> str:
+    """Run a bash script on Archer's Linux host.
+
+Useful directories under /home/archer:
+- ~/.dotfiles/ - chezmoi-managed dotfiles, branch chizmoi
+- ~/projects/ - code projects
+- ~/til/ - notes, wiki, vault, inbox, sources, spaces
+- ~/zen_spaces/ - education and books
+- ~/journal/ - local journal files
+- ~/linux/ - local Linux assets such as whisper models
+- ~/archive/ - archived material
+- ~/Downloads/, ~/Documents/, ~/Pictures/, ~/Videos/, ~/Music/ - user files
+- /tmp/ - temporary files
+
+Useful tools usually available here: rg, fd, git, gh, uv, pnpm, node, python,
+mise, rtk, sqlite3, curl, jq.
+"""
+    ctx: Context = get_context()
+    timeout_ms = max(1, min(timeout_ms, MAX_TIMEOUT_MS))
+    workdir = resolve_cwd(cwd)
+
+    await ctx.info(f"bash cwd={workdir}: {commands}")
+    try:
+        result = subprocess.run(
+            commands,
+            shell=True,
+            executable="/bin/bash",
+            cwd=workdir,
+            capture_output=True,
+            text=True,
+            timeout=timeout_ms / 1000,
+        )
+    except Exception as exc:
+        output = str(exc)
+        log_bash_command(commands, output, workdir)
+        return output
+
+    output = result.stdout
+    if result.stderr:
+        output += f"\nSTDERR:\n{result.stderr}"
+        await ctx.warning(result.stderr)
+    if result.returncode != 0:
+        output += f"\nReturn code: {result.returncode}"
+
+    await ctx.info(f"DONE: {len(output)} chars, return code {result.returncode}")
+    log_bash_command(commands, output, workdir)
+    return output
+
+
+if __name__ == "__main__":
+    if os.environ.get("LOCAL_MCP_SERVER_ONLY") == "1":
+        mcp.run(transport="http", host=HOST, port=PORT)
+        raise SystemExit(0)
+
+    if os.environ.get("LOCAL_MCP_NGROK", "1").lower() in {"0", "false", "no", "off"}:
+        mcp.run(transport="http", host=HOST, port=PORT)
+        raise SystemExit(0)
+
+    server = start_fastmcp_child()
+    try:
+        raise SystemExit(run_ngrok())
+    finally:
+        stop_process(server)

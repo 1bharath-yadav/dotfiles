@@ -125,23 +125,119 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(gcal)$" },
+	match = { class = "^(chrome-calendar.google.com__-Default)$" },
 	float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(gcal)$" },
+	match = { class = "^(chrome-calendar.google.com__-Default)$" },
 	size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(gcal)$" },
+	match = { class = "^(chrome-calendar.google.com__-Default)$" },
 	center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(gcal)$" },
+	match = { class = "^(chrome-calendar.google.com__-Default)$" },
 	workspace = "special:calendar",
+})
+
+--------------------------------------------------
+-- GOOGLE CHROME OAUTH POPUP (sign-in, account picker, etc.)
+-- Chrome opens these via window.open(), which briefly carries the title
+-- "Untitled - Google Chrome" before it navigates. Static rules match on
+-- initialTitle, so this catches it; matching the post-navigation title
+-- ("Sign in - Google Accounts...") never works, since float/size/center
+-- are evaluated once at window creation, before that title exists.
+--------------------------------------------------
+
+hl.window_rule({
+	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+	float = true,
+})
+
+hl.window_rule({
+	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+	size = { 520, 680 },
+})
+
+hl.window_rule({
+	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+	center = true,
+})
+
+--------------------------------------------------
+-- GOOGLE KEEP
+--------------------------------------------------
+
+hl.window_rule({
+	match = { class = "^(chrome-keep.google.com__-Default)$" },
+	float = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-keep.google.com__-Default)$" },
+	size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-keep.google.com__-Default)$" },
+	center = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-keep.google.com__-Default)$" },
+	workspace = "special:keep",
+})
+
+--------------------------------------------------
+-- GOOGLE TASKS
+--------------------------------------------------
+
+hl.window_rule({
+	match = { class = "^(chrome-tasks.google.com__-Default)$" },
+	float = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-tasks.google.com__-Default)$" },
+	size = { "(monitor_w*0.45)", "(monitor_h*0.85)" },
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-tasks.google.com__-Default)$" },
+	center = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-tasks.google.com__-Default)$" },
+	workspace = "special:tasks",
+})
+
+--------------------------------------------------
+-- GMAIL
+--------------------------------------------------
+
+hl.window_rule({
+	match = { class = "^(chrome-mail.google.com__-Default)$" },
+	float = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-mail.google.com__-Default)$" },
+	size = { "(monitor_w*0.75)", "(monitor_h*0.85)" },
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-mail.google.com__-Default)$" },
+	center = true,
+})
+
+hl.window_rule({
+	match = { class = "^(chrome-mail.google.com__-Default)$" },
+	workspace = "special:gmail",
 })
 
 --------------------------------------------------
@@ -165,12 +261,27 @@ hl.workspace_rule({
 
 hl.workspace_rule({
 	workspace = "special:quicknote",
-	on_created_empty = "kitty --class quicknote -e yazi '/home/archer/Sync/obsidian_vault/til/'",
+	on_created_empty = "kitty --class quicknote -e yazi '/home/archer/til/'",
 })
 
 hl.workspace_rule({
 	workspace = "special:calendar",
-	on_created_empty = "google-chrome-stable --class=gcal --app=https://calendar.google.com",
+	on_created_empty = "google-chrome-stable --app=https://calendar.google.com",
+})
+
+hl.workspace_rule({
+	workspace = "special:keep",
+	on_created_empty = "google-chrome-stable --app=https://keep.google.com",
+})
+
+hl.workspace_rule({
+	workspace = "special:tasks",
+	on_created_empty = "google-chrome-stable --app=https://tasks.google.com",
+})
+
+hl.workspace_rule({
+	workspace = "special:gmail",
+	on_created_empty = "google-chrome-stable --app=https://mail.google.com",
 })
 
 hl.workspace_rule({

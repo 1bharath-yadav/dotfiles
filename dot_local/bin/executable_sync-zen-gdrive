@@ -1,6 +1,108 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+#### FOR FIRST SETUP ####
+#
+# Your current state:
+# - `rclone` is installed.
+# - `~/.config/rclone/rclone.conf` is missing.
+# - `~/.config/rclone/zen_spaces.filter` is missing.
+# - `/home/archer/zen_spaces` is missing.
+# - `/home/archer/.local/bin/sync-zen-gdrive` exists.
+#
+# Because the local folder is missing, running your old script with `init` would be dangerous: it was written with `--resync-mode path1`, meaning “local wins”. If local is empty/missing, you risk treating empty local state as truth.
+#
+# Safe restart path:
+#
+# 1. Recreate the rclone Google Drive remote
+#
+# Run:
+#
+# ```bash
+# rclone config
+# ```
+#
+# Use:
+#
+# ```text
+# n
+# name> gdrive
+# Storage> drive
+# client_id>
+# client_secret>
+# scope> 1
+# service_account_file>
+# Edit advanced config? n
+# Use auto config? y
+# Configure this as a Shared Drive? n
+# ```
+#
+# Then verify:
+#
+# ```bash
+# rclone lsd gdrive:
+# ```
+#
+# 2. Check if the remote folder exists
+#
+# ```bash
+# rclone lsd gdrive: | grep zen_spaces
+# ```
+#
+# If it exists, pull it down first:
+#
+# ```bash
+# mkdir -p /home/archer/zen_spaces
+# rclone copy gdrive:zen_spaces /home/archer/zen_spaces \
+#   --progress \
+#   --create-empty-src-dirs
+# ```
+#
+# 3. Recreate the filter file
+#
+# ```bash
+# mkdir -p ~/.config/rclone
+# cat > ~/.config/rclone/zen_spaces.filter <<'EOF'
+# - **/.git/**
+# - **/node_modules/**
+# - **/.venv/**
+# - **/__pycache__/**
+# - **/.cache/**
+# - **/.DS_Store
+# + **
+# EOF
+# ```
+#
+# 4. Only after local data is restored, initialize bisync safely
+#
+# First dry-run:
+#
+# ```bash
+# sync-zen-gdrive init-dry-run
+# ```
+#
+# If it looks correct:
+#
+# ```bash
+# sync-zen-gdrive init
+# ```
+#
+# Then normal runs are:
+#
+# ```bash
+# sync-zen-gdrive run
+# ```
+#
+# or preview:
+#
+# ```bash
+# sync-zen-gdrive dry-run
+# ```
+#
+# If remote is the source of truth, the safer recovery command is remote → local first, then bisync. Do not use the old `init` until `/home/archer/zen_spaces` has real restored content.
+#
+#
+
 LOCAL="/home/archer/zen_spaces"
 REMOTE="gdrive:zen_spaces"
 FILTER="/home/archer/.config/rclone/zen_spaces.filter"

@@ -1,6 +1,6 @@
 [tools]
 # runtimes
-node = "22"
+node = "latest"
 rust = "stable"
 pnpm = "latest"
 

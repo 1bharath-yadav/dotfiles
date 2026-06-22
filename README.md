@@ -23,16 +23,20 @@ Chezmoi-managed personal dotfiles for Arch Linux, WSL2 (Ubuntu), and Termux.
 
 ## Package Strategy
 
-| Layer | Tool | Purpose |
-|---|---|---|
-| System | pacman | native packages, desktop apps, deps |
-| Runtimes | mise | node, python, go, rust + global CLIs |
-| JS | pnpm | project deps |
-| Python | uv / uvx | project deps / one-shots |
-| AUR | yay | non-repo packages |
-| Secrets | rage/age | encrypted credentials (*.age) |
+| Layer    | Tool     | Purpose                              |
+| -------- | -------- | ------------------------------------ |
+| System   | pacman   | native packages, desktop apps, deps  |
+| Runtimes | mise     | node, python, go, rust + global CLIs |
+| JS       | pnpm     | project deps                         |
+| Python   | uv / uvx | project deps / one-shots             |
+| AUR      | yay      | non-repo packages                    |
+| Secrets  | rage/age | encrypted credentials (\*.age)       |
 
 ## Quick Start
+
+# Base dotfiles for quickshell
+
+git clone https://github.com/end-4/dots-hyprland ~/.local/share/dots-hyprland
 
 ```bash
 git clone https://github.com/1bharath-yadav/dotfiles.git ~/.dotfiles

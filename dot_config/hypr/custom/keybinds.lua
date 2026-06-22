@@ -3,7 +3,7 @@
 -- Meta / edit configs
 hl.bind(
 	"CTRL + SUPER + Slash",
-	hl.dsp.exec_cmd("xdg-open ~/.config/illogical-impulse/config.json"),
+	hl.dsp.exec_cmd("nvim ~/.config/illogical-impulse/config.json"),
 	{ description = "Edit shell config" }
 )
 hl.bind(
@@ -46,6 +46,13 @@ hl.bind("SUPER + Y", hl.dsp.workspace.toggle_special("yazi"), { description = "T
 hl.bind("SUPER + Z", hl.dsp.workspace.toggle_special("kitty"), { description = "Toggle Kitty scratchpad" })
 hl.bind("SUPER + Minus", hl.dsp.workspace.toggle_special("quicknote"), { description = "Toggle Quicknote scratchpad" })
 hl.bind("CTRL + SUPER + G", hl.dsp.workspace.toggle_special("calendar"), { description = "Toggle Calendar scratchpad" })
+hl.bind("CTRL + SUPER + K", hl.dsp.workspace.toggle_special("keep"), { description = "Toggle Google Keep scratchpad" })
+hl.bind(
+	"CTRL + SUPER + L",
+	hl.dsp.workspace.toggle_special("tasks"),
+	{ description = "Toggle Google Tasks scratchpad" }
+)
+hl.bind("CTRL + SUPER + M", hl.dsp.workspace.toggle_special("gmail"), { description = "Toggle Gmail scratchpad" })
 hl.bind("SUPER + Comma", hl.dsp.workspace.toggle_special("hermes"), { description = "Toggle Hermes scratchpad" })
 
 hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "Move to right workspace" })

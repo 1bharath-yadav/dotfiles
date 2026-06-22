@@ -1,0 +1,3 @@
+# Managed by chezmoi. The main zsh config lives under $ZDOTDIR.
+export ZDOTDIR="${ZDOTDIR:-$HOME/.zsh}"
+[[ -r "$ZDOTDIR/.zshrc" ]] && source "$ZDOTDIR/.zshrc"
