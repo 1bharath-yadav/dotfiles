@@ -66,6 +66,17 @@ return {
         preset = "telescope",
         reverse = false, -- list above input
       },
+      sources = {
+        explorer = {
+          -- File explorer should look like a sidebar and start in normal mode
+          -- This ensures file management keys (a, d, r, c, m) work immediately
+          focus = "list",
+          layout = {
+            preset = "sidebar",
+            preview = false,
+          },
+        },
+      },
     },
 
     -- ── Dashboard (replaces alpha-nvim) ─────────────────────────────────

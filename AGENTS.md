@@ -29,12 +29,5 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- nvim: snacks: quickfile added, picker layout reverse=true (input middle), LSP pickers (gR/gd/gi/gt/<leader>D/fd/fb) migrated from telescope
-- nvim: obsidian: vault=~/till, completion.blink=true, picker=snacks.picker, gf/<CR>/[o/]o mappings, toc/dailies keys added
-- nvim: blink: per_filetype.markdown lists obsidian sources explicitly (fixes render-markdown source inheritance bug)
-- nvim: lspconfig: duplicate telescope LSP keymaps removed; all LSP pickers now in snacks.lua
-- agents: config-refresh.skill.md created; docs/packages/ + docs/refresh-log.md scaffolded
-- docs: mkdocs-material site scaffolded; mkdocs.yml + docs/index.md + docs/.pages + docs-deploy script
-- docs-deploy: ~/.local/bin/docs-deploy --preview (local) / docs-deploy (gh-pages push)
-- mkdocs deps: uv tool install mkdocs --with mkdocs-material --with mkdocs-awesome-pages-plugin
+- nvim: snacks: picker sources.explorer overridden to sidebar layout and list focus to fix file management operations (a/d/r/c/m)
 - next update: overwrite current-state only, max 5 lines
