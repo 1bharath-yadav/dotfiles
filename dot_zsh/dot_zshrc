@@ -31,4 +31,4 @@ for f in "$ZDOTDIR"/init/*.zsh(.N); do
   [ -r "$f" ] && source "$f"
 done
 
-alias dots='${EDITOR:-nvim} $HOME/dotfiles'
+alias dots='${EDITOR:-nvim} $HOME/.dotfiles'

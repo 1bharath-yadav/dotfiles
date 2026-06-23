@@ -14,6 +14,7 @@ return {
       fg = "#c3ccdc",
       bg = "#112638",
       inactive_bg = "#2c3043",
+      inactive_fg = "#7f8490",
     }
 
     local my_lualine_theme = {
@@ -43,13 +44,12 @@ return {
         c = { bg = colors.bg, fg = colors.fg },
       },
       inactive = {
-        a = { bg = colors.inactive_bg, fg = colors.semilightgray, gui = "bold" },
-        b = { bg = colors.inactive_bg, fg = colors.semilightgray },
-        c = { bg = colors.inactive_bg, fg = colors.semilightgray },
+        a = { bg = colors.inactive_bg, fg = colors.inactive_fg, gui = "bold" },
+        b = { bg = colors.inactive_bg, fg = colors.inactive_fg },
+        c = { bg = colors.inactive_bg, fg = colors.inactive_fg },
       },
     }
 
-    -- configure lualine with modified theme
     lualine.setup({
       options = {
         theme = my_lualine_theme,

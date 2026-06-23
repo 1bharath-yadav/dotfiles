@@ -65,3 +65,4 @@ alias gdp='git-dot-push'
 
 alias z='zoxide'
 alias z='cd'
+alias claude='fcc-claude'

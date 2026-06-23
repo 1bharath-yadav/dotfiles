@@ -1,0 +1,50 @@
+site_name: Bharath's Dotfiles
+site_url: https://1bharath-yadav.github.io/dotfiles
+repo_url: https://github.com/1bharath-yadav/dotfiles
+repo_name: 1bharath-yadav/dotfiles
+edit_uri: edit/chizmoi/
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: teal
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+  - awesome-pages   # auto-builds nav from docs/ folder structure
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - attr_list
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/1bharath-yadav/dotfiles

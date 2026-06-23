@@ -22,6 +22,9 @@ map("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) -- go to ne
 map("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) -- go to previous tab
 map("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) -- move current buffer to new tab
 
+-- Cycle tabs with Ctrl+Tab and Ctrl+Shift+Tab
+map({ "n", "i", "t" }, "<C-Tab>", "<cmd>tabn<CR>", { desc = "Next tab" })
+map({ "n", "i", "t" }, "<C-S-Tab>", "<cmd>tabp<CR>", { desc = "Previous tab" })
 
 -- nvchad copied
 

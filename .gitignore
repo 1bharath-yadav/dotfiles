@@ -2,3 +2,4 @@
 .env.*
 *.age.tmp
 .aider*
+site

@@ -65,5 +65,11 @@ hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Mo
 -- 	{ description = "Voice assistant: toggle assistant overlay" }
 -- )
 
+--- send clipboard content to phone
+hl.bind(
+	"SUPER + ALT + P",
+	hl.dsp.exec_cmd("~/.dotfiles/dot_local/bin/executable_send_file.sh"),
+	{ description = "Send clipboard content to phone" }
+)
 -- Dictation
 hl.bind("SUPER + H", hl.dsp.exec_cmd("~/.local/bin/transcribe --mode toggle"), { description = "Dictation toggle" })

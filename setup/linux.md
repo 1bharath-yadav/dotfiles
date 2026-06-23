@@ -14,6 +14,8 @@ git clone https://github.com/1bharath-yadav/dotfiles.git ~/.dotfiles
 chezmoi init --source ~/.dotfiles
 chezmoi apply
 
+ln -s ~/.dotfiles/agents ~/.agents
+
 # 3. Install packages from manifest
 pki                  # pacman packages from dot_config/pacman/Packages
 mise install         # runtimes + global CLIs from dot_config/mise/config.toml
@@ -45,6 +47,11 @@ git clone https://github.com/zsh-users/zsh-autosuggestions \
 git clone https://github.com/zsh-users/zsh-syntax-highlighting \
   ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 ```
+
+sudoedit /etc/systemd/logind.conf
+HandlePowerKey=ignore
+HandlePowerKeyLongPress=ignore
+sudo systemctl restart systemd-logind # it will switch of the system
 
 ## Key Commands
 

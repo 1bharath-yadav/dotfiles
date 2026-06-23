@@ -1,7 +1,8 @@
 # AGENTS.md
+
 - branch: chizmoi
 - mode: chezmoi-first
-- roots: dot_*, private_*
+- roots: dot*\*, private*\*
 - package-manifests: dot_config/pacman/Packages, dot_config/mise/config.toml
 - agent-workspace: dot_agen/
 - workflows: dot_local/bin
@@ -11,11 +12,11 @@
 - prefer pnpm over npm
 - secrets: rage/age, sops+age for structured files
 - rage-key: ~/.config/rage/key.txt
-- ssh-private: ~/.ssh/* 600
-- ssh-public: ~/.ssh/*.pub 644
+- ssh-private: ~/.ssh/\* 600
+- ssh-public: ~/.ssh/\*.pub 644
 - never commit plaintext secrets
 - never commit private keys
-- encrypt repo secrets as *.age
+- encrypt repo secrets as \*.age
 - native age first, ssh fallback only
 - never encrypt in place
 - scripts must stay small and composable
@@ -25,10 +26,15 @@
 - git add <specific-files>
 - git commit -m "<type>: <why>"
 - git push origin chizmoi
+- agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
+- chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- setup/linux.md rewritten: accurate bootstrap, real AUR list, key-command table
-- setup/aur-packages.txt added: full AUR backup (no -debug), regenerate cmd in header
-- README.md updated: structure tree, package-strategy table, quick-start, secrets
-- zsh plugins: prefer pacman (zsh-autosuggestions, zsh-syntax-highlighting) over OMZ clones
-- services confirmed: reflector.timer, hyprpolkitagent, docker, timedatectl Asia/Kolkata
-- next update: overwrite current-state only, max 10 lines
+- nvim: snacks: quickfile added, picker layout reverse=true (input middle), LSP pickers (gR/gd/gi/gt/<leader>D/fd/fb) migrated from telescope
+- nvim: obsidian: vault=~/till, completion.blink=true, picker=snacks.picker, gf/<CR>/[o/]o mappings, toc/dailies keys added
+- nvim: blink: per_filetype.markdown lists obsidian sources explicitly (fixes render-markdown source inheritance bug)
+- nvim: lspconfig: duplicate telescope LSP keymaps removed; all LSP pickers now in snacks.lua
+- agents: config-refresh.skill.md created; docs/packages/ + docs/refresh-log.md scaffolded
+- docs: mkdocs-material site scaffolded; mkdocs.yml + docs/index.md + docs/.pages + docs-deploy script
+- docs-deploy: ~/.local/bin/docs-deploy --preview (local) / docs-deploy (gh-pages push)
+- mkdocs deps: uv tool install mkdocs --with mkdocs-material --with mkdocs-awesome-pages-plugin
+- next update: overwrite current-state only, max 5 lines

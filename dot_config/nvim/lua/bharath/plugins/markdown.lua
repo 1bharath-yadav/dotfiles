@@ -8,6 +8,22 @@ return {
     "MeanderingProgrammer/render-markdown.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     ft = { "markdown", "md", "mdx" },
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "markdown",
+        callback = function()
+          local opts = vim.opt_local
+          opts.wrap = true
+          opts.linebreak = true
+          opts.spell = true
+          opts.spelllang = "en_us"
+          opts.conceallevel = 2
+          opts.formatoptions:append("jro")
+          vim.keymap.set("n", "j", "gj", { buffer = true, silent = true })
+          vim.keymap.set("n", "k", "gk", { buffer = true, silent = true })
+        end,
+      })
+    end,
     opts = {
       heading = {
         enabled = true,
@@ -48,64 +64,62 @@ return {
 
   -- ── 3. Obsidian vault: wiki-links, backlinks, tags, daily notes ───────────
   {
-    "epwalsh/obsidian.nvim",
+    "obsidian-nvim/obsidian.nvim",
     version = "*",
     lazy = true,
     ft = "markdown",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
-      "hrsh7th/nvim-cmp",
-    },
+    dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
-      workspaces = { { name = "notes", path = "/home/archer/til" } }, -- ← change to your vault
+      workspaces = { { name = "till", path = "/home/archer/til" } },
       daily_notes = { folder = "daily", template = "daily.md" },
-      completion = { nvim_cmp = true, min_chars = 2 },
       new_notes_location = "current_dir",
-      wiki_link_func = "use_alias_only",
-      follow_url_func = function(url)
-        vim.fn.jobstart({ "xdg-open", url })
-      end,
+      link = { style = "wiki" },
+      open = {
+        func = function(url)
+          vim.ui.open(url)
+        end,
+      },
+      legacy_commands = false,
+      -- ── use snacks.picker instead of telescope ─────────────────────────
+      picker = { name = "snacks.picker" },
       ui = { enable = false }, -- render-markdown.nvim handles visuals
     },
     keys = {
-      { "<leader>on", "<cmd>ObsidianNew<cr>", desc = "New note" },
-      { "<leader>oo", "<cmd>ObsidianOpen<cr>", desc = "Open in Obsidian app" },
-      { "<leader>os", "<cmd>ObsidianSearch<cr>", desc = "Search notes" },
-      { "<leader>oq", "<cmd>ObsidianQuickSwitch<cr>", desc = "Quick switch note" },
-      { "<leader>ob", "<cmd>ObsidianBacklinks<cr>", desc = "Backlinks" },
-      { "<leader>ot", "<cmd>ObsidianTags<cr>", desc = "Browse tags" },
-      { "<leader>od", "<cmd>ObsidianToday<cr>", desc = "Today's daily note" },
-      { "<leader>oy", "<cmd>ObsidianYesterday<cr>", desc = "Yesterday's daily note" },
-      { "<leader>ol", "<cmd>ObsidianLink<cr>", mode = "v", desc = "Link selection" },
-      { "<leader>oL", "<cmd>ObsidianLinkNew<cr>", mode = "v", desc = "Link → new note" },
-      { "<leader>oe", "<cmd>ObsidianExtractNote<cr>", mode = "v", desc = "Extract → note" },
-      { "<leader>op", "<cmd>ObsidianPasteImg<cr>", desc = "Paste image" },
-      { "<leader>or", "<cmd>ObsidianRename<cr>", desc = "Rename + update links" },
-      { "<leader>oc", "<cmd>ObsidianToggleCheckbox<cr>", desc = "Toggle checkbox" },
-      { "<leader>oT", "<cmd>ObsidianTemplate<cr>", desc = "Insert template" },
+      { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New note" },
+      { "<leader>oo", "<cmd>Obsidian open<cr>", desc = "Open in Obsidian app" },
+      { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search notes" },
+      { "<leader>oq", "<cmd>Obsidian quick_switch<cr>", desc = "Quick switch note" },
+      { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Backlinks" },
+      { "<leader>ot", "<cmd>Obsidian tags<cr>", desc = "Browse tags" },
+      { "<leader>od", "<cmd>Obsidian today<cr>", desc = "Today's daily note" },
+      { "<leader>oy", "<cmd>Obsidian yesterday<cr>", desc = "Yesterday's daily note" },
+      { "<leader>oD", "<cmd>Obsidian dailies<cr>", desc = "Daily notes list" },
+      { "<leader>oC", "<cmd>Obsidian toc<cr>", desc = "Table of contents" },
+      { "<leader>ol", "<cmd>Obsidian link<cr>", mode = "v", desc = "Link selection" },
+      { "<leader>oL", "<cmd>Obsidian link_new<cr>", mode = "v", desc = "Link → new note" },
+      { "<leader>oe", "<cmd>Obsidian extract_note<cr>", mode = "v", desc = "Extract → note" },
+      { "<leader>op", "<cmd>Obsidian paste_img<cr>", desc = "Paste image" },
+      { "<leader>or", "<cmd>Obsidian rename<cr>", desc = "Rename + update links" },
+      { "<leader>oc", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle checkbox" },
+      { "<leader>oT", "<cmd>Obsidian template<cr>", desc = "Insert template" },
+      -- navigate to next/prev link in buffer
+      {
+        "[o",
+        function()
+          require("obsidian").util.nav_link("prev")
+        end,
+        buffer = true,
+        desc = "Prev link",
+      },
+      {
+        "]o",
+        function()
+          require("obsidian").util.nav_link("next")
+        end,
+        buffer = true,
+        desc = "Next link",
+      },
     },
-  },
-
-  -- ── 4. Zen / focus writing mode ──────────────────────────────────────────
-  {
-    "folke/zen-mode.nvim",
-    cmd = "ZenMode",
-    dependencies = { "folke/twilight.nvim" },
-    keys = {
-      { "<leader>mz", "<cmd>ZenMode<cr>", desc = "Zen mode toggle" },
-    },
-    opts = {
-      window = { width = 90, options = { signcolumn = "no", number = false } },
-      plugins = { twilight = { enabled = true }, gitsigns = { enabled = false } },
-    },
-  },
-
-  -- ── 5. Dim unfocused paragraphs ───────────────────────────────────────────
-  {
-    "folke/twilight.nvim",
-    cmd = { "Twilight", "TwilightEnable", "TwilightDisable" },
-    opts = { dimming = { alpha = 0.25 }, context = 15 },
   },
 
   -- ── 6. Auto-aligned tables ────────────────────────────────────────────────
@@ -214,29 +228,6 @@ return {
       opts.sections.lualine_x = opts.sections.lualine_x or {}
       table.insert(opts.sections.lualine_x, 1, word_count)
       return opts
-    end,
-  },
-
-  -- ── 12. FileType-level writing options ────────────────────────────────────
-  {
-    "nvim-treesitter/nvim-treesitter",
-    optional = true,
-    config = function()
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "markdown",
-        callback = function()
-          local o = vim.opt_local
-          o.wrap = true
-          o.linebreak = true -- break at word boundaries, not mid-word
-          o.spell = true
-          o.spelllang = "en_us"
-          o.conceallevel = 2 -- required for render-markdown.nvim
-          o.formatoptions:append("jro")
-          -- Move by visual line when text is wrapped
-          vim.keymap.set("n", "j", "gj", { buffer = true, silent = true })
-          vim.keymap.set("n", "k", "gk", { buffer = true, silent = true })
-        end,
-      })
     end,
   },
 }

@@ -1,0 +1,6 @@
+nav:
+  - Home: index.md
+  - Setup: setup.md
+  - Packages: packages
+  - Skills: skills
+  - Refresh Log: refresh-log.md

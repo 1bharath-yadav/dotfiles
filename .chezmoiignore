@@ -1,8 +1,16 @@
+# chezmoi ignores — non-dotfile repo content
+# Rule: any root file/folder not prefixed dot_/private_ must be listed here.
 .git*
 .github/**
-docs
-agents
-prompts
-setup
-systemds
+.cache
 
+# docs & meta
+docs/
+agents/
+prompts/
+setup/
+systemds/
+
+# mkdocs build artefacts
+mkdocs.yml
+site/
