@@ -23,7 +23,6 @@ return {
     styles = {
       input = {
         relative = "editor",
-        row = "center",
       },
       terminal = {
         position = "float", 
@@ -89,121 +88,66 @@ return {
       },
       preset = {
         header = table.concat({
-          "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ",
-          "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ",
-          "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ",
-          "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ",
-          "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ",
-          "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ",
+          "    ⟨ψ| Ĥ |ψ⟩  ·  ∇·∂t  ·  Σ(xᵢ − μ)²  ·  𝔼[X|Y]  ·  ΔS ≥ 0    ",
         }, "\n"),
         ---@type snacks.dashboard.Item[]
         keys = {
-          { icon = " ", key = "e", desc = "New File", action = ":ene | startinsert" },
+          { icon = "⊕ ", key = "e", desc = "New File",        action = ":ene | startinsert" },
           {
-            icon = "󰱼 ",
+            icon = "⌬ ",
             key = "f",
             desc = "Find File",
-            action = function()
-              Snacks.picker.files()
-            end,
+            action = function() Snacks.picker.files() end,
           },
           {
-            icon = "  ",
+            icon = "∿ ",
             key = "s",
             desc = "Find Word",
-            action = function()
-              Snacks.picker.grep()
-            end,
+            action = function() Snacks.picker.grep() end,
           },
           {
-            icon = "  ",
+            icon = "↺ ",
             key = "r",
             desc = "Recent Files",
-            action = function()
-              Snacks.picker.recent()
-            end,
+            action = function() Snacks.picker.recent() end,
           },
-          { icon = "󰁯  ", key = "R", desc = "Restore Session", action = "<cmd>SessionRestore<CR>" },
-          { icon = "  ", key = "q", desc = "Quit", action = ":qa" },
+          { icon = "⟳ ", key = "R", desc = "Restore Session", action = "<cmd>SessionRestore<CR>" },
+          { icon = "⊗ ", key = "q", desc = "Quit",            action = ":qa" },
         },
       },
     },
   },
 
+  -- ══════════════════════════════════════════════════════════════════════
+  -- Keys (lazy.nvim top-level, NOT inside opts)
+  -- ══════════════════════════════════════════════════════════════════════
   keys = {
-    -- ── Explorer ──────────────────────────────────────────────────────
+    -- ── File explorer ──────────────────────────────────────────────────
     {
       "<leader>ee",
       function()
         Snacks.explorer()
       end,
-      desc = "Toggle file explorer",
-    },
-    {
-      "<leader>ef",
-      function()
-        Snacks.explorer({ focus = vim.fn.expand("%:p") })
-      end,
-      desc = "Explorer on current file",
+      desc = "File explorer",
     },
 
-    -- ── Picker ────────────────────────────────────────────────────────
-    {
-      "<leader>ff",
-      function()
-        Snacks.picker.files()
-      end,
-      desc = "Find files",
-    },
-    {
-      "<leader>fr",
-      function()
-        Snacks.picker.recent()
-      end,
-      desc = "Recent files",
-    },
-    {
-      "<leader>fs",
-      function()
-        Snacks.picker.grep()
-      end,
-      desc = "Grep in cwd",
-    },
-    {
-      "<leader>fc",
-      function()
-        Snacks.picker.grep_word()
-      end,
-      desc = "Grep word under cursor",
-    },
-    {
-      "<leader>fk",
-      function()
-        Snacks.picker.keymaps()
-      end,
-      desc = "Find keymaps",
-    },
-    {
-      "<leader>ft",
-      function()
-        Snacks.picker.todo_comments()
-      end,
-      desc = "Find todos",
-    },
-    {
-      "<leader>fd",
-      function()
-        Snacks.picker.diagnostics()
-      end,
-      desc = "Find diagnostics",
-    },
-    {
-      "<leader>fb",
-      function()
-        Snacks.picker.buffers()
-      end,
-      desc = "Find buffers",
-    },
+    -- ── Picker Search (Fuzzy Finder) ───────────────────────────────────
+    { "<leader><space>", function() Snacks.picker.files() end, desc = "Find files" },
+    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find files" },
+    { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find git files" },
+    { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent files" },
+    { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Find buffers" },
+    { "<leader>fs", function() Snacks.picker.grep() end, desc = "Grep string (workspace)" },
+    { "<leader>fw", function() Snacks.picker.grep_word() end, desc = "Grep word under cursor" },
+    { "<leader>fc", function() Snacks.picker.grep_word() end, desc = "Grep word under cursor (compat)" },
+    { "<leader>fd", function() Snacks.picker.diagnostics() end, desc = "Find workspace diagnostics" },
+    { "<leader>fh", function() Snacks.picker.help() end, desc = "Find help pages" },
+    { "<leader>fk", function() Snacks.picker.keymaps() end, desc = "Find keymaps" },
+    { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "Find todos" },
+    { "<leader>f/", function() Snacks.picker.lines() end, desc = "Fuzzy find in current buffer" },
+    { "<leader>f\"", function() Snacks.picker.registers() end, desc = "Find registers" },
+    { "<leader>f:", function() Snacks.picker.command_history() end, desc = "Command history" },
+    { "<leader>fR", function() Snacks.picker.resume() end, desc = "Resume last search" },
 
     -- ── LSP pickers ──────────────────────────────────────────────────
     {

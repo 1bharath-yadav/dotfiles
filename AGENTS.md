@@ -29,5 +29,5 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- nvim: snacks: picker sources.explorer overridden to sidebar layout and list focus to fix file management operations (a/d/r/c/m)
+- nvim: snacks: added comprehensive fuzzy finder search keybindings under <leader>f
 - next update: overwrite current-state only, max 5 lines
