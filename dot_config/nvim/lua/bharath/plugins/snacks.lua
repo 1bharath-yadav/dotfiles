@@ -188,11 +188,18 @@ return {
 
     -- ── LazyGit ──────────────────────────────────────────────────────
     {
-      "<leader>lg",
+      "<leader>gg",
       function()
         Snacks.lazygit()
       end,
       desc = "Open LazyGit",
+    },
+    {
+      "<leader>gl",
+      function()
+        Snacks.lazygit.log()
+      end,
+      desc = "LazyGit Log",
     },
 
     -- ── Notifications ────────────────────────────────────────────────
@@ -251,9 +258,15 @@ return {
       desc = "Exit terminal mode",
     },
 
-    -- ── Zen mode ────────────────────────────────────────────────────
+    -- ── UI Toggles & Zen Mode ───────────────────────────────────────
+    { "<leader>ul", function() Snacks.toggle.line_number():toggle() end, desc = "Toggle Line Numbers" },
+    { "<leader>uL", function() Snacks.toggle.relativenumber():toggle() end, desc = "Toggle Relative Numbers" },
+    { "<leader>uw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Toggle Wrap" },
+    { "<leader>ud", function() Snacks.toggle.diagnostics():toggle() end, desc = "Toggle Diagnostics" },
+    { "<leader>uh", function() Snacks.toggle.inlay_hints():toggle() end, desc = "Toggle Inlay Hints" },
+    { "<leader>I", function() Snacks.toggle.indent():toggle() end, desc = "Toggle Indent Guides" },
     {
-      "<leader>mz",
+      "<leader>uz",
       function()
         Snacks.zen()
       end,
@@ -310,7 +323,7 @@ return {
       desc = "Delete buffer",
     },
     {
-      "<leader>bD",
+      "<leader>bo",
       function()
         Snacks.bufdelete.other()
       end,

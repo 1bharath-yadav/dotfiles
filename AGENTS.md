@@ -29,5 +29,5 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- nvim: snacks: added comprehensive fuzzy finder search keybindings under <leader>f
+- nvim: keybindings optimized; which-key groups defined (u/g/h/b/x/t), snacks UI toggles added, git mappings consolidated. Duplicate bindings removed.
 - next update: overwrite current-state only, max 5 lines
