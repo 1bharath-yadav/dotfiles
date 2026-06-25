@@ -1,6 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Paper Folding and Patterns"
+title: "Paper Folding and Patterns"
 concept: "2D Net to 3D Cube Folding Patterns"
 tags: [anki, study, gate_da]
 ---

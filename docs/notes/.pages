@@ -1,0 +1,23 @@
+nav:
+  - index.md
+  # Science & Physics
+  - Atomic & Molecular Physics: Atomic-Molecular-Physics
+  - Classical Mechanics: Classical-Mechanics
+  - Electromagnetic Theory: Electromagnetic-Theory
+  - Nuclear & Particle Physics: Nuclear-Particle-Physics
+  - Quantum Mechanics: Quantum-Mechanics
+  - Solid State Physics: Solid-State-Physics
+  - Thermodynamics & Stat. Physics: Thermodynamics-Statistical-Physics
+  # Mathematics
+  - Calculus & Optimization: Calculus-Optimization
+  - Linear Algebra: Linear-Algebra
+  - Mathematical Physics: Mathematical-Physics
+  - Probability & Statistics: Probability-Statistics
+  # CS & Engineering
+  - Artificial Intelligence: Artificial-Intelligence
+  - Database & Warehousing: Database-Warehousing
+  - Electronics: Electronics
+  - Machine Learning: Machine-Learning
+  - Programming & DSA: Programming-DSA
+  # General
+  - Aptitude: aptitude

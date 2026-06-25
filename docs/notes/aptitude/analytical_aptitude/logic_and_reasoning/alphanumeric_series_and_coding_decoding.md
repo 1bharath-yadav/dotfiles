@@ -1,6 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Logic and Reasoning"
+title: "Logic and Reasoning"
 concept: "Alphanumeric Series and Coding Decoding"
 tags: [anki, study, gate_da]
 ---

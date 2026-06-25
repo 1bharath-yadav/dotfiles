@@ -1,6 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Relations and Arrangements"
+title: "Relations and Arrangements"
 concept: "Blood Relations and Family Trees"
 tags: [anki, study, gate_da]
 ---

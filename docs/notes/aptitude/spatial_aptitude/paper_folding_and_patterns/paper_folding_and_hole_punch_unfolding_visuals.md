@@ -1,6 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Paper Folding and Patterns"
+title: "Paper Folding and Patterns"
 concept: "Paper Folding and Hole Punch Unfolding Visuals"
 tags: [anki, study, gate_da]
 ---

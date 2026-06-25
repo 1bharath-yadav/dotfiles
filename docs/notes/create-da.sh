@@ -184,3 +184,6 @@ for subject in "${!SUBJECTS[@]}"; do
 done
 
 echo "GATE DA vault created."
+
+
+

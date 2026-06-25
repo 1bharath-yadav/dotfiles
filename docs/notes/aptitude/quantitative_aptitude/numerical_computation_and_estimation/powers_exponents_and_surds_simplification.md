@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
+title: "Numerical Computation and Estimation"
 concept: "Powers Exponents and Surds Simplification"
 tags: [anki, study, gate_da]
 ---

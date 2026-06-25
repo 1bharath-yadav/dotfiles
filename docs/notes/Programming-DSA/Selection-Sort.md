@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Selection-Sort"
+title: "Selection Sort"
 tags: [anki,study]
 ---
 

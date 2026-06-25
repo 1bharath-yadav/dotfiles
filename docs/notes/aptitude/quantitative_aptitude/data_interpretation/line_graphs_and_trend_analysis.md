@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Data Interpretation"
+title: "Data Interpretation"
 concept: "Line Graphs and Trend Analysis"
 tags: [anki, study, gate_da]
 ---

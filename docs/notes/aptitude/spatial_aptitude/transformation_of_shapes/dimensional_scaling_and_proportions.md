@@ -1,6 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Transformation of Shapes"
+title: "Transformation of Shapes"
 concept: "Dimensional Scaling and Proportions"
 tags: [anki, study, gate_da]
 ---

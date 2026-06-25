@@ -1,6 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Transformation of Shapes"
+title: "Transformation of Shapes"
 concept: "Mental Rotation of 2D and 3D Objects"
 tags: [anki, study, gate_da]
 ---

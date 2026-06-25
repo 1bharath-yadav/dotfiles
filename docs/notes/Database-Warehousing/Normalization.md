@@ -1,6 +1,7 @@
 ---
 subject: "Database-Warehousing"
 topic: "Normalization"
+title: "Normalization"
 tags: [anki,study]
 ---
 

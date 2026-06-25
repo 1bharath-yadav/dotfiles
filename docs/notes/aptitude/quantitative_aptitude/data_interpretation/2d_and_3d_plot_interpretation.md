@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Data Interpretation"
+title: "Data Interpretation"
 concept: "2D and 3D Plot Interpretation"
 tags: [anki, study, gate_da]
 ---

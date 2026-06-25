@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Mensuration and Geometry"
+title: "Mensuration and Geometry"
 concept: "Lines Angles and Triangle Congruence Properties"
 tags: [anki, study, gate_da]
 ---

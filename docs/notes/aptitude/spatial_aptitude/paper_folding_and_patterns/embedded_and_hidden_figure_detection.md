@@ -1,6 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Paper Folding and Patterns"
+title: "Paper Folding and Patterns"
 concept: "Embedded and Hidden Figure Detection"
 tags: [anki, study, gate_da]
 ---

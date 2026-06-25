@@ -6,6 +6,7 @@ tags:
   - study
 subject: "{{SUBJECT}}"
 topic: "{{TOPIC}}"
+title: "{{TOPIC}}"
 ---
 
 TARGET DECK: {{SUBJECT}}::{{TOPIC}}

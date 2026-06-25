@@ -1,6 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Narrative Sequencing"
+title: "Narrative Sequencing"
 concept: "Para jumbles and Sentence Ordering"
 tags: [anki, study, gate_da]
 ---

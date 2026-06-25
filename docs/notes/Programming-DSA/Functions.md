@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Functions"
+title: "Functions"
 tags: [anki,study]
 ---
 

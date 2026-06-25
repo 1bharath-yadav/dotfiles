@@ -1,6 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Narrative Sequencing"
+title: "Narrative Sequencing"
 concept: "Contextual Sentence Completion Cloze Tests"
 tags: [anki, study, gate_da]
 ---

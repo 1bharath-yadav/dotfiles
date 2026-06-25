@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
+title: "Numerical Computation and Estimation"
 concept: "Logarithms Properties and Series"
 tags: [anki, study, gate_da]
 ---

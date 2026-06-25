@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Mensuration and Geometry"
+title: "Mensuration and Geometry"
 concept: "Coordinate Geometry Basics and Coordinate Distance"
 tags: [anki, study, gate_da]
 ---

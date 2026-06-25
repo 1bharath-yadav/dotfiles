@@ -1,6 +1,7 @@
 ---
 subject: "Database-Warehousing"
 topic: "SQL-DML"
+title: "SQL DML"
 tags: [anki,study]
 ---
 

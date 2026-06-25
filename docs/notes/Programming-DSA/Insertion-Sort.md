@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Insertion-Sort"
+title: "Insertion Sort"
 tags: [anki,study]
 ---
 

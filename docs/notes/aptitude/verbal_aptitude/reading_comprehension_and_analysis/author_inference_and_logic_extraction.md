@@ -1,6 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Reading Comprehension and Analysis"
+title: "Reading Comprehension and Analysis"
 concept: "Author Inference and Logic Extraction"
 tags: [anki, study, gate_da]
 ---

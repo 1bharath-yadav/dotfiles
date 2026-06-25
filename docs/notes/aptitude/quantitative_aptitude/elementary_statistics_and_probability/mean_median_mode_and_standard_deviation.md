@@ -1,6 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Elementary Statistics and Probability"
+title: "Elementary Statistics and Probability"
 concept: "Mean Median Mode and Standard Deviation"
 tags: [anki, study, gate_da]
 ---

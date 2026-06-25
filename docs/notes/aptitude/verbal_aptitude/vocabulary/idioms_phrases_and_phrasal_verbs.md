@@ -1,6 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Vocabulary"
+title: "Vocabulary"
 concept: "Idioms Phrases and Phrasal Verbs"
 tags: [anki, study, gate_da]
 ---

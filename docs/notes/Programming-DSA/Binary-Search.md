@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Binary-Search"
+title: "Binary Search"
 tags: [anki,study]
 ---
 

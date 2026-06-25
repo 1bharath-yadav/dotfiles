@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Merge-Sort"
+title: "Merge Sort"
 tags: [anki,study]
 ---
 

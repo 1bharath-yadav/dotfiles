@@ -1,6 +1,7 @@
 ---
 subject: "Programming-DSA"
 topic: "Linear-Search"
+title: "Linear Search"
 tags: [anki,study]
 ---
 

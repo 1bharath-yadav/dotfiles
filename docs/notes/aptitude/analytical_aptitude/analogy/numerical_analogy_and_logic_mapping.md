@@ -1,6 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Analogy"
+title: "Analogy"
 concept: "Numerical Analogy and Logic Mapping"
 tags: [anki, study, gate_da]
 ---
