@@ -48,7 +48,7 @@ hl.bind("CTRL + SUPER + C", hl.dsp.workspace.toggle_special("calendar"), { descr
 hl.bind("CTRL + SUPER + K", hl.dsp.workspace.toggle_special("keep"), { description = "Toggle Google Keep scratchpad" })
 hl.bind(
 	"CTRL + SUPER + L",
-	hl.dsp.workspace.toggle_special("tasks"),`
+	hl.dsp.workspace.toggle_special("tasks"),
 	{ description = "Toggle Google Tasks scratchpad" }
 )
 hl.bind("CTRL + SUPER + M", hl.dsp.workspace.toggle_special("gmail"), { description = "Toggle Gmail scratchpad" })
