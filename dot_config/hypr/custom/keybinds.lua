@@ -18,7 +18,6 @@ hl.bind("ALT + BracketRight", hl.dsp.exec_cmd("brightnessctl set +1%"), { repeat
 
 -- Session / toggles
 hl.bind("SUPER + ALT + F4", hl.dsp.global("quickshell:sessionToggle"))
-hl.bind("SUPER + ALT + N", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/logseq.sh"))
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-gdrive.sh"))
 hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-syncthing.sh"))
 hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/send_file.sh"))
@@ -45,11 +44,11 @@ hl.bind("SUPER + ALT + O", hl.dsp.workspace.toggle_special("obsidian"), { descri
 hl.bind("SUPER + Y", hl.dsp.workspace.toggle_special("yazi"), { description = "Toggle Yazi scratchpad" })
 hl.bind("SUPER + Z", hl.dsp.workspace.toggle_special("kitty"), { description = "Toggle Kitty scratchpad" })
 hl.bind("SUPER + Minus", hl.dsp.workspace.toggle_special("quicknote"), { description = "Toggle Quicknote scratchpad" })
-hl.bind("CTRL + SUPER + G", hl.dsp.workspace.toggle_special("calendar"), { description = "Toggle Calendar scratchpad" })
+hl.bind("CTRL + SUPER + C", hl.dsp.workspace.toggle_special("calendar"), { description = "Toggle Calendar scratchpad" })
 hl.bind("CTRL + SUPER + K", hl.dsp.workspace.toggle_special("keep"), { description = "Toggle Google Keep scratchpad" })
 hl.bind(
 	"CTRL + SUPER + L",
-	hl.dsp.workspace.toggle_special("tasks"),
+	hl.dsp.workspace.toggle_special("tasks"),`
 	{ description = "Toggle Google Tasks scratchpad" }
 )
 hl.bind("CTRL + SUPER + M", hl.dsp.workspace.toggle_special("gmail"), { description = "Toggle Gmail scratchpad" })

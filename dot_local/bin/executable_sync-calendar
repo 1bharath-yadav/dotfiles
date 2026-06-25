@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# sync-calendar.sh — Push schedule.json events to Google Calendar via gws
+# Usage: sync-calendar.sh [--phase-only] [--recurring] [--dry-run] [--week YYYY-MM-DD]
+#
+# Reads ~/til/schedule.json and creates Google Calendar events.
+# --phase-only: Only push milestone/phase events (diagnostic, quizzes, etc.)
+# --recurring:  Push recurring weekly blocks for the specified week
+# --dry-run:    Print commands without executing
+# --week:       Target week start date (default: next Monday)
+#
+# Requires: gws (via mise), jq
+
+set -euo pipefail
+
+SCHEDULE="${HOME}/til/schedule.json"
+GWS="${HOME}/.local/share/mise/installs/npm-googleworkspace-cli/latest/bin/gws"
+TZ_OFFSET="+05:30"
+DRY_RUN=false
+DO_PHASE=false
+DO_RECURRING=false
+WEEK_START=""
+
+usage() {
+  echo "Usage: $0 [--phase-only] [--recurring] [--dry-run] [--week YYYY-MM-DD]"
+  echo "  --phase-only  Push only milestone events (diagnostic, quizzes, exams)"
+  echo "  --recurring   Push recurring weekly blocks for the target week"
+  echo "  --dry-run     Print gws commands without executing"
+  echo "  --week DATE   Week start date (Monday). Default: next Monday"
+  echo ""
+  echo "  If neither --phase-only nor --recurring is given, both are pushed."
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --phase-only) DO_PHASE=true; shift ;;
+    --recurring)  DO_RECURRING=true; shift ;;
+    --dry-run)    DRY_RUN=true; shift ;;
+    --week)       WEEK_START="$2"; shift 2 ;;
+    -h|--help)    usage ;;
+    *)            echo "Unknown option: $1"; usage ;;
+  esac
+done
+
+# If neither flag set, do both
+if ! $DO_PHASE && ! $DO_RECURRING; then
+  DO_PHASE=true
+  DO_RECURRING=true
+fi
+
+# Default week start: next Monday
+if [[ -z "$WEEK_START" ]]; then
+  WEEK_START=$(date -d "next Monday" +%Y-%m-%d 2>/dev/null || date -d "+1 week" +%Y-%m-%d)
+fi
+
+if [[ ! -f "$SCHEDULE" ]]; then
+  echo "Error: $SCHEDULE not found"
+  exit 1
+fi
+
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is required. Install with: sudo pacman -S jq"
+  exit 1
+fi
+
+run_gws() {
+  if $DRY_RUN; then
+    echo "[DRY RUN] $GWS calendar +insert $*"
+  else
+    echo "[CREATING] $*"
+    "$GWS" calendar +insert "$@" 2>&1 | head -5
+    echo "---"
+  fi
+}
+
+# Map day abbreviations to offsets from Monday
+day_offset() {
+  case "$1" in
+    MO) echo 0 ;; TU) echo 1 ;; WE) echo 2 ;; TH) echo 3 ;;
+    FR) echo 4 ;; SA) echo 5 ;; SU) echo 6 ;;
+  esac
+}
+
+# Push phase events
+if $DO_PHASE; then
+  echo "=== Pushing phase/milestone events ==="
+  count=$(jq '.phase_events | length' "$SCHEDULE")
+  for ((i = 0; i < count; i++)); do
+    summary=$(jq -r ".phase_events[$i].summary" "$SCHEDULE")
+    desc=$(jq -r ".phase_events[$i].description // empty" "$SCHEDULE")
+    date=$(jq -r ".phase_events[$i].date" "$SCHEDULE")
+    start=$(jq -r ".phase_events[$i].start" "$SCHEDULE")
+    end=$(jq -r ".phase_events[$i].end" "$SCHEDULE")
+
+    start_iso="${date}T${start}:00${TZ_OFFSET}"
+    end_iso="${date}T${end}:00${TZ_OFFSET}"
+
+    args=(--summary "$summary" --start "$start_iso" --end "$end_iso")
+    [[ -n "$desc" ]] && args+=(--description "$desc")
+
+    run_gws "${args[@]}"
+  done
+  echo ""
+fi
+
+# Push recurring events for the target week
+if $DO_RECURRING; then
+  echo "=== Pushing recurring blocks for week of $WEEK_START ==="
+  count=$(jq '.recurring_weekly | length' "$SCHEDULE")
+  for ((i = 0; i < count; i++)); do
+    summary=$(jq -r ".recurring_weekly[$i].summary" "$SCHEDULE")
+    desc=$(jq -r ".recurring_weekly[$i].description // empty" "$SCHEDULE")
+    start_time=$(jq -r ".recurring_weekly[$i].start" "$SCHEDULE")
+    end_time=$(jq -r ".recurring_weekly[$i].end" "$SCHEDULE")
+    days=$(jq -r ".recurring_weekly[$i].days[]" "$SCHEDULE")
+
+    for day in $days; do
+      offset=$(day_offset "$day")
+      event_date=$(date -d "${WEEK_START} + ${offset} days" +%Y-%m-%d)
+
+      start_iso="${event_date}T${start_time}:00${TZ_OFFSET}"
+      end_iso="${event_date}T${end_time}:00${TZ_OFFSET}"
+
+      args=(--summary "$summary" --start "$start_iso" --end "$end_iso")
+      [[ -n "$desc" ]] && args+=(--description "$desc")
+
+      run_gws "${args[@]}"
+    done
+  done
+fi
+
+echo ""
+echo "Done. Run 'gws calendar +agenda' to verify."

@@ -7,6 +7,7 @@ pnpm = "latest"
 # js / ts global clis
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
+"npm:@googleworkspace/cli" = "latest"
 
 # python global clis
 # "uv:aider-chat" = "latest"

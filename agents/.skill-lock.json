@@ -1,0 +1,41 @@
+{
+  "version": 3,
+  "skills": {
+    "recipe-plan-weekly-schedule": {
+      "source": "googleworkspace/cli",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/googleworkspace/cli.git",
+      "skillPath": "skills/recipe-plan-weekly-schedule/SKILL.md",
+      "skillFolderHash": "e9bcad44dd6786638398d249fc76befa2262f5e9",
+      "installedAt": "2026-06-24T17:30:17.330Z",
+      "updatedAt": "2026-06-24T17:30:17.330Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "eb6a23305aea6e340d14b9de3766e721f9f4861b",
+      "installedAt": "2026-06-24T17:30:23.976Z",
+      "updatedAt": "2026-06-24T17:30:23.976Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "antigravity-cli",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-code-cli",
+    "opencode",
+    "warp",
+    "zed"
+  ]
+}

@@ -83,3 +83,7 @@ Snapshot installed AUR packages (run periodically and commit):
 pacman -Qm | grep -v '\-debug$' | awk '{print $1}' \
   > ~/.dotfiles/setup/aur-packages.txt
 ```
+
+# rclone setup and pull first time then bidirectional sync
+
+# sync uv environment and jupyter python kernel : Ctrl+Shift+P → Python: Select Interpreter → Enter interpreter path:
