@@ -2,13 +2,12 @@
 subject: "Programming-DSA"
 topic: "Python-Basics"
 title: "Python Basics"
-tags: [anki,study]
+tags: [anki, study]
 ---
 
 TARGET DECK: Programming-DSA::Python-Basics
 
 FILE TAGS: #Programming-DSA #Python-Basics
-
 
 Jupyter notebooks preferred - interactive, shareable,..etc
 
@@ -231,7 +230,6 @@ Why Sieve of Eratosthenes is Fast #flashcard
 - Mental Model: "Cross out enemies once; don't fight them repeatedly."
 <!--ID: 1782310565644-->
 
-
 GATE Trap #flashcard
 
 - Many students write:
@@ -242,5 +240,25 @@ GATE Trap #flashcard
 - Distinguish:
   - Single prime query → $\sqrt n$ primality test.
   - Many prime queries in a range → Sieve of Eratosthenes.
-<!--ID: 1782310565649-->
+  <!--ID: 1782310565649-->
+
+No. It checks whether **every digit** of the number is even. #flashcard
+
+Algorithm:
+
+1. Extract last digit using $d=n\%10$
+2. If $d\%2\neq0$, return `False`
+3. Remove last digit using $n=n//10$
+4. If all digits are checked, return `True`
+
+```python
+def check(n):
+    while n != 0:
+        d = n % 10
+        if d % 2 != 0:
+            return False
+        n = n // 10
+    return True
+```
+^^^
 
