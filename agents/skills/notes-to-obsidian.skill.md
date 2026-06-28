@@ -85,10 +85,10 @@ e.g.  ML-bias-variance-tradeoff.md
 
 ```markdown
 ---
-tags: [gate-da, <subject>, <topic>]
-aliases: [<short topic name>]
-created: <YYYY-MM-DD>
-source: handwritten | doc | typed
+subject: "<Subject Name e.g. Quantitative Aptitude>"
+topic: "<Topic Name e.g. Numerical Computation and Estimation>"
+title: "<Full Note Title e.g. Calendars — Day-of-Week Problems>"
+tags: [anki, study, gate_da]
 ---
 
 # <Topic Name>
@@ -198,21 +198,27 @@ Before writing the file, verify:
 ## Phase 5 — Write File
 
 ### Pre-write: check for existing file
-1. `Desktop Commander: list_directory ~/til/vault/notes/<SUBJECT>/`
-2. Look for any file whose name matches the topic (fuzzy — same concept, different slug).
-3. **If match found → `mode: append`**, add a `---` separator and a dated section header:
-   ```markdown
-   ---
-   ## <Topic> — Updated <YYYY-MM-DD>
-   <new content here>
-   ```
-4. **If no match → `mode: rewrite`** with full template.
+1. `Desktop Commander: list_directory /home/archer/til/vault/notes/<SUBJECT>/` with `depth: 2`
+2. Scan ALL files returned. Match on topic — fuzzy (same concept, different slug counts as a match).
+   - **If a file whose topic overlaps with the current note is found → `mode: append`**
+     Add a `---` separator and dated section header:
+     ```markdown
+     ---
+     ## <Topic> — Updated <YYYY-MM-DD>
+     <new content here>
+     ```
+   - **If no match → `mode: rewrite`** with full template.
+3. **SUBJECT directory does not exist?** Create it first, then write.
 
 ```
 Desktop Commander: write_file
-  path: ~/til/vault/notes/<SUBJECT>/<filename>.md
+  path: /home/archer/til/vault/notes/<SUBJECT>/<filename>.md   ← always absolute
   mode: rewrite | append  (decided above)
 ```
+
+> [!warning] Always use absolute paths with Desktop Commander
+> Desktop Commander resolves `~/` relative to its own working directory, NOT `/home/archer`.
+> Use `/home/archer/til/vault/notes/...` explicitly every time.
 
 Confirm path with user only if subject is ambiguous.
 

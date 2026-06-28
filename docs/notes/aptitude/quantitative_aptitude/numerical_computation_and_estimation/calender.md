@@ -1,8 +1,9 @@
 ---
-tags: [gate-da, general-aptitude, quantitative-aptitude, calendars, odd-days]
 aliases: [calendar problems, odd days, day of week]
-created: 2026-06-28
-source: handwritten
+subject: "Quantitative Aptitude"
+topic: "Numerical Computation and Estimation"
+title: "Calendars — Day-of-Week Problems"
+tags: [anki, study, gate_da]
 ---
 
 # Calendars — Day-of-Week Problems
@@ -22,12 +23,14 @@ source: handwritten
 > [!note] First day of the week = Sunday (standard in calendar aptitude)
 
 **Odd days per year type:**
+
 - Normal year: $365 = 52 \times 7 + 1$ → **1 odd day**
 - Leap year: $366 = 52 \times 7 + 2$ → **2 odd days**
 
 ## Leap Year Condition
 
 > [!tip] ⭐ GATE PRIORITY — three-part rule
+>
 > 1. Year divisible by 4 → leap year (general rule)
 > 2. **Exception:** Century years (100, 200, 1900…) → NOT leap year, even if div by 4
 > 3. **Exception to exception:** Divisible by 400 → IS a leap year (1600, 2000 ✓)
@@ -50,6 +53,7 @@ source: handwritten
 > | First 500 years | 5 (= 400 + 100, repeats) |
 
 **Derivation for 100 years:**
+
 - 100 years = 76 normal + 24 leap (years div by 4, excluding century itself)
 - Odd days = $76 \times 1 + 24 \times 2 = 76 + 48 = 124$
 - $124 \div 7 = 17$ rem $\mathbf{5}$ → **5 odd days**
@@ -86,6 +90,7 @@ source: handwritten
 
 > [!example] ⭐ Standard procedure
 > To find the day for date $D$-$M$-$Y$:
+>
 > 1. **Completed centuries odd days** — look up table above for floor centuries
 > 2. **Remaining years odd days** — for remaining $r$ years:
 >    - Count leap years in $r$: $\lfloor r/4 \rfloor$ (no century correction needed here, centuries already handled)
@@ -97,8 +102,8 @@ source: handwritten
 
 > [!warning] Key phrase: "completed" not "current"
 > We count **completed** years, **completed** months, **completed** days.
-> The year itself is not complete on Jan 1 — only years *before* the target year count.
-> Nearest reference century: look for the century *just before* the target year.
+> The year itself is not complete on Jan 1 — only years _before_ the target year count.
+> Nearest reference century: look for the century _just before_ the target year.
 
 ## Worked Example 1 — 3rd June 1997
 
@@ -112,7 +117,7 @@ source: handwritten
 > **Step 2: Remaining years (97 years after 1900, i.e. 1901–1996 completed)**
 > Leap years in 97: $\lfloor 97/4 \rfloor = 24$. Normal years = 73.
 > Odd days = $73 \times 1 + 24 \times 2 = 73 + 48 = 121$. $121 \div 7 =$ rem **2** → but wait:
-> Notes show: $0 + 3 + 3 = 16 \div 7 =$ rem 2 → Tuesday (notes got this). *(Small discrepancy in notes — the correct answer is Tuesday.)*
+> Notes show: $0 + 3 + 3 = 16 \div 7 =$ rem 2 → Tuesday (notes got this). _(Small discrepancy in notes — the correct answer is Tuesday.)_
 >
 > **Step 3: Completed months in 1997 (Jan + Feb + Mar + Apr + May)**
 > Jan=3, Feb=0 (1997 not leap), Mar=3, Apr=2, May=3 → total = 11. $11 \div 7 =$ rem **4**
@@ -129,7 +134,7 @@ source: handwritten
 > In 69: split → 69LY=17, rem → $17 \times 2 + 52 \times 1 = 86 \to 86 \div 7 =$ rem 2.
 > Months (Jan–Oct completed): J=3, F=0, M=3, A=2, M=3, J=2, J=3, A=3, S=2, O=3 → 24 → rem 3.
 > Days: 13 completed → $13 \div 7 =$ rem 6.
-> Total: $3 + 2 + 3 + 6 = 14 \div 7 =$ rem **0** → **Sunday** *(notes show Friday; recheck century calculation — 1469 straddles 14th century, so use 1300: $3 \times 400 + 100 = 5$... the exact answer depends on starting epoch convention. Notes got Friday.)*
+> Total: $3 + 2 + 3 + 6 = 14 \div 7 =$ rem **0** → **Sunday** _(notes show Friday; recheck century calculation — 1469 straddles 14th century, so use 1300: $3 \times 400 + 100 = 5$... the exact answer depends on starting epoch convention. Notes got Friday.)_
 
 > [!note] Added by agent — BC/AD difference
 > AD (Anno Domini) = Common Era (CE). BC = Before Common Era (BCE).
@@ -139,6 +144,7 @@ source: handwritten
 ## Misc Patterns
 
 > [!tip] Same calendar year conditions
+>
 > - Two non-leap years have the same calendar if they have the same odd-day offset since the last reference
 > - The calendar repeats with period 400 years
 > - Within a century: same calendar if total odd days accumulated between the two years = 0 mod 7
@@ -150,22 +156,23 @@ $$\text{Year odd days} = r + \left\lfloor \frac{r}{4} \right\rfloor \pmod{7}$$
 
 ## Quick Recall
 
-| Item | Odd days |
-|------|----------|
-| Normal year | 1 |
-| Leap year | 2 |
-| 100 years | 5 |
-| 200 years | 3 |
-| 300 years | 1 |
-| 400 years | 0 |
-| Feb (normal) | 0 |
-| Feb (leap) | **1** ← trap |
-| Jan, Mar, May, Jul, Aug, Oct, Dec | 3 |
-| Apr, Jun, Sep, Nov | 2 |
+| Item                              | Odd days     |
+| --------------------------------- | ------------ |
+| Normal year                       | 1            |
+| Leap year                         | 2            |
+| 100 years                         | 5            |
+| 200 years                         | 3            |
+| 300 years                         | 1            |
+| 400 years                         | 0            |
+| Feb (normal)                      | 0            |
+| Feb (leap)                        | **1** ← trap |
+| Jan, Mar, May, Jul, Aug, Oct, Dec | 3            |
+| Apr, Jun, Sep, Nov                | 2            |
 
 ## Edge Cases
 
 > [!danger] Don't get caught
+>
 > - **1900 is NOT a leap year** — century but not div by 400
 > - **Feb in a leap year = 1 odd day**, not 0
 > - Count **completed** years/months/days, not current
@@ -173,15 +180,18 @@ $$\text{Year odd days} = r + \left\lfloor \frac{r}{4} \right\rfloor \pmod{7}$$
 > - "First day of week = Sunday" in standard aptitude problems
 
 ## Connects To
+
 ← [[Probability-Statistics/Counting]] | aptitude index
 
 ---
-*Source: handwritten notes — 2026-06-28*
+
+_Source: handwritten notes — 2026-06-28_
 
 ---
 
 Calendar odd-days — century table #flashcard
+
 - 100 yrs = 5 odd days, 200 = 3, 300 = 1, 400 = 0. Repeats every 400 years.
 - Key formula: Total odd days = (century) + (remaining years + their leap count) + (month table) + (day−1), all mod 7
 - GATE traps: 1900 is NOT a leap year; Feb in leap year = **1 odd day** not 0; always count **completed** units
-^^^
+  ^^^
