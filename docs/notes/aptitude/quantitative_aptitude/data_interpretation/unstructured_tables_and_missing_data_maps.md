@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Data Interpretation"
-title: "Data Interpretation"
-concept: "Unstructured Tables and Missing Data Maps"
+title: "Unstructured Tables and Missing Data Maps"
 tags: [anki, study, gate_da]
 ---
 

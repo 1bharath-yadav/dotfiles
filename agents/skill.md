@@ -41,6 +41,13 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Trigger**: "idea time" / "rate my idea" / "review my ideas"
 - **Purpose**: Daily 3-idea generation practice, weekly rating, monthly incubation review
 - **Output**: Ideas in `~/til/notelab/ideas.md`, promoted to `~/til/spaces/ideas.md`
+
+### notes-to-obsidian
+- **File**: [skills/notes-to-obsidian.skill.md](./skills/notes-to-obsidian.skill.md)
+- **Trigger**: "convert my notes" / "obsidianify" / "clean up this note" / uploads handwritten image
+- **Purpose**: Convert handwritten OCR images or raw typed docs into structured, GATE-optimised Obsidian notes with callouts, LaTeX formulas, tables, wiki-links, and flashcard blocks
+- **Reads**: `~/til/optima.md`, `~/til/vault/cards/` (for link injection)
+- **Output**: `~/til/vault/cards/<SUBJECT>/<topic>.md`
 ---
 
 ## Delegation Patterns

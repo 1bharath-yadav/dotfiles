@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
-title: "Numerical Computation and Estimation"
-concept: "Permutations and Combinations Counting Rules"
+title: "Permutations and Combinations Counting Rules"
 tags: [anki, study, gate_da]
 ---
 

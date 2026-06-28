@@ -86,7 +86,7 @@ You have ~1.5 hrs/day for non-study tasks. Use agents efficiently:
     capture.md          ← batch questions here during study
     pending.md          ← backlog tasks
     plan.md             ← subject-wise study plan
-  vault/cards/          ← Anki flashcards by subject
+  vault/notes/          ← Anki flashcards by subject
 ```
 
 ---

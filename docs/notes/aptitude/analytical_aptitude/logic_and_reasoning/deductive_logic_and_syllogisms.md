@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Logic and Reasoning"
-title: "Logic and Reasoning"
-concept: "Deductive Logic and Syllogisms"
+title: "Deductive Logic and Syllogisms"
 tags: [anki, study, gate_da]
 ---
 

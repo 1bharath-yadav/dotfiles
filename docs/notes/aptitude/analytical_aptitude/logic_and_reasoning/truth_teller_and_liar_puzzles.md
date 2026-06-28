@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Logic and Reasoning"
-title: "Logic and Reasoning"
-concept: "Truth Teller and Liar Puzzles"
+title: "Truth Teller and Liar Puzzles"
 tags: [anki, study, gate_da]
 ---
 

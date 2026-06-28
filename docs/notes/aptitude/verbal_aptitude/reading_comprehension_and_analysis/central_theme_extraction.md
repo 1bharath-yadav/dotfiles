@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Reading Comprehension and Analysis"
-title: "Reading Comprehension and Analysis"
-concept: "Central Theme Extraction"
+title: "Central Theme Extraction"
 tags: [anki, study, gate_da]
 ---
 

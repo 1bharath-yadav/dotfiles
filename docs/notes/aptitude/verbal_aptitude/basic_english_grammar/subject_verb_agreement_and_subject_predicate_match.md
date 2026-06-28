@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Basic English Grammar"
-title: "Basic English Grammar"
-concept: "Subject Verb Agreement and Subject Predicate Match"
+title: "Subject Verb Agreement and Subject Predicate Match"
 tags: [anki, study, gate_da]
 ---
 

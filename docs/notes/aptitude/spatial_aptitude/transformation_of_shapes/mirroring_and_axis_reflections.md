@@ -1,8 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Transformation of Shapes"
-title: "Transformation of Shapes"
-concept: "Mirroring and Axis Reflections"
+title: "Mirroring and Axis Reflections"
 tags: [anki, study, gate_da]
 ---
 

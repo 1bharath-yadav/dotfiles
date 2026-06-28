@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
-title: "Numerical Computation and Estimation"
-concept: "Ratios Proportions and Direct Inverse Variations"
+title: "Ratios Proportions and Direct Inverse Variations"
 tags: [anki, study, gate_da]
 ---
 

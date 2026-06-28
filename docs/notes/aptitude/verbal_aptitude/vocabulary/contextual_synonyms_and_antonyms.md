@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Vocabulary"
-title: "Vocabulary"
-concept: "Contextual Synonyms and Antonyms"
+title: "Contextual Synonyms and Antonyms"
 tags: [anki, study, gate_da]
 ---
 

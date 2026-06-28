@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Basic English Grammar"
-title: "Basic English Grammar"
-concept: "Articles and Determiners"
+title: "Articles and Determiners"
 tags: [anki, study, gate_da]
 ---
 

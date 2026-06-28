@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Relations and Arrangements"
-title: "Relations and Arrangements"
-concept: "Direction Sense and Network Path Traversal"
+title: "Direction Sense and Network Path Traversal"
 tags: [anki, study, gate_da]
 ---
 

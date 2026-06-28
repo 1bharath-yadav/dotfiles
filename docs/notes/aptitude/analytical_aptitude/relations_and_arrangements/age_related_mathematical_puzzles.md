@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Relations and Arrangements"
-title: "Relations and Arrangements"
-concept: "Age Related Mathematical Puzzles"
+title: "Age Related Mathematical Puzzles"
 tags: [anki, study, gate_da]
 ---
 

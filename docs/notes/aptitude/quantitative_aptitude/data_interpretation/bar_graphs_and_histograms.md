@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Data Interpretation"
-title: "Data Interpretation"
-concept: "Bar Graphs and Histograms"
+title: "Bar Graphs and Histograms"
 tags: [anki, study, gate_da]
 ---
 

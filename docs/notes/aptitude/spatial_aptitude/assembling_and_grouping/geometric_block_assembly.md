@@ -1,8 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Assembling and Grouping"
-title: "Assembling and Grouping"
-concept: "Geometric Block Assembly"
+title: "Geometric Block Assembly"
 tags: [anki, study, gate_da]
 ---
 

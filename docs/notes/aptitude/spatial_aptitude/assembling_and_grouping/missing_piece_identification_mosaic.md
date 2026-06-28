@@ -1,8 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Assembling and Grouping"
-title: "Assembling and Grouping"
-concept: "Missing Piece Identification Mosaic"
+title: "Missing Piece Identification Mosaic"
 tags: [anki, study, gate_da]
 ---
 

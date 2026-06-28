@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Mensuration and Geometry"
-title: "Mensuration and Geometry"
-concept: "Polygons Circles Perimeter and Area"
+title: "Polygons Circles Perimeter and Area"
 tags: [anki, study, gate_da]
 ---
 

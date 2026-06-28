@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Elementary Statistics and Probability"
-title: "Elementary Statistics and Probability"
-concept: "Conditional Probability and Independent Events"
+title: "Conditional Probability and Independent Events"
 tags: [anki, study, gate_da]
 ---
 

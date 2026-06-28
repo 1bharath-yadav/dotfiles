@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Basic English Grammar"
-title: "Basic English Grammar"
-concept: "Sentence Correction and Spotting Errors"
+title: "Sentence Correction and Spotting Errors"
 tags: [anki, study, gate_da]
 ---
 

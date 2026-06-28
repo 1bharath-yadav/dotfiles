@@ -1,8 +1,7 @@
 ---
 subject: "Spatial Aptitude"
 topic: "Transformation of Shapes"
-title: "Transformation of Shapes"
-concept: "2D Coordinate Translation and Sliding"
+title: "2D Coordinate Translation and Sliding"
 tags: [anki, study, gate_da]
 ---
 

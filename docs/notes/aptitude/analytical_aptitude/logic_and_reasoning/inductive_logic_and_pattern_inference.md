@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Logic and Reasoning"
-title: "Logic and Reasoning"
-concept: "Inductive Logic and Pattern Inference"
+title: "Inductive Logic and Pattern Inference"
 tags: [anki, study, gate_da]
 ---
 

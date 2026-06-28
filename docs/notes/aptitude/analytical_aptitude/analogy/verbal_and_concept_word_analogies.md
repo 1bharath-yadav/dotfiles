@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Analogy"
-title: "Analogy"
-concept: "Verbal and Concept Word Analogies"
+title: "Verbal and Concept Word Analogies"
 tags: [anki, study, gate_da]
 ---
 

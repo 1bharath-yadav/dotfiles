@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Mensuration and Geometry"
-title: "Mensuration and Geometry"
-concept: "3D Surface Areas and Volumes Cubes and Spheres"
+title: "3D Surface Areas and Volumes Cubes and Spheres"
 tags: [anki, study, gate_da]
 ---
 

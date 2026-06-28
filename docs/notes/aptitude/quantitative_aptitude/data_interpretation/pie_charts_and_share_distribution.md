@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Data Interpretation"
-title: "Data Interpretation"
-concept: "Pie Charts and Share Distribution"
+title: "Pie Charts and Share Distribution"
 tags: [anki, study, gate_da]
 ---
 

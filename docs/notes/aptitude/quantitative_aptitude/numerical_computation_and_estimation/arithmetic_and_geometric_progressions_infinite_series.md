@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
-title: "Numerical Computation and Estimation"
-concept: "Arithmetic and Geometric Progressions Infinite Series"
+title: "Arithmetic and Geometric Progressions Infinite Series"
 tags: [anki, study, gate_da]
 ---
 

@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
-title: "Numerical Computation and Estimation"
-concept: "Percentages Profit Loss and Compound Discounts"
+title: "Percentages Profit Loss and Compound Discounts"
 tags: [anki, study, gate_da]
 ---
 

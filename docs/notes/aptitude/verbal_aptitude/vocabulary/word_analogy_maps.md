@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Vocabulary"
-title: "Vocabulary"
-concept: "Word Analogy Maps"
+title: "Word Analogy Maps"
 tags: [anki, study, gate_da]
 ---
 

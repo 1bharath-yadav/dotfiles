@@ -23,7 +23,7 @@ create_concept() {
 ---
 subject: "${subject}"
 topic: "${topic}"
-concept: "${concept}"
+title: "${concept}"
 tags: [anki, study, gate_da]
 ---
 

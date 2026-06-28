@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Numerical Computation and Estimation"
-title: "Numerical Computation and Estimation"
-concept: "Time Work and Pipe Cistern Efficiencies"
+title: "Time Work and Pipe Cistern Efficiencies"
 tags: [anki, study, gate_da]
 ---
 

@@ -1,8 +1,7 @@
 ---
 subject: "Analytical Aptitude"
 topic: "Relations and Arrangements"
-title: "Relations and Arrangements"
-concept: "Linear and Circular Seating Arrangements"
+title: "Linear and Circular Seating Arrangements"
 tags: [anki, study, gate_da]
 ---
 

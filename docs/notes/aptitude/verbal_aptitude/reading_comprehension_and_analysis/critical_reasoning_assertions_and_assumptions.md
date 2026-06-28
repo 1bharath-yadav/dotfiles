@@ -1,8 +1,7 @@
 ---
 subject: "Verbal Aptitude"
 topic: "Reading Comprehension and Analysis"
-title: "Reading Comprehension and Analysis"
-concept: "Critical Reasoning Assertions and Assumptions"
+title: "Critical Reasoning Assertions and Assumptions"
 tags: [anki, study, gate_da]
 ---
 

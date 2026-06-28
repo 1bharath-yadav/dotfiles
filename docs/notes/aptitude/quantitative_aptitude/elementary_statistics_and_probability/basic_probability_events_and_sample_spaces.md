@@ -1,8 +1,7 @@
 ---
 subject: "Quantitative Aptitude"
 topic: "Elementary Statistics and Probability"
-title: "Elementary Statistics and Probability"
-concept: "Basic Probability Events and Sample Spaces"
+title: "Basic Probability Events and Sample Spaces"
 tags: [anki, study, gate_da]
 ---
 
