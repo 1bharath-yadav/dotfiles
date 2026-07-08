@@ -5,7 +5,5 @@ title: "Predicate Logic"
 tags: [anki,study]
 ---
 
-TARGET DECK: Artificial-Intelligence::Predicate-Logic
 
-FILE TAGS: #Artificial-Intelligence #Predicate-Logic
 

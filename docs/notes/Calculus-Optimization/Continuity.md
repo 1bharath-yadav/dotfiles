@@ -5,7 +5,5 @@ title: "Continuity"
 tags: [anki,study]
 ---
 
-TARGET DECK: Calculus-Optimization::Continuity
 
-FILE TAGS: #Calculus-Optimization #Continuity
 

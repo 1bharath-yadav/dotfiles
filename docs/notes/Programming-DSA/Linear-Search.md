@@ -5,7 +5,6 @@ title: "Linear Search"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::Linear-Search
+<!--SR:!2026-07-03,4,270-->
 
-FILE TAGS: #Programming-DSA #Linear-Search
 

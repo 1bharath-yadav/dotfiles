@@ -1,5 +1,5 @@
 
-TARGET DECK: Database-Warehousing::Introduction
+<!--SR:!2026-06-30,1,230-->
 
 **What is DBMS?** #flashcard
 

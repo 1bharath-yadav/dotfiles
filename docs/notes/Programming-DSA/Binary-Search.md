@@ -5,7 +5,6 @@ title: "Binary Search"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::Binary-Search
+<!--SR:!2026-07-03,4,270-->
 
-FILE TAGS: #Programming-DSA #Binary-Search
 

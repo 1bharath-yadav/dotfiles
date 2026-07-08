@@ -5,9 +5,7 @@ title: "Sentence Correction and Spotting Errors"
 tags: [anki, study, gate_da]
 ---
 
-TARGET DECK: Verbal Aptitude::Basic English Grammar::Sentence Correction and Spotting Errors
 
-FILE TAGS: #verbal_aptitude #basic_english_grammar #sentence_correction_and_spotting_errors
 
 ## Sentence Correction and Spotting Errors Notes
 

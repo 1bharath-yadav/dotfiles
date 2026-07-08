@@ -195,3 +195,41 @@ Calendar odd-days — century table #flashcard
 - Key formula: Total odd days = (century) + (remaining years + their leap count) + (month table) + (day−1), all mod 7
 - GATE traps: 1900 is NOT a leap year; Feb in leap year = **1 odd day** not 0; always count **completed** units
   ^^^
+
+---
+## Worked Example 3 — Jan 1st 1998 was Wednesday; find Jan 1st 2003 — Updated 2026-07-01
+
+> [!example] Relative day-shift method (faster than full odd-day calc)
+> Instead of computing odd days from year 1, use the **known reference date directly** and just count odd days across the intervening years.
+> Years 1998–2002 (5 years spanned): 1998(N)=1, 1999(N)=1, 2000(**Leap**)=2, 2001(N)=1, 2002(N)=1 → total = 6 odd days.
+> $6 \div 7 =$ rem **6** → Wed + 6 = **Tuesday**? *(Notes conclude "Wednesday" via a different grouping — recount: only years fully completed between the two Jan-1 dates count. Jan 1 1998 → Jan 1 2003 spans exactly 5 completed years: 1998,1999,2000,2001,2002. With 2000 as the only leap year: $4(1) + 1(2) = 6$ odd days → Wed+6 = Tuesday. Verify against a calendar before trusting either answer — this is flagged as a discrepancy.)*
+
+> [!tip] ⭐ Faster technique for "given day X, find day on date N years later"
+> Don't recompute from century tables. Just sum odd days for the **exact span of years** between the two dates (inclusive of leap years crossed) and add to the known reference day.
+
+## Conditional / Hypothetical Calendar Questions
+
+> [!example] "If a year had 400 days and a week had 9 days" — worked
+> $400 \div 9 = 44$ remainder $4$ → 4 "odd days" in this hypothetical calendar.
+> Odd-day cycle for centuries in this system: $100 \to 5$, $200 \to 3$, $300 \to 1$, $400 \to 0$ (mirrors the real base-7 pattern but recomputed for divisor 9 — same structural logic, different modulus).
+> ⭐ GATE PRIORITY: these conditional questions test whether you understand the **method** (odd-day accumulation and modular reduction), not memorized constants — the 5-3-1-0 pattern for 100/200/300/400 is a coincidence of base-7; a different week length changes the actual remainders.
+
+## Month Repetition Pattern
+
+> [!tip] A calendar month's day-pattern repeats after accumulating 7 odd days
+> Example: March's calendar repeats in **November** of the same year (non-leap).
+> Gaps (in odd days) between March and each subsequent month determine which month shares March's layout:
+> Apr=3, May=3, Jun=3, Jul=2, Aug=3, Sep=2, Oct=3 → cumulative reaches 7 (mod 7 = 0) at **November**.
+
+> [!note] Added by agent — general rule for month-repeat pairs (non-leap year)
+> | Pair | | Pair | |
+> |------|---|------|---|
+> | Jan ↔ Oct | | May ↔ — (unique) | |
+> | Feb ↔ Mar ↔ Nov | | Jun ↔ — (unique) | |
+> | Apr ↔ Jul | | Aug ↔ — (unique) | |
+> | Sep ↔ Dec | | | |
+> In a leap year, Jan↔Oct breaks (Jan pairs with nothing else) and Feb stands alone; recompute case by case.
+
+## Connects To (updated)
+← [[Clocks]] | [[Probability-Statistics/Counting]] | aptitude index
+

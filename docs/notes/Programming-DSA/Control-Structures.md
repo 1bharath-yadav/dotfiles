@@ -5,7 +5,6 @@ title: "Control Structures"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::Control-Structures
+<!--SR:!2026-07-03,4,270-->
 
-FILE TAGS: #Programming-DSA #Control-Structures
 

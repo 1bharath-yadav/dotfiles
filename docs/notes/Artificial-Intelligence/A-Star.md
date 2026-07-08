@@ -5,7 +5,5 @@ title: "A Star"
 tags: [anki,study]
 ---
 
-TARGET DECK: Artificial-Intelligence::A-Star
 
-FILE TAGS: #Artificial-Intelligence #A-Star
 

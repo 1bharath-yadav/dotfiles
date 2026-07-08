@@ -5,9 +5,7 @@ title: "Missing Piece Identification Mosaic"
 tags: [anki, study, gate_da]
 ---
 
-TARGET DECK: Spatial Aptitude::Assembling and Grouping::Missing Piece Identification Mosaic
 
-FILE TAGS: #spatial_aptitude #assembling_and_grouping #missing_piece_identification_mosaic
 
 ## Missing Piece Identification Mosaic Notes
 

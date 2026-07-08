@@ -5,9 +5,8 @@ title: "Normalization"
 tags: [anki, study]
 ---
 
-TARGET DECK: Database-Warehousing::Normalization
+<!--SR:!2026-06-30,1,230-->
 
-FILE TAGS: #Database-Warehousing #Normalization
 
 | Case                           | Condition                          | Formula                                                |
 | ------------------------------ | ---------------------------------- | ------------------------------------------------------ |

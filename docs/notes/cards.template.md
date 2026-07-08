@@ -9,9 +9,7 @@ topic: "{{TOPIC}}"
 title: "{{TOPIC}}"
 ---
 
-TARGET DECK: {{SUBJECT}}::{{TOPIC}}
 
-FILE TAGS: {{subject}} {{topic}}
 
 %%
 Plugin Regex:

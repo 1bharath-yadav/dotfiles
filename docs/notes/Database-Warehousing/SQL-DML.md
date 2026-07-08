@@ -1,13 +1,15 @@
 ---
-subject: "Database-Warehousing"
-topic: "SQL-DML"
-title: "SQL DML"
-tags: [anki, study]
+id: SQL-DML
+aliases: []
+tags:
+  - anki
+  - study
+subject: Database-Warehousing
+title: SQL DML
+topic: SQL-DML
 ---
 
-TARGET DECK: Database-Warehousing::SQL-DML
-
-FILE TAGS: #Database-Warehousing #SQL-DML
+<!--SR:!2026-06-30,1,230-->
 
 Cartesian Product without JOIN #flashcard
 
@@ -289,7 +291,8 @@ All non-aggregated columns in SELECT must appear in GROUP BY.
 - **GATE Trap:** A theta join followed by projection is equivalent to a natural join.
   ^^^
 
-**SQL `LIKE` Wildcards** #flashcard
+**SQL `LIKE` Wildcards**
+?
 
 - `%` → Matches **zero or more** characters.
 - `_` → Matches **exactly one** character.
@@ -302,4 +305,61 @@ All non-aggregated columns in SELECT must appear in GROUP BY.
   - Contains a `5`.
   - Has **at least two characters after that `5`** (`_` + final `_`, with `%` matching zero or more in between).
 - **GATE Trap:** `%` can match an empty string, but `_` must always match exactly one character.
-  ^^^
+
+# Nested Subqueries
+
+# Database modification:
+
+## Joins
+
+syntax:
+
+```sql
+SELECT column1, column2, ...
+FROM table1
+JOIN table2
+ON table1.common_column = table2.common_column;
+```
+
+- A view provides a mechanism to hide certain data from the view of certain users
+- Any relation that is not of the conceptual model but is made visible to a user as a
+  “virtual relation” is called a view.
+
+example:
+
+```sql
+CREATE VIEW view_name AS
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition;
+```
+
+# Materialized Views
+
+- A materialized view is a database object that contains the results of a query. It is similar to a view, but unlike a view, the data is actually stored on disk and can be refreshed periodically.
+- Materialized views can be used to improve query performance by precomputing and storing the results of complex queries, especially in data warehousing scenarios.
+- Needs to be refreshed periodically to ensure that the data is up-to-date.
+
+## Transactions:
+
+follows ACID properties: Atomicity, C onsistency, I solation, D urability.
+
+## Functions/Procedures:
+
+SYNTAX:
+
+```sql
+create function dept count (dept name varchar(20))
+returns integer
+begin
+declare d count integer;
+select count (*) into d count
+from instructor
+where instructor.dept name = dept name
+return d cont;
+end
+```
+
+select dept name, budget
+from department
+where dept count (dept name ) > 12

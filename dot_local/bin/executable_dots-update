@@ -11,54 +11,16 @@ warn() {
 sync_end4dots() {
   [[ -d "$END4DOTS" ]] || return 0
 
-  log "Syncing end4dots with upstream (agent-driven merge strategy)"
+  log "Syncing end4dots with upstream"
 
   cd "$END4DOTS"
   git remote get-url upstream >/dev/null 2>&1 || git remote add upstream https://github.com/end-4/dots-hyprland.git
 
-  local stashed=false
-  if ! git diff --quiet || ! git diff --cached --quiet; then
-    git stash push -q -m "update.sh auto-stash $(date +%s)"
-    stashed=true
-  fi
-
   # Update main branch (upstream mirror)
-  git checkout main -q
   git fetch upstream -q
-  if git merge -m "chore: sync main with upstream" upstream/main -q; then
-    log "main branch merged with upstream"
-  else
-    warn "Merge conflict on main — resolve or abort with: git merge --abort"
-    git merge --abort 2>/dev/null || true
-    git checkout archer -q
-    $stashed && git stash pop -q || true
-    return 1
-  fi
-  git push origin main -q 2>/dev/null || true
-
-  # Merge main into archer allowing standard conflicts
-  git checkout archer -q
-  
-  if git merge -m "chore: merge upstream features into archer branch" main -q; then
-    log "archer branch merged cleanly with main (upstream features added)"
-  else
-    warn "MERGE CONFLICT detected! The AI Agent must now inspect the conflicts."
-    warn "Read the conflict markers, analyze upstream features vs your custom code, and manually blend them."
-    warn "When done, commit with: git add . && git commit"
-    return 1
-  fi
-  git push origin archer -q 2>/dev/null || true
-  $stashed && git stash pop -q || true
 
   "$END4DOTS/setup" exp-update
 
-  local hconf="$HOME/.config/hypr/hyprland.conf"
-  if [[ -f "$hconf" ]] && ! grep -q "source=custom/env.conf" "$hconf"; then
-    cp "$END4DOTS/dots/.config/hypr/hyprland.conf" "$hconf"
-    log "Re-patched hyprland.conf with source=custom/env.conf"
-  fi
-
-  find "$HOME/.config/hypr" -maxdepth 1 -name "*.new" -delete 2>/dev/null || true
 }
 
 [[ $(uname) == Linux ]] && grep -qi "arch" /etc/os-release && sync_end4dots || warn "End4dots sync skipped (not Arch Linux or sync failed)"

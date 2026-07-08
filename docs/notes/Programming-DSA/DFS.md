@@ -5,7 +5,6 @@ title: "DFS"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::DFS
+<!--SR:!2026-07-03,4,270-->
 
-FILE TAGS: #Programming-DSA #DFS
 

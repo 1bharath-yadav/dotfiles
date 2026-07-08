@@ -5,7 +5,6 @@ title: "Functions"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::Functions
+<!--SR:!2026-07-03,4,270-->
 
-FILE TAGS: #Programming-DSA #Functions
 

@@ -5,9 +5,7 @@ title: "Python Basics"
 tags: [anki, study]
 ---
 
-TARGET DECK: Programming-DSA::Python-Basics
-
-FILE TAGS: #Programming-DSA #Python-Basics
+#flashcard 
 
 Jupyter notebooks preferred - interactive, shareable,..etc
 
@@ -50,8 +48,8 @@ ax.plot(x,y)
 
 ```
 
-What is GCD? #flashcard
-
+What is GCD?
+?
 - Gcd also called HCF (Highest Common Factor) or greatest common divisor.
 - Largest positive integer dividing both numbers.
 - Computed fastest using Euclidean Algorithm.
@@ -59,17 +57,20 @@ What is GCD? #flashcard
 - If gcd(a,b)=1, numbers are coprime.
 - gcd(a,b)⋅lcm(a,b)=ab.
 - Bézout: ∃x,y∈Z such that ax+by=gcd(a,b).
-<!--ID: 1782233473010-->
+<!--SR:!fsrs,2026-07-07T13:48:11.736Z,8,8.2956,1,2,1,0,0,2026-06-29T13:48:11.736Z-->
+
 
 ---
 
-Why does `sin(2πx)` look more like a sine wave than `sin(x)`? #flashcard
+Why does `sin(2πx)` look more like a sine wave than `sin(x)`?
+?
+<!--SR:!fsrs,2026-07-08T03:14:40.282Z,8,8.2956,1,2,1,0,0,2026-06-30T03:14:40.282Z-->
 
 - $\sin(x)$ completes **1 full cycle** when its input changes by $2\pi \approx 6.28$.
 - If $x\in[0,5]$, then $\sin(x)$ shows **less than one complete wave**.
 - $\sin(2\pi x)$ makes the input go from $0$ to $10\pi$ when $x\in[0,5]$, giving **5 full cycles**.
 - General form: $$y=\sin(2\pi f x)$$ where $f$ = frequency (cycles per unit x).
-<!--ID: 1782233473013-->
+
 
 ```python
 # Ineffecient algorithm in terms of space
@@ -94,20 +95,23 @@ gcd(22,40)
 
 - 1 is not a prime number.
 
-Why do we check divisors only up to √n? #flashcard
+Why do we check divisors only up to √n?
+?
+<!--SR:!fsrs,2026-07-08T03:14:35.145Z,8,8.2956,1,2,1,0,0,2026-06-30T03:14:35.145Z-->
 
 - If n = a×b and both a,b > √n, then a×b > n (impossible).
 - Therefore at least one factor must be ≤ √n.
 - Prime test: check divisibility from 2 to int(√n)+1.
 - Time complexity reduces from O(n) to O(√n).
-<!--ID: 1782233473015-->
 
-Why use `pd[d] = pd.get(d,0) + 1`? #flashcard
 
+Why use `pd[d] = pd.get(d,0) + 1`?
+?
 - Counts frequencies without checking if key exists. -`get(d,0)` returns current count or 0 if missing.
 - Adds 1 and stores back into the dictionary.
 - Replaces `if d in pd: ... else: ...` in one line.
-<!--ID: 1782233473018-->
+<!--SR:!fsrs,2026-06-30T03:24:47.127Z,0,2.3065,2.11810397,1,1,0,1,2026-06-30T03:14:47.127Z-->
+
 
 - All the factors till sqrt(n) are paird with factors before the sqrt(n)
 - Twin primes : p,p+2 are twin primes. (3,5),(5,7),(11,13),(17,19),(29,31),(41,43),(59,61),(71,73)...
@@ -209,8 +213,8 @@ unsorted aadhar to sim connection takes 3200 years, sorted aadhar to sim connect
 
 ## Practical tests:
 
-Why Sieve of Eratosthenes is Fast #flashcard
-
+Why Sieve of Eratosthenes is Fast
+?
 - Goal: Find all primes up to $n$.
 - Naive idea: For every number $k$, search for factors up to $\sqrt{k}$ → repeated work.
 - Sieve idea: When a prime $p$ is found, immediately mark all multiples of $p$ as composite.
@@ -228,10 +232,11 @@ Why Sieve of Eratosthenes is Fast #flashcard
   - Sieve: $O(n\log\log n)$
 - Space Complexity: $O(n)$
 - Mental Model: "Cross out enemies once; don't fight them repeatedly."
-<!--ID: 1782310565644-->
+<!--SR:!fsrs,2026-06-30T03:24:13.103Z,0,2.3065,2.11810397,1,1,0,1,2026-06-30T03:14:13.103Z-->
 
-GATE Trap #flashcard
 
+GATE Trap
+?
 - Many students write:
   `for i in range(2,n)`
 - Better:
@@ -240,11 +245,13 @@ GATE Trap #flashcard
 - Distinguish:
   - Single prime query → $\sqrt n$ primality test.
   - Many prime queries in a range → Sieve of Eratosthenes.
-  <!--ID: 1782310565649-->
+<!--SR:!fsrs,2026-06-30T03:24:51.778Z,0,2.3065,2.11810397,1,1,0,1,2026-06-30T03:14:51.778Z-->
 
-No. It checks whether **every digit** of the number is even. #flashcard
 
+No. It checks whether **every digit** of the number is even.
+?
 Algorithm:
+<!--SR:!fsrs,2026-06-30T03:24:26.692Z,0,2.3065,2.11810397,1,1,0,1,2026-06-30T03:14:26.692Z-->
 
 1. Extract last digit using $d=n\%10$
 2. If $d\%2\neq0$, return `False`
@@ -260,5 +267,5 @@ def check(n):
         n = n // 10
     return True
 ```
-^^^
+
 

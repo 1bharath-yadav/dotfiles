@@ -5,7 +5,5 @@ title: "Linked Lists"
 tags: [anki,study]
 ---
 
-TARGET DECK: Programming-DSA::Linked-Lists
 
-FILE TAGS: #Programming-DSA #Linked-Lists
 

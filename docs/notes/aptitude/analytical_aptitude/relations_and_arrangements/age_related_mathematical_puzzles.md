@@ -5,9 +5,7 @@ title: "Age Related Mathematical Puzzles"
 tags: [anki, study, gate_da]
 ---
 
-TARGET DECK: Analytical Aptitude::Relations and Arrangements::Age Related Mathematical Puzzles
 
-FILE TAGS: #analytical_aptitude #relations_and_arrangements #age_related_mathematical_puzzles
 
 ## Age Related Mathematical Puzzles Notes
 
