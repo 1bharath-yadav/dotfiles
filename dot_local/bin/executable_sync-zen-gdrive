@@ -107,18 +107,14 @@ LOCAL="/home/archer/zen_spaces"
 REMOTE="gdrive:zen_spaces"
 FILTER="/home/archer/.config/rclone/zen_spaces.filter"
 WORKDIR="/home/archer/.cache/rclone/bisync-zen_spaces"
-LOCAL_BACKUP="/home/archer/.rclone-bisync-backups/zen_spaces-local/$(date +%F)"
-REMOTE_BACKUP="gdrive:rclone-bisync-backups/zen_spaces-remote/$(date +%F)"
 LOGDIR="/home/archer/.local/state/rclone"
-mkdir -p "$WORKDIR" "$LOGDIR" "$(dirname "$LOCAL_BACKUP")"
+mkdir -p "$WORKDIR" "$LOGDIR"
 
 COMMON=(
   "$LOCAL"
   "$REMOTE"
   --filters-file "$FILTER"
   --workdir "$WORKDIR"
-  --backup-dir1 "$LOCAL_BACKUP"
-  --backup-dir2 "$REMOTE_BACKUP"
   --resilient
   --recover
   --conflict-resolve newer
