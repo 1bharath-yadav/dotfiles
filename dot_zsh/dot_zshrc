@@ -32,3 +32,5 @@ for f in "$ZDOTDIR"/init/*.zsh(.N); do
 done
 
 alias dots='${EDITOR:-nvim} $HOME/.dotfiles'
+
+

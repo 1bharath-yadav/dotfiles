@@ -25,8 +25,11 @@ from typing import List, Optional, Tuple
 
 # ── paths ──────────────────────────────────────────────────────────────────────
 WHISPER_CLI = "whisper-cli"
-MODEL = "/home/archer/linux/whisper_models/ggml-large-v3-turbo-q8_0.bin"
-VAD_MODEL = "/home/archer/linux/whisper_models/ggml-base-models/ggml-vad.bin"
+PARAKEET_CLI = "parakeet-cli"
+MODELS_DIR = Path.home() / ".local/share/transcribe/parakeet/models"
+MODEL = str(MODELS_DIR / "ggml-large-v3-turbo-q8_0.bin")
+PARAKEET_MODEL = str(MODELS_DIR / "ggml-parakeet-tdt-0.6b-v3-q4_k.bin")
+VAD_MODEL = str(MODELS_DIR / "ggml-base-models/ggml-vad.bin")
 INBOX = Path("/home/archer/Sync/obsidian_vault/til/inbox/daily-journal_transcripts")
 CHUNK_DIR = Path("/tmp/whisper-rec-chunks")
 REC_PID = Path("/tmp/whisper-rec.pid")
@@ -53,8 +56,9 @@ def _qs_write(status: str, text: str | None = None) -> None:
 # ── config ─────────────────────────────────────────────────────────────────────
 @dataclass(frozen=True)
 class Config:
-    chunk_secs: int = 8  # smaller = lower latency dictation
-    overlap_secs: int = 1  # overlap between chunks for context
+    use_parakeet: bool = True
+    chunk_secs: int = 3  
+    overlap_secs: int = 2  # overlap between chunks for context
     whisper_threads: int = 4
     max_workers: int = 2  # parallel whisper processes
     gpu: bool = True
@@ -194,13 +198,31 @@ def build_whisper_cmd(chunk: Path, cfg: Config) -> List[str]:
     return cmd
 
 
+def build_parakeet_cmd(chunk: Path, cfg: Config) -> List[str]:
+    cmd = [
+        PARAKEET_CLI,
+        "-m",
+        PARAKEET_MODEL,
+        "-f",
+        str(chunk),
+        "-t",
+        str(cfg.whisper_threads),
+        "-otxt",
+        "-np",
+    ]
+    if not cfg.gpu:
+        cmd.append("-ng")
+    return cmd
+
+
 def transcribe_chunk(
     idx: int, chunk: Path, cfg: Config
 ) -> Tuple[int, str, Optional[str]]:
     """Returns (index, text, error_or_None)."""
     txt = Path(str(chunk) + ".txt")
     try:
-        run_cmd(build_whisper_cmd(chunk, cfg))
+        cmd = build_parakeet_cmd(chunk, cfg) if cfg.use_parakeet else build_whisper_cmd(chunk, cfg)
+        run_cmd(cmd)
         text = txt.read_text(encoding="utf-8").strip() if txt.exists() else ""
         txt.unlink(missing_ok=True)
         print(f"  [chunk {idx:03d}] ✓  {len(text.split())} words", flush=True)
@@ -360,7 +382,7 @@ def _watcher_thread(
                 seen.add(path.name)
                 task_queue.put((idx, path))
                 idx += 1
-        time.sleep(0.5)
+        time.sleep(0.1)
 
     # flush remaining chunks after stop
     time.sleep(1.0)
@@ -384,7 +406,7 @@ def _writer_thread(
 
     while not stop_event.is_set() or not result_queue.empty():
         try:
-            idx, text = result_queue.get(timeout=0.3)
+            idx, text = result_queue.get(timeout=0.1)
         except Empty:
             continue
 
@@ -431,24 +453,30 @@ def start_dictation(cfg: Config = CFG, save: bool = False) -> None:
 
     def worker_loop():
         with ThreadPoolExecutor(max_workers=cfg.max_workers) as pool:
-            pending_futures = {}
+            pending_futures = []
+
+            def on_done(f):
+                try:
+                    i, text, _ = f.result()
+                    result_queue.put((i, text))
+                except Exception:
+                    pass
+
             while not stop_event.is_set() or not task_queue.empty():
                 try:
-                    idx, path = task_queue.get(timeout=0.3)
+                    idx, path = task_queue.get(timeout=0.1)
                 except Empty:
-                    # collect finished futures
-                    done = [f for f in list(pending_futures) if f.done()]
-                    for f in done:
-                        i, text, _ = f.result()
-                        result_queue.put((i, text))
-                        del pending_futures[f]
                     continue
                 f = pool.submit(transcribe_chunk, idx, path, cfg)
-                pending_futures[f] = idx
-            # drain remaining
-            for f, i in pending_futures.items():
-                idx2, text, _ = f.result()
-                result_queue.put((idx2, text))
+                f.add_done_callback(on_done)
+                pending_futures.append(f)
+            
+            # wait for remaining items during shutdown
+            for f in pending_futures:
+                try:
+                    f.result()
+                except Exception:
+                    pass
 
     watcher = threading.Thread(
         target=_watcher_thread, args=(stop_event, task_queue, cfg), daemon=True
@@ -551,7 +579,13 @@ Examples:
     )
     ap.add_argument("--force", action="store_true", help="Overwrite existing .txt")
     ap.add_argument("--save", action="store_true", help="Also save to Obsidian inbox")
+    ap.add_argument("--parakeet", action="store_true", help="Use parakeet model instead of whisper")
     args = ap.parse_args()
+
+    import dataclasses
+    global CFG
+    if args.parakeet:
+        CFG = dataclasses.replace(CFG, use_parakeet=True)
 
     if args.mode == "toggle":
         if REC_PID.exists():

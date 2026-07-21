@@ -19,8 +19,7 @@ hl.bind("ALT + BracketRight", hl.dsp.exec_cmd("brightnessctl set +1%"), { repeat
 -- Session / toggles
 hl.bind("SUPER + ALT + F4", hl.dsp.global("quickshell:sessionToggle"))
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-gdrive.sh"))
-hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-syncthing.sh"))
-hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/send_file.sh"))
+hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("~/.local/bin/send_file.sh"))
 
 -- Screenshots
 hl.bind(

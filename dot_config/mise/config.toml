@@ -8,7 +8,7 @@ pnpm = "latest"
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
 "npm:@googleworkspace/cli" = "latest"
-
+"npm:llm-wiki-compiler" = "latest"
 # python global clis
 # "uv:aider-chat" = "latest"
 # "uv:edge-tts" = "latest"
@@ -18,6 +18,10 @@ pnpm = "latest"
 
 # GitHub‑provided binaries (no compilation)
 "github:rtk-ai/rtk" = "latest"
+"copilot-cli" = "latest"
+
+# apps
+"github:mudler/LocalAI" = "latest"
 
 [settings]
 experimental = true

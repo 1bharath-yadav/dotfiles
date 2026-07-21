@@ -1,0 +1,715 @@
+#!/usr/bin/env bash
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  syncist — production-grade rclone sync CLI                                ║
+# ║  Supports bisync, push (local→remote), pull (remote→local) with           ║
+# ║  multi-profile management, safety guards, and operational polish.          ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+set -euo pipefail
+
+# ── XDG / path conventions ─────────────────────────────────────────────────────
+readonly RCLONE_CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/rclone"
+readonly RCLONE_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/rclone"
+readonly RCLONE_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rclone"
+readonly LOCK_DIR="/tmp"
+readonly PROG="${0##*/}"
+
+# ── profile registry ──────────────────────────────────────────────────────────
+# Format:  [profile_name]="local_path:remote_subpath"
+# Add new sync targets here — one line each.
+declare -A PROFILES=(
+  [gate]="$HOME/gate:gate"
+  # [documents]="$HOME/Documents:documents"
+  # [projects]="$HOME/projects:projects"
+)
+
+# ── default filter rules (written when no .filter file exists) ─────────────────
+readonly DEFAULT_FILTER='- **/.git/**
+- **/node_modules/**
+- **/.venv/**
+- **/__pycache__/**
+- **/.cache/**
+- **/.DS_Store
+- **/.direnv/**
+- **/.terraform/**
+- **/target/**
+- **/*.swp
+- **/*~
++ **'
+
+# ── colors (auto-disabled when piped) ─────────────────────────────────────────
+if [[ -t 1 ]] && [[ -t 2 ]]; then
+  readonly C_RED=$'\033[0;31m'    C_GREEN=$'\033[0;32m'
+  readonly C_YELLOW=$'\033[0;33m' C_BLUE=$'\033[0;34m'
+  readonly C_CYAN=$'\033[0;36m'   C_BOLD=$'\033[1m'
+  readonly C_DIM=$'\033[2m'       C_RESET=$'\033[0m'
+else
+  readonly C_RED='' C_GREEN='' C_YELLOW='' C_BLUE=''
+  readonly C_CYAN='' C_BOLD='' C_DIM='' C_RESET=''
+fi
+
+# ── logging helpers ────────────────────────────────────────────────────────────
+info()  { printf '%s[info]%s  %s\n'  "$C_CYAN"   "$C_RESET" "$*"; }
+ok()    { printf '%s[ok]%s    %s\n'  "$C_GREEN"  "$C_RESET" "$*"; }
+warn()  { printf '%s[warn]%s  %s\n'  "$C_YELLOW" "$C_RESET" "$*" >&2; }
+err()   { printf '%s[err]%s   %s\n'  "$C_RED"    "$C_RESET" "$*" >&2; }
+die()   { err "$@"; exit 1; }
+bold()  { printf '%s%s%s' "$C_BOLD" "$*" "$C_RESET"; }
+dim()   { printf '%s%s%s' "$C_DIM"  "$*" "$C_RESET"; }
+
+# ── elapsed timer ─────────────────────────────────────────────────────────────
+_START_TIME=
+start_timer() { _START_TIME=$(date +%s); }
+elapsed() {
+  local end dur m s
+  end=$(date +%s)
+  dur=$(( end - _START_TIME ))
+  m=$(( dur / 60 ))  s=$(( dur % 60 ))
+  printf '%s' "${m}m${s}s"
+}
+
+# ── lock file (flock-based, per profile) ───────────────────────────────────────
+LOCK_FD=
+LOCK_FILE=
+acquire_lock() {
+  local profile="$1"
+  LOCK_FILE="${LOCK_DIR}/syncist-${profile}.lock"
+  exec {LOCK_FD}>"$LOCK_FILE"
+  if ! flock -n "$LOCK_FD"; then
+    die "Another syncist instance is running for profile '${profile}'."
+  fi
+}
+release_lock() {
+  [[ -n "${LOCK_FD:-}" ]] && flock -u "$LOCK_FD" 2>/dev/null || true
+  [[ -n "${LOCK_FILE:-}" ]] && rm -f "$LOCK_FILE" 2>/dev/null || true
+}
+
+# ── cleanup trap ──────────────────────────────────────────────────────────────
+cleanup() {
+  local rc=$?
+  release_lock
+  if [[ -n "${_START_TIME:-}" ]]; then
+    if [[ $rc -eq 0 ]]; then
+      ok "Completed in $(elapsed)"
+    else
+      err "Failed after $(elapsed) (exit $rc)"
+    fi
+  fi
+}
+trap cleanup EXIT INT TERM
+
+# ── pre-flight checks ─────────────────────────────────────────────────────────
+preflight() {
+  local remote_name="$1"
+  command -v rclone >/dev/null 2>&1 \
+    || die "rclone is not installed. Install: https://rclone.org/install/"
+
+  if ! rclone listremotes 2>/dev/null | grep -qx "${remote_name}:"; then
+    die "Remote '${remote_name}:' is not configured. Run: rclone config"
+  fi
+}
+
+# ── profile resolution helpers ─────────────────────────────────────────────────
+resolve_profile() {
+  local profile="$1"
+  if [[ -z "${PROFILES[$profile]+x}" ]]; then
+    die "Unknown profile '${profile}'. Available: ${!PROFILES[*]}"
+  fi
+}
+
+get_local()  { local p="${PROFILES[$1]}"; echo "${p%%:*}"; }
+get_rsub()   { local p="${PROFILES[$1]}"; echo "${p#*:}"; }
+
+filter_file()   { echo "${RCLONE_CONF_DIR}/${1}.filter"; }
+workdir()       { echo "${RCLONE_CACHE_DIR}/bisync-${1}"; }
+logfile()       { echo "${RCLONE_STATE_DIR}/${1}-${2:-bisync}.log"; }
+last_sync_file(){ echo "${RCLONE_STATE_DIR}/${1}.last-sync"; }
+filter_md5()    { echo "${RCLONE_CONF_DIR}/${1}.filter.md5"; }
+
+# ── filter management ─────────────────────────────────────────────────────────
+ensure_filter() {
+  local profile="$1"
+  local ffile
+  ffile=$(filter_file "$profile")
+
+  if [[ -f "$ffile" ]]; then
+    check_filter_changed "$profile"
+    return 0
+  fi
+
+  info "No filter file found for '${profile}'. Creating default at:"
+  info "  ${ffile}"
+  mkdir -p "$(dirname "$ffile")"
+  printf '%s\n' "$DEFAULT_FILTER" > "$ffile"
+  store_filter_md5 "$profile"
+  ok "Default filter created."
+
+  if [[ -t 0 ]]; then
+    printf '%s' "${C_YELLOW}Customize filter now? [y/N]: ${C_RESET}"
+    local answer
+    read -r answer
+    if [[ "${answer,,}" == "y" ]]; then
+      "${EDITOR:-vi}" "$ffile"
+      store_filter_md5 "$profile"
+    fi
+  fi
+}
+
+store_filter_md5() {
+  local profile="$1" ffile md5file
+  ffile=$(filter_file "$profile")
+  md5file=$(filter_md5 "$profile")
+  md5sum "$ffile" | awk '{print $1}' > "$md5file"
+}
+
+check_filter_changed() {
+  local profile="$1" ffile md5file old_md5 new_md5
+  ffile=$(filter_file "$profile")
+  md5file=$(filter_md5 "$profile")
+  [[ -f "$md5file" ]] || return 0
+
+  old_md5=$(cat "$md5file")
+  new_md5=$(md5sum "$ffile" | awk '{print $1}')
+
+  if [[ "$old_md5" != "$new_md5" ]]; then
+    warn "Filter file changed since last sync!"
+    warn "  ${ffile}"
+    warn "Consider running: ${PROG} --init ${profile}"
+  fi
+}
+
+# ── require init gate ─────────────────────────────────────────────────────────
+require_init() {
+  local profile="$1" lsf
+  lsf=$(last_sync_file "$profile")
+  if [[ ! -f "$lsf" ]]; then
+    die "Profile '${profile}' has not been initialized. Run: ${PROG} init ${profile}"
+  fi
+}
+
+# ── build common rclone args ──────────────────────────────────────────────────
+build_common_args() {
+  local profile="$1" mode="$2" remote_name="$3"
+  local local_path remote_path ffile wdir lfile
+
+  local_path=$(get_local "$profile")
+  remote_path="${remote_name}:$(get_rsub "$profile")"
+  ffile=$(filter_file "$profile")
+  wdir=$(workdir "$profile")
+  lfile=$(logfile "$profile" "$mode")
+
+  mkdir -p "$wdir" "$(dirname "$lfile")"
+
+  RCLONE_ARGS=()
+
+  # source/dest vary by mode
+  case "$mode" in
+    push)   RCLONE_ARGS+=("$local_path" "$remote_path") ;;
+    pull)   RCLONE_ARGS+=("$remote_path" "$local_path") ;;
+    bisync) RCLONE_ARGS+=("$local_path" "$remote_path") ;;
+    check)  RCLONE_ARGS+=("$local_path" "$remote_path") ;;
+  esac
+
+  # filter (bisync uses --filters-file, sync/check use --filter-from)
+  if [[ "$OPT_NO_FILTER" -eq 0 ]] && [[ -f "$ffile" ]]; then
+    if [[ "$mode" == "bisync" ]]; then
+      RCLONE_ARGS+=(--filters-file "$ffile")
+    else
+      RCLONE_ARGS+=(--filter-from "$ffile")
+    fi
+  fi
+
+  # common performance flags
+  RCLONE_ARGS+=(
+    --transfers "$OPT_TRANSFERS"
+    --checkers  "$OPT_CHECKERS"
+    --fast-list
+  )
+
+  # progress
+  if [[ "$OPT_QUIET" -eq 0 ]]; then
+    RCLONE_ARGS+=(--progress)
+  fi
+
+  # bandwidth limit
+  if [[ -n "$OPT_BANDWIDTH" ]]; then
+    RCLONE_ARGS+=(--bwlimit "$OPT_BANDWIDTH")
+  fi
+
+  # log
+  RCLONE_ARGS+=(--log-file "$lfile")
+
+  # verbosity
+  if [[ "$OPT_QUIET" -eq 1 ]]; then
+    RCLONE_ARGS+=(--log-level ERROR)
+  else
+    case "$OPT_VERBOSE" in
+      0) RCLONE_ARGS+=(--log-level INFO)  ;;
+      1) RCLONE_ARGS+=(--log-level DEBUG) ;;
+      *) RCLONE_ARGS+=(--log-level DEBUG --dump headers) ;;
+    esac
+  fi
+
+  # bisync-specific flags
+  if [[ "$mode" == "bisync" ]]; then
+    RCLONE_ARGS+=(
+      --workdir "$wdir"
+      --resilient
+      --recover
+      --conflict-resolve newer
+      --conflict-loser pathname
+      --create-empty-src-dirs
+      --compare size,modtime
+      --modify-window 2s
+    )
+    if [[ "$OPT_FORCE" -eq 0 ]]; then
+      RCLONE_ARGS+=(--max-delete "$OPT_MAX_DELETE")
+    else
+      RCLONE_ARGS+=(--force)
+    fi
+  fi
+
+  # push/pull: max-delete safety
+  if [[ "$mode" == "push" || "$mode" == "pull" ]]; then
+    if [[ "$OPT_FORCE" -eq 0 ]]; then
+      RCLONE_ARGS+=(--max-delete "$OPT_MAX_DELETE")
+    fi
+  fi
+
+  # dry-run
+  if [[ "$OPT_DRY_RUN" -eq 1 ]]; then
+    RCLONE_ARGS+=(--dry-run)
+  fi
+}
+
+# ── destructive countdown ─────────────────────────────────────────────────────
+destructive_warning() {
+  local mode="$1" profile="$2" local_path remote_path
+
+  local_path=$(get_local "$profile")
+  remote_path="$OPT_REMOTE:$(get_rsub "$profile")"
+
+  echo
+  if [[ "$mode" == "push" ]]; then
+    warn "DESTRUCTIVE PUSH: local → remote"
+    warn "  Source:  ${local_path}"
+    warn "  Target:  ${remote_path}  (will be overwritten)"
+  else
+    warn "DESTRUCTIVE PULL: remote → local"
+    warn "  Source:  ${remote_path}"
+    warn "  Target:  ${local_path}  (will be overwritten)"
+  fi
+
+  if [[ "$OPT_DRY_RUN" -eq 1 ]]; then
+    info "(dry-run mode — no changes will be made)"
+    return 0
+  fi
+
+  if [[ "$OPT_FORCE" -eq 1 ]]; then
+    return 0
+  fi
+
+  echo
+  for i in 5 4 3 2 1; do
+    printf '\r  %sStarting in %d...%s  (Ctrl-C to abort)' "$C_YELLOW" "$i" "$C_RESET"
+    sleep 1
+  done
+  printf '\r%40s\r' ''
+}
+
+# ── record last sync ─────────────────────────────────────────────────────────
+record_sync() {
+  local profile="$1" mode="$2" lsf
+  lsf=$(last_sync_file "$profile")
+  mkdir -p "$(dirname "$lsf")"
+  printf '%s %s\n' "$(date -Iseconds)" "$mode" > "$lsf"
+  store_filter_md5 "$profile"
+}
+
+# ── ensure remote directory exists ────────────────────────────────────────────
+ensure_remote_dir() {
+  local remote_name="$1" rsub="$2"
+  local remote_path="${remote_name}:${rsub}"
+  if ! rclone lsf "${remote_path}/" --max-depth 0 >/dev/null 2>&1; then
+    info "Creating remote directory: ${remote_path}"
+    rclone mkdir "$remote_path"
+    ok "Remote directory created."
+  fi
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  MODE IMPLEMENTATIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+do_bisync() {
+  local profile="$1"
+  local local_path
+  local_path=$(get_local "$profile")
+
+  [[ -d "$local_path" ]] || die "Local path does not exist: ${local_path}"
+  require_init "$profile"
+  ensure_filter "$profile"
+
+  info "Bisync: $(bold "$profile")"
+  info "  Local:  ${local_path}"
+  info "  Remote: ${OPT_REMOTE}:$(get_rsub "$profile")"
+  [[ "$OPT_DRY_RUN" -eq 1 ]] && info "  $(bold '(DRY RUN)')"
+  echo
+
+  build_common_args "$profile" bisync "$OPT_REMOTE"
+  rclone bisync "${RCLONE_ARGS[@]}"
+
+  if [[ "$OPT_DRY_RUN" -eq 0 ]]; then
+    record_sync "$profile" bisync
+  fi
+}
+
+do_init() {
+  local profile="$1"
+  local local_path rsub
+  local_path=$(get_local "$profile")
+  rsub=$(get_rsub "$profile")
+
+  # Create local dir if missing
+  if [[ ! -d "$local_path" ]]; then
+    info "Creating local directory: ${local_path}"
+    mkdir -p "$local_path"
+  fi
+
+  # create default filter if missing, then always open in editor for review
+  local ffile
+  ffile=$(filter_file "$profile")
+  if [[ ! -f "$ffile" ]]; then
+    info "Creating default filter: ${ffile}"
+    mkdir -p "$(dirname "$ffile")"
+    printf '%s\n' "$DEFAULT_FILTER" > "$ffile"
+    ok "Default filter created."
+  fi
+  if [[ -t 0 ]]; then
+    info "Opening filter for review — add custom exclusions, then save & close."
+    "${EDITOR:-vi}" "$ffile"
+  fi
+  store_filter_md5 "$profile"
+
+  ensure_remote_dir "$OPT_REMOTE" "$rsub"
+
+  info "Initializing bisync baseline: $(bold "$profile")"
+  info "  Local:  ${local_path}"
+  info "  Remote: ${OPT_REMOTE}:${rsub}"
+  [[ "$OPT_DRY_RUN" -eq 1 ]] && info "  $(bold '(DRY RUN)')"
+  echo
+
+  build_common_args "$profile" bisync "$OPT_REMOTE"
+  RCLONE_ARGS+=(--resync --resync-mode path1)
+
+  rclone bisync "${RCLONE_ARGS[@]}"
+
+  if [[ "$OPT_DRY_RUN" -eq 0 ]]; then
+    record_sync "$profile" init
+  fi
+}
+
+do_push() {
+  local profile="$1"
+  local local_path
+  local_path=$(get_local "$profile")
+
+  [[ -d "$local_path" ]] || die "Local path does not exist: ${local_path}"
+  require_init "$profile"
+  ensure_filter "$profile"
+  ensure_remote_dir "$OPT_REMOTE" "$(get_rsub "$profile")"
+  destructive_warning push "$profile"
+
+  info "Push: $(bold "$profile")  local → remote"
+  build_common_args "$profile" push "$OPT_REMOTE"
+  rclone sync "${RCLONE_ARGS[@]}"
+
+  if [[ "$OPT_DRY_RUN" -eq 0 ]]; then
+    record_sync "$profile" push
+  fi
+}
+
+do_pull() {
+  local profile="$1"
+  local local_path
+  local_path=$(get_local "$profile")
+
+  require_init "$profile"
+  ensure_filter "$profile"
+  mkdir -p "$local_path"  # create local for first pull
+  destructive_warning pull "$profile"
+
+  info "Pull: $(bold "$profile")  remote → local"
+  build_common_args "$profile" pull "$OPT_REMOTE"
+  rclone sync "${RCLONE_ARGS[@]}"
+
+  if [[ "$OPT_DRY_RUN" -eq 0 ]]; then
+    record_sync "$profile" pull
+  fi
+}
+
+do_check() {
+  local profile="$1"
+  local local_path ffile
+  local_path=$(get_local "$profile")
+  ffile=$(filter_file "$profile")
+
+  [[ -d "$local_path" ]] || die "Local path does not exist: ${local_path}"
+  require_init "$profile"
+
+  info "Check: $(bold "$profile")"
+
+  local args=("$local_path" "${OPT_REMOTE}:$(get_rsub "$profile")"
+              --one-way --fast-list --progress)
+  [[ "$OPT_NO_FILTER" -eq 0 ]] && [[ -f "$ffile" ]] && args+=(--filter-from "$ffile")
+
+  rclone check "${args[@]}"
+}
+
+# ── list profiles ─────────────────────────────────────────────────────────────
+do_list() {
+  printf '\n%s%-16s %-30s %-24s %s%s\n' \
+    "$C_BOLD" "PROFILE" "LOCAL PATH" "REMOTE PATH" "LAST SYNC" "$C_RESET"
+  printf '%s\n' "$(printf '─%.0s' {1..95})"
+
+  for profile in $(printf '%s\n' "${!PROFILES[@]}" | sort); do
+    local local_path rsub last_sync=""
+    local_path=$(get_local "$profile")
+    rsub=$(get_rsub "$profile")
+
+    local lsf
+    lsf=$(last_sync_file "$profile")
+    if [[ -f "$lsf" ]]; then
+      last_sync=$(cat "$lsf")
+    else
+      last_sync="${C_DIM}never${C_RESET}"
+    fi
+
+    local status_icon
+    if [[ -d "$local_path" ]]; then
+      status_icon="${C_GREEN}●${C_RESET}"
+    else
+      status_icon="${C_RED}○${C_RESET}"
+    fi
+
+    printf '%s %-15s %-29s %-23s %s\n' \
+      "$status_icon" "$profile" "$local_path" "${OPT_REMOTE}:${rsub}" "$last_sync"
+  done
+  echo
+  info "${C_GREEN}●${C_RESET} = local dir exists   ${C_RED}○${C_RESET} = local dir missing"
+  echo
+}
+
+# ── status for a single profile ──────────────────────────────────────────────
+do_status() {
+  local profile="$1"
+  local lsf lfile
+  lsf=$(last_sync_file "$profile")
+
+  echo
+  info "Status for $(bold "$profile")"
+  echo
+
+  if [[ -f "$lsf" ]]; then
+    printf '  Last sync: %s\n' "$(cat "$lsf")"
+  else
+    printf '  Last sync: %s\n' "never"
+  fi
+
+  printf '  Local:     %s' "$(get_local "$profile")"
+  if [[ -d "$(get_local "$profile")" ]]; then
+    printf ' %s(exists)%s' "$C_GREEN" "$C_RESET"
+  else
+    printf ' %s(missing)%s' "$C_RED" "$C_RESET"
+  fi
+  echo
+
+  printf '  Remote:    %s:%s\n' "$OPT_REMOTE" "$(get_rsub "$profile")"
+  printf '  Filter:    %s' "$(filter_file "$profile")"
+  if [[ -f "$(filter_file "$profile")" ]]; then
+    printf ' %s(exists)%s' "$C_GREEN" "$C_RESET"
+  else
+    printf ' %s(missing)%s' "$C_DIM" "$C_RESET"
+  fi
+  echo
+
+  # show recent log entries
+  for mode in bisync push pull; do
+    lfile=$(logfile "$profile" "$mode")
+    if [[ -f "$lfile" ]]; then
+      echo
+      printf '  %sRecent log (%s):%s\n' "$C_DIM" "$mode" "$C_RESET"
+      tail -8 "$lfile" | sed 's/^/    /'
+    fi
+  done
+  echo
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  USAGE
+# ══════════════════════════════════════════════════════════════════════════════
+usage() {
+  cat <<EOF
+${C_BOLD}syncist${C_RESET} — production-grade rclone sync CLI
+
+${C_BOLD}USAGE${C_RESET}
+  ${PROG} [COMMAND] [PROFILE...] [OPTIONS]
+
+  If no profile is specified, the command applies to ${C_BOLD}all${C_RESET} registered profiles.
+  If no command is specified, defaults to ${C_BOLD}bisync${C_RESET}.
+
+${C_BOLD}COMMANDS${C_RESET}
+  bisync              Bidirectional sync ${C_DIM}(default)${C_RESET}
+  push                One-way sync: local → remote ${C_YELLOW}(destructive)${C_RESET}
+  pull                One-way sync: remote → local ${C_YELLOW}(destructive)${C_RESET}
+  check               Compare local vs remote, no changes
+  init                Initialize/resync bisync baseline (creates dirs)
+  list                List all registered profiles and their sync status
+  status              Show detailed status for profile(s)
+  help                Show this help
+
+${C_BOLD}MODIFIERS${C_RESET}
+  -n, --dry-run       Preview only, no actual changes
+  -v, --verbose       Increase log verbosity (stack: -vv)
+  -q, --quiet         Suppress progress output
+  --force             Skip safety countdown & bypass --max-delete
+  --bandwidth LIMIT   Throttle bandwidth (e.g. 1M, 500k)
+  --transfers N       Parallel file transfers ${C_DIM}(default: 4)${C_RESET}
+  --checkers N        Parallel checkers ${C_DIM}(default: 8)${C_RESET}
+  --max-delete N      Abort if > N% deletions ${C_DIM}(default: 50)${C_RESET}
+  --remote NAME       Override remote name ${C_DIM}(default: gdrive)${C_RESET}
+  --no-filter         Ignore profile filter file
+
+${C_BOLD}EXAMPLES${C_RESET}
+  ${PROG}                          # bisync all profiles
+  ${PROG} gate                     # bisync gate
+  ${PROG} push gate                # push gate to gdrive
+  ${PROG} pull gate -n             # dry-run pull from gdrive
+  ${PROG} init                     # initialize all profiles
+  ${PROG} init gate                # initialize gate only
+  ${PROG} list                     # list all profiles
+  ${PROG} status gate              # show gate sync status
+  ${PROG} -vv --bandwidth 1M      # verbose bisync, throttled
+
+${C_BOLD}PROFILES${C_RESET}
+$(for p in $(printf '%s\n' "${!PROFILES[@]}" | sort); do
+    printf '  %-16s %s → %s\n' "$p" "$(get_local "$p")" "gdrive:$(get_rsub "$p")"
+  done)
+
+${C_DIM}Filter files: ${RCLONE_CONF_DIR}/<profile>.filter
+Logs:         ${RCLONE_STATE_DIR}/<profile>-<mode>.log
+Lock files:   ${LOCK_DIR}/syncist-<profile>.lock${C_RESET}
+EOF
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ARGUMENT PARSING
+# ══════════════════════════════════════════════════════════════════════════════
+OPT_MODE="bisync"
+OPT_DRY_RUN=0
+OPT_VERBOSE=0
+OPT_QUIET=0
+OPT_FORCE=0
+OPT_BANDWIDTH=""
+OPT_TRANSFERS=4
+OPT_CHECKERS=8
+OPT_MAX_DELETE=50
+OPT_REMOTE="gdrive"
+OPT_NO_FILTER=0
+OPT_LIST=0
+OPT_STATUS=0
+OPT_PROFILES=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    # ── subcommands (bare words) ──
+    bisync)       OPT_MODE="bisync"; shift ;;
+    push)         OPT_MODE="push";   shift ;;
+    pull)         OPT_MODE="pull";   shift ;;
+    check)        OPT_MODE="check";  shift ;;
+    init)         OPT_MODE="init";   shift ;;
+    list)         OPT_LIST=1; shift ;;
+    status)       OPT_STATUS=1; shift ;;
+    help)         usage; exit 0 ;;
+
+    # ── flags (kept for flexibility) ──
+    --bisync)     OPT_MODE="bisync"; shift ;;
+    --push)       OPT_MODE="push";   shift ;;
+    --pull)       OPT_MODE="pull";   shift ;;
+    --check)      OPT_MODE="check";  shift ;;
+    --init)       OPT_MODE="init";   shift ;;
+    --list)       OPT_LIST=1; shift ;;
+    --status)     OPT_STATUS=1; shift ;;
+
+    -n|--dry-run) OPT_DRY_RUN=1; shift ;;
+    -v|--verbose) (( OPT_VERBOSE++ )); shift ;;
+    -vv)          OPT_VERBOSE=2; shift ;;
+    -q|--quiet)   OPT_QUIET=1; shift ;;
+    --force)      OPT_FORCE=1; shift ;;
+    --no-filter)  OPT_NO_FILTER=1; shift ;;
+
+    --bandwidth)  OPT_BANDWIDTH="${2:?'--bandwidth requires a value'}"; shift 2 ;;
+    --transfers)  OPT_TRANSFERS="${2:?'--transfers requires a value'}"; shift 2 ;;
+    --checkers)   OPT_CHECKERS="${2:?'--checkers requires a value'}"; shift 2 ;;
+    --max-delete) OPT_MAX_DELETE="${2:?'--max-delete requires a value'}"; shift 2 ;;
+    --remote)     OPT_REMOTE="${2:?'--remote requires a value'}"; shift 2 ;;
+
+    -h|--help)    usage; exit 0 ;;
+    --)           shift; OPT_PROFILES+=("$@"); break ;;
+    -*)           die "Unknown option: $1 (see 'syncist help')" ;;
+    *)            OPT_PROFILES+=("$1"); shift ;;
+  esac
+done
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  MAIN
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── meta commands (no lock needed) ─────────────────────────────────────────────
+if [[ "$OPT_LIST" -eq 1 ]]; then
+  do_list
+  exit 0
+fi
+
+# ── resolve target profiles ───────────────────────────────────────────────────
+if [[ ${#OPT_PROFILES[@]} -eq 0 ]]; then
+  # no profile specified → all profiles
+  mapfile -t OPT_PROFILES < <(printf '%s\n' "${!PROFILES[@]}" | sort)
+fi
+
+# validate all profiles upfront
+for p in "${OPT_PROFILES[@]}"; do
+  resolve_profile "$p"
+done
+
+# ── status command ─────────────────────────────────────────────────────────────
+if [[ "$OPT_STATUS" -eq 1 ]]; then
+  for p in "${OPT_PROFILES[@]}"; do
+    do_status "$p"
+  done
+  exit 0
+fi
+
+# ── pre-flight ─────────────────────────────────────────────────────────────────
+preflight "$OPT_REMOTE"
+
+# ── execute mode for each profile ─────────────────────────────────────────────
+start_timer
+
+for profile in "${OPT_PROFILES[@]}"; do
+  if [[ ${#OPT_PROFILES[@]} -gt 1 ]]; then
+    echo
+    printf '%s══  %s  ══%s\n' "$C_BLUE" "$profile" "$C_RESET"
+  fi
+
+  acquire_lock "$profile"
+
+  case "$OPT_MODE" in
+    bisync) do_bisync "$profile" ;;
+    init)   do_init   "$profile" ;;
+    push)   do_push   "$profile" ;;
+    pull)   do_pull   "$profile" ;;
+    check)  do_check  "$profile" ;;
+  esac
+
+  release_lock
+done
