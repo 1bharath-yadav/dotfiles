@@ -29,6 +29,6 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- skills: created linux-control and linux-automation skills under agents/skills/ with CLI tools (input.py, locator.py, capture.py, scheduler.py, watchdog.py), 5-tier locators, flock resource locking, and evals suite.
+- linux-automation: added mandatory workspace planning & max 2 apps/workspace organization rules. Subcommands `workspace organize` and `launch --workspace` implemented and tested.
+- nvim: keybindings optimized; which-key groups defined (u/g/h/b/x/t), snacks UI toggles added, git mappings consolidated.
 - next update: overwrite current-state only, max 5 lines
-
