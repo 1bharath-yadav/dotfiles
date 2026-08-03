@@ -49,12 +49,17 @@ def hotkey(keys: str):
 
 def launch(cmd: str, workspace: str | int | None = None) -> str:
     """
-    Spawn ``cmd`` detached (non-blocking) in a planned workspace.
+    Spawn ``cmd`` detached (non-blocking) in a planned workspace via Hyprland compositor.
     Enforces max 2 applications per workspace by selecting an available workspace.
     """
     target_ws = hyprland.find_planned_or_available_workspace(workspace)
     hyprland.focus_workspace(target_ws)
-    subprocess.Popen(cmd, shell=True)
+    # Check if app is desktop entry or binary
+    if cmd.endswith(".desktop"):
+        exec_str = f"gtk-launch {cmd}"
+    else:
+        exec_str = f"nohup {cmd} >/dev/null 2>&1 &"
+    hyprland.dispatch_lua(f'hl.dsp.exec_cmd("{exec_str}")')
     return target_ws
 
 
