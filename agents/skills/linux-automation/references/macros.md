@@ -31,3 +31,12 @@ Specification of multi-step GUI routines executed by `linux-automation`.
   1. Run system upgrade via user zsh alias (`ySyu`).
   2. Clean orphaned packages (`po`).
   3. Clear pacman cache (`pc`).
+
+### 5. `code_assistant_workflow`
+- **Steps**:
+  1. Focus Claude Desktop (`hl.dsp.focus({ workspace = "3" })`).
+  2. Dispatch prompt payload via `input.py paste "<prompt>"`.
+  3. Write generated code payload directly to file target (`/tmp/script.py`).
+  4. Execute script in terminal (`python3 /tmp/script.py`) and capture output.
+  5. Send optimization prompt to Claude Desktop and overwrite file target with optimized version.
+  6. Execute optimized script and verify output parity.
