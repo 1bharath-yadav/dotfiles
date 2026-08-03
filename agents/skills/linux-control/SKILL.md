@@ -46,6 +46,15 @@ python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py paste "Clipboar
 # Open URL directly via Level 1 Hybrid Engine (browser auto-resolution)
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py open_url "https://github.com/search?q=Hyprland+plugins"
 
+# Launch Chrome connected via CDP on port 9222
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py chrome_cdp 9222 "https://github.com"
+
+# Window Control Dispatches (Close / Kill / Float / Fullscreen)
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py close
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py kill
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py float
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py fullscreen
+
 # Execute Hyprland Lua dispatch expression (scratchpads / focus / workspaces)
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py dispatch 'hl.dsp.workspace.toggle_special("obsidian")'
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py dispatch 'hl.dsp.workspace.toggle_special("kitty")'
