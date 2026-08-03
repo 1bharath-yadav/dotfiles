@@ -29,6 +29,6 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- agents: created linux-control and linux-automation skills in ~/.dotfiles/agents/skills/ integrating Hyprland hyprctl dispatches, user zsh aliases, scratchpads, systemd/pipewire, and desktop:// state resources. Master skill registry skill.md updated.
+- skills: created linux-control and linux-automation skills under agents/skills/ with CLI tools (input.py, locator.py, capture.py, scheduler.py, watchdog.py), 5-tier locators, flock resource locking, and evals suite.
 - next update: overwrite current-state only, max 5 lines
 

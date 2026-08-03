@@ -1,0 +1,24 @@
+{
+  "skill_name": "linux-automation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Open Zen Browser, focus address bar, type 'https://github.com', and verify the page loaded",
+      "expected_output": "Zen Browser is launched, address bar focused via Ctrl+L, URL entered, and verified via screenshot or page title",
+      "assertions": [
+        "input.py dispatch or zen-browser executed",
+        "wtype -M ctrl -k l or text input sent",
+        "capture.py hash or state query verified"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Set up my coding environment on workspace 1 with Kitty and Obsidian scratchpads",
+      "expected_output": "Workspace shifted to 1, Kitty and Obsidian scratchpads toggled",
+      "assertions": [
+        "hl.dsp.workspace.toggle_special('kitty') executed",
+        "hl.dsp.workspace.toggle_special('obsidian') executed"
+      ]
+    }
+  ]
+}

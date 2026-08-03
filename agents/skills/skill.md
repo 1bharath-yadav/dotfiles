@@ -43,18 +43,18 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Output**: Ideas in `~/til/notelab/ideas.md`, promoted to `~/til/spaces/ideas.md`
 
 ### linux-control
-- **File**: [linux-control.skill.md](./linux-control.skill.md) / [linux-control/SKILL.md](./linux-control/SKILL.md)
-- **Trigger**: "move window to workspace 4" / "focus firefox" / "toggle obsidian scratchpad" / "update system packages" / "take screenshot"
-- **Purpose**: Native OS-aware control for Arch Linux + Hyprland + Wayland environment via `hyprctl` dispatches, systemd, PipeWire, zsh aliases (`ySyu`, `yS`, `po`, `pc`), and Hyprland keybinds.
-- **Reads**: `hyprctl activewindow -j`, `hyprctl clients -j`, `hyprctl workspaces -j`, `hyprctl monitors -j`
-- **Output**: Direct compositor/system state updates, notifications, media/volume/brightness adjustments.
+- **File**: [linux-control/SKILL.md](./linux-control/SKILL.md)
+- **Trigger**: "click button" / "type in app" / "move cursor" / "locate UI text" / "take screenshot" / "toggle scratchpad"
+- **Purpose**: Native Wayland input control and 5-tier element locators via CLI tools (`input.py`, `locator.py`, `capture.py`).
+- **Reads**: `locator.py probe`, `locator.py state`, `locator.py locate <query>`
+- **Output**: Input execution, screen captures, element coordinates, Hyprland dispatches.
 
 ### linux-automation
-- **File**: [linux-automation.skill.md](./linux-automation.skill.md) / [linux-automation/SKILL.md](./linux-automation/SKILL.md)
-- **Trigger**: "start coding" / "clean up desktop" / "open research environment" / "presentation mode" / "system maintenance" / "daily startup"
-- **Purpose**: High-level intent macros, workflow orchestration, desktop state resources (`desktop://`), and multi-step event-driven routines for Arch Linux + Hyprland.
-- **Reads**: `desktop://windows`, `desktop://workspaces`, `desktop://monitors`, `desktop://clipboard`, `desktop://notifications`
-- **Output**: Orchestrated composite desktop environments, batch maintenance, event reactions.
+- **File**: [linux-automation/SKILL.md](./linux-automation/SKILL.md)
+- **Trigger**: "start coding" / "open research environment" / "presentation mode" / "system maintenance" / "run desktop workflow"
+- **Purpose**: High-level workflow macro orchestration, flock resource locks (`scheduler.py`), and watchdog monitoring (`watchdog.py`).
+- **Reads**: `references/macros.md`, `evals/evals.json`
+- **Output**: Multi-step workspace automation routines, resource locking, hung app recovery.
 ---
 
 ## Delegation Patterns
@@ -93,7 +93,6 @@ Agents read this to understand available skills, delegation patterns, and operat
 | SOUL.md | `~/til/wiki/schema/SOUL.md` | Private | Agent persona + routing rules |
 | optima.md | `~/til/optima.md` | Private | Long-term goals + current status |
 | study.md | `~/til/study.md` | Private | GATE study plan + schedule |
-| Anki cards | `~/til/vault/notes/` | Private | Study flashcards synced to Anki |
 | Agent docs | `~/.dotfiles/docs/skills/` | Public | Usage guides for future self |
 
 ### Session Start Reads (for any agent)
