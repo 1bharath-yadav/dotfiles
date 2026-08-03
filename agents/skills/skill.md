@@ -42,12 +42,19 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Purpose**: Daily 3-idea generation practice, weekly rating, monthly incubation review
 - **Output**: Ideas in `~/til/notelab/ideas.md`, promoted to `~/til/spaces/ideas.md`
 
-### notes-to-obsidian
-- **File**: [skills/notes-to-obsidian.skill.md](./skills/notes-to-obsidian.skill.md)
-- **Trigger**: "convert my notes" / "obsidianify" / "clean up this note" / uploads handwritten image
-- **Purpose**: Convert handwritten OCR images or raw typed docs into structured, GATE-optimised Obsidian notes with callouts, LaTeX formulas, tables, wiki-links, and flashcard blocks
-- **Reads**: `~/til/optima.md`, `~/til/vault/cards/` (for link injection)
-- **Output**: `~/til/vault/cards/<SUBJECT>/<topic>.md`
+### linux-control
+- **File**: [linux-control.skill.md](./linux-control.skill.md) / [linux-control/SKILL.md](./linux-control/SKILL.md)
+- **Trigger**: "move window to workspace 4" / "focus firefox" / "toggle obsidian scratchpad" / "update system packages" / "take screenshot"
+- **Purpose**: Native OS-aware control for Arch Linux + Hyprland + Wayland environment via `hyprctl` dispatches, systemd, PipeWire, zsh aliases (`ySyu`, `yS`, `po`, `pc`), and Hyprland keybinds.
+- **Reads**: `hyprctl activewindow -j`, `hyprctl clients -j`, `hyprctl workspaces -j`, `hyprctl monitors -j`
+- **Output**: Direct compositor/system state updates, notifications, media/volume/brightness adjustments.
+
+### linux-automation
+- **File**: [linux-automation.skill.md](./linux-automation.skill.md) / [linux-automation/SKILL.md](./linux-automation/SKILL.md)
+- **Trigger**: "start coding" / "clean up desktop" / "open research environment" / "presentation mode" / "system maintenance" / "daily startup"
+- **Purpose**: High-level intent macros, workflow orchestration, desktop state resources (`desktop://`), and multi-step event-driven routines for Arch Linux + Hyprland.
+- **Reads**: `desktop://windows`, `desktop://workspaces`, `desktop://monitors`, `desktop://clipboard`, `desktop://notifications`
+- **Output**: Orchestrated composite desktop environments, batch maintenance, event reactions.
 ---
 
 ## Delegation Patterns
