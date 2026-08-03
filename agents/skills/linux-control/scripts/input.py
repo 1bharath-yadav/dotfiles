@@ -63,14 +63,22 @@ def type_text(text: str) -> bool:
     return p.returncode == 0
 
 def paste_clipboard(text: str) -> bool:
-    """Write text to Wayland clipboard using wl-copy and paste into active window."""
+    """Write text to Wayland clipboard using wl-copy with pre-paste verification."""
     env = get_hypr_env()
     # 1. Copy to clipboard
     p = subprocess.Popen(["wl-copy"], env=env, stdin=subprocess.PIPE, text=True)
     p.communicate(input=text)
-    
     time.sleep(0.05)
-    # 2. Trigger paste shortcut Ctrl+V
+    
+    # 2. Verify clipboard payload before sending Ctrl+V
+    check = subprocess.run(["wl-paste"], env=env, stdout=subprocess.PIPE, text=True)
+    if check.returncode != 0 or text not in check.stdout:
+        # Retry staging once
+        p2 = subprocess.Popen(["wl-copy"], env=env, stdin=subprocess.PIPE, text=True)
+        p2.communicate(input=text)
+        time.sleep(0.05)
+
+    # 3. Trigger paste shortcut Ctrl+V
     cmd = ["wtype", "-M", "ctrl", "-k", "v"]
     res = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return res.returncode == 0
