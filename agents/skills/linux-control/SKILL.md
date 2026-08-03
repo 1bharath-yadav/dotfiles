@@ -43,6 +43,9 @@ python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py type "Hello Wor
 # Write text to Wayland clipboard and trigger Ctrl+V paste
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py paste "Clipboard Text"
 
+# Open URL directly via Level 1 Hybrid Engine (browser auto-resolution)
+python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py open_url "https://github.com/search?q=Hyprland+plugins"
+
 # Execute Hyprland Lua dispatch expression (scratchpads / focus / workspaces)
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py dispatch 'hl.dsp.workspace.toggle_special("obsidian")'
 python3 ~/.dotfiles/agents/skills/linux-control/scripts/input.py dispatch 'hl.dsp.workspace.toggle_special("kitty")'

@@ -5,6 +5,7 @@ input.py - Wayland hardware input automation CLI for ydotool, wtype, wl-clipboar
 import os
 import sys
 import json
+import shutil
 import subprocess
 import time
 from typing import Dict, Any
@@ -81,9 +82,20 @@ def hypr_dispatch(expression: str) -> bool:
     res = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return res.returncode == 0 or "ok" in res.stdout.lower()
 
+def open_url(url: str) -> bool:
+    """Launch URL using installed browser or xdg-open (Level 1 Hybrid Engine)."""
+    env = get_hypr_env()
+    browsers = ["google-chrome-stable", "zen-browser", "firefox", "chromium", "xdg-open"]
+    for b in browsers:
+        if shutil.which(b):
+            cmd = [b, url]
+            subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return True
+    return False
+
 def main():
     if len(sys.argv) < 2:
-        print("Usage: input.py <move|click|type|paste|dispatch> [args...]")
+        print("Usage: input.py <move|click|type|paste|dispatch|open_url> [args...]")
         sys.exit(1)
     
     action = sys.argv[1]
@@ -109,6 +121,11 @@ def main():
         expr = " ".join(sys.argv[2:])
         ok = hypr_dispatch(expr)
         print(json.dumps({"status": "success" if ok else "failed", "action": "dispatch", "expr": expr}))
+    elif action == "open_url":
+        url = sys.argv[2]
+        ok = open_url(url)
+        print(json.dumps({"status": "success" if ok else "failed", "action": "open_url", "url": url}))
 
 if __name__ == "__main__":
     main()
+
