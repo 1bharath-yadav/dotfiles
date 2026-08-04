@@ -1,5 +1,6 @@
-;; Kanata Power-User Configuration — Complete Reference Port for Linux / Hyprland
-;; Layers: main, apps, syst, symb, navi, browser (Hyprkan)
+;; Kanata Power-User Configuration for Arch Linux / Hyprland
+;; Home-Row Mods + Navigation Layer + System/Symbol/App Layers + Hyprkan
+;; Note: All physical keys (Super, Numbers, Arrows, F-keys) retain default behavior.
 
 (defcfg
   process-unmapped-keys yes
@@ -18,22 +19,40 @@
   grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab    q    w    e    r    t    y    u    i    o    p    [    ]    \
   caps   a    s    d    f    g    h    j    k    l    ;    '    ret
-  lsft   z    x    c    v    b    n    m    ,    .    /    ▲    rsft
-  fn     lctl lalt lmet          spc         rmet ralt ◀    ▼    ▶
+  lsft   z    x    c    v    b    n    m    ,    .    /    up   rsft
+  fn     lctl lalt lmet          spc         rmet ralt left down rght
 )
 
 (defalias
-  ;; System & Hyper Macro Triggers (Mapped to Linux/Hyprland Keybinds)
-  scam6 S-C-A-M-6
-  scam0 S-C-A-M-0
-  scam9 S-C-A-M-9
-  scamt S-C-A-M-tab
-  scam= S-C-A-M-=
-  scamw S-C-A-M-w
-  scamz S-C-A-M-z
-  scamd S-C-A-M-d
+  ;; Home-Row Mods (Left Hand)
+  a (tap-hold-release $tap-time $hold-time a lmet)
+  s (tap-hold-release $tap-time $hold-time s lalt)
+  d (tap-hold-release $tap-time $hold-time d lctl)
+  f (tap-hold-release $tap-time $hold-time f lsft)
 
-  ;; Application Key Signals (Caught by Hyprland Keybinds)
+  ;; Home-Row Mods (Right Hand)
+  j (tap-hold-release $tap-time $hold-time j rsft)
+  k (tap-hold-release $tap-time $hold-time k rctl)
+  l (tap-hold-release $tap-time $hold-time l ralt)
+  sem (tap-hold-release $tap-time $hold-time ; rmet)
+
+  ;; CapsLock -> Tap Escape, Hold Control / Nav
+  cap (tap-hold-release $tap-time $hold-time esc lctl)
+
+  ;; Spacebar -> Tap Space, Hold Nav Layer
+  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
+
+  ;; System Control Shortcuts
+  vold vold
+  volu volu
+  prev prev
+  next next
+  pp   pp
+  brdn brdn
+  brup brup
+  scolor S-M-c
+
+  ;; App Launcher Signals (Caught by Hyprland/Hyprkan)
   akitty S-C-A-M-k
   achrom S-C-A-M-c
   abrave S-C-A-M-b
@@ -64,47 +83,6 @@
   a-mail C-M-m
   achatg S-C-A-M-e
 
-  ;; Hardware & Media Keys (Native Linux Keycodes)
-  vold vold
-  volu volu
-  prev prev
-  next next
-  pp   pp
-  brdn brdn
-  brup brup
-  s-task (macro C-b 20 7)
-  scolor S-M-c
-  saircn S-C-A-M-1
-  sairsw S-C-A-M-2
-
-  ;; Dual-Role Modifier & Layer Maps
-  mlctl (tap-hold $tap-time $hold-time a lctl)
-  msyst (tap-hold $tap-time $hold-time s (layer-toggle syst))
-  mlmet (tap-hold $tap-time $hold-time d lmet)
-  mlalt (tap-hold $tap-time $hold-time f lalt)
-  mtrik (tap-hold $tap-time $hold-time g C-z)
-
-  mralt (tap-hold $tap-time $hold-time j ralt)
-  mrmet (tap-hold $tap-time $hold-time k rmet)
-  mmous (tap-hold $tap-time $hold-time l @scamz)
-  mrctl (tap-hold $tap-time $hold-time ; rctl)
-  mral2 (tap-hold $tap-time $hold-time ' ralt)
-
-  mcopy (tap-hold $tap-time $hold-time c C-c)
-  mpast (tap-hold $tap-time $hold-time v C-v)
-  mmtab (tap-hold $tap-time $hold-time z A-tab)
-  mmgrv (tap-hold $tap-time $hold-time x A-grv)
-  mescc (tap-hold $tap-time $hold-time esc caps)
-  maltk (tap-hold $tap-time $hold-time b (macro C-b 20 l))
-  mtcop (tap-hold $tap-time $hold-time m (macro C-b 20 v))
-  mretu (tap-hold $tap-time $hold-time tab ret)
-  mhome (tap-hold $tap-time $hold-time . @scam6)
-
-  mappr (tap-hold-press $tap-time $hold-time ret (layer-toggle apps))
-  msymb (tap-hold $tap-time $hold-time bspc (layer-toggle symb))
-  mnavi (tap-hold-press $tap-time $hold-time esc (layer-toggle navi))
-  mhypr (tap-hold $tap-time $hold-time spc (layer-toggle navi))
-
   ;; Browser Action Aliases (Hyprkan Context)
   b-back A-left
   b-fwd  A-right
@@ -131,74 +109,65 @@
   (spc m .) S-= $chord-time first-release ()
   (spc f g) A-tab $chord-time first-release ()
   (spc s c) S-C-A-M-l $chord-time first-release ()
-  (c o p) (macro C-b 20 v 20 S-/ 20 \ . S-2 \ . ret 20 k 20 S-v 20 n 200 y 20 esc) $chord-time first-release ()
-  (spc t p) (macro C-b 20 C-y) $chord-time first-release ()
-  (spc t n) (macro C-b 20 f) $chord-time first-release ()
-  (spc t r) (macro C-b 20 1) $chord-time first-release ()
-  (spc t h) (macro @akitty 300 C-b 20 h) $chord-time first-release ()
-  (spc t j) (macro @akitty 300 C-b 20 d) $chord-time first-release ()
-  (spc t l) (macro @akitty 300 C-b 20 b) $chord-time first-release ()
-  (spc t u) (macro @akitty 300 C-b 20 o) $chord-time first-release ()
-  (spc t e) (macro @akitty 100 C-b 20 p) $chord-time first-release ()
   (spc caps) caps $chord-time first-release ()
 )
 
-;; 1. MAIN LAYER
+;; 1. MAIN LAYER (Default Typing Layer with Home-Row Mods)
 (deflayer main
-  XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX
-  XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     @msymb
-  @mretu q      w      e      r      t      y      u      i      o      p      \      XX     \
-  @mnavi @mlctl @msyst @mlmet @mlalt @mtrik h      @mralt @mrmet @mmous @mrctl @mral2 @mappr
-  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n      @mtcop ,      @mhome /      ▲      rsft
-  fn     lctl   lalt   @msymb        @mhypr               @mappr        rmet   ralt   ◀      ▼
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab    q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap   @a   @s   @d   @f   g    h    @j   @k   @l   @sem '    ret
+  lsft   z    x    c    v    b    n    m    ,    .    /    up   rsft
+  fn     lctl lalt lmet          @spc        rmet ralt left down rght
 )
 
-;; 2. APPS LAYER
-(deflayer apps
-  esc    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX
-  grv    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX     XX
-  tab   @adavin @amword @aexcel @arecut @ateams @ayoutu @awhats @asocia @a--obs @a1pass XX      XX     XX
-  XX    @afindr XX      @adisco @aforkl @achrom @aspoti @akitty @abrave XX      @achatg @asystm ret
-  lsft  @a-zoom @anotes @acalen @aprevw @avival @aneovd @a-mail @awinap XX      XX      ▲       rsft
-  fn     lctl   lalt    lmet            spc                     rmet    ralt    ◀       ▼       ▶
+;; 2. NAVIGATION LAYER (Hold Spacebar)
+(deflayer nav
+  lrld   f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    del
+  tab    _    _    _    _    _    _    home pgdn pgup end  _    _    _
+  @cap   @a   @s   @d   @f   _    left down up   rght _    _    ret
+  lsft   _    _    _    _    _    _    _    _    _    _    up   rsft
+  fn     lctl lalt lmet          _           rmet ralt left down rght
 )
 
-;; 3. SYSTEM LAYER
-(deflayer syst
-  esc    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX
-  grv    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX     XX
-  tab    XX     XX      C-w     XX      @s-task @prev   @brdn   @brup   @next   @pp     XX      XX     XX
-  XX     XX     XX      XX      XX      XX      A-S-[   XX      XX      A-S-]   XX      XX      ret
-  lsft   XX     XX      @scolor XX      XX      @saircn @sairsw XX      XX      XX      ▲       rsft
-  fn     lctl   lalt    lmet            lrld                    rmet    ralt    ◀       ▼       ▶
-)
-
-;; 4. SYMBOL LAYER
+;; 3. SYMBOL & NUMBER LAYER
 (deflayer symb
-  esc    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX
-  grv    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX     XX
-  tab    S-1    S-2     S-3     S-4     S-5     S-6     S-7     S-8     S-9     S-0     XX      XX     XX
-  XX     1      2       3       4       5       6       7       8       9       0       XX      ret
-  lsft   XX     XX      XX      [       S-[     S-]     ]       _       .       /       ▲       rsft
-  fn     lctl   lalt    lmet            bspc                    rmet    ralt    ◀       ▼       ▶
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    S-1  S-2  S-3  S-4  S-5  S-6  S-7  S-8  S-9  S-0  -    =    bspc
+  tab    1    2    3    4    5    6    7    8    9    0    [    ]    \
+  caps   @a   @s   @d   @f   _    _    @j   @k   @l   @sem '    ret
+  lsft   z    x    c    v    b    [    S-[  S-]  ]    /    up   rsft
+  fn     lctl lalt lmet          bspc        rmet ralt left down rght
 )
 
-;; 5. NAVIGATION LAYER
-(deflayer navi
-  esc    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX
-  grv    XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      del    XX
-  @scamt @scam0 @scamw  @scamd  XX      XX      S-A-left S-A-down S-A-up S-A-rght XX    XX      XX     XX
-  XX     @scam= @scam9  A-left  A-rght  XX      left    down    up      rght    XX      XX      ret
-  lsft   XX     XX      XX      XX      XX      XX      XX      XX      XX      XX      ▲       rsft
-  fn     lctl   lalt    lmet            _                       rmet    ralt    ◀       ▼       ▶
+;; 4. SYSTEM CONTROL LAYER
+(deflayer syst
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab    _    _    _    _    _    prev vold volu next pp   _    _    _
+  caps   @a   @s   @d   @f   _    _    @j   @k   @l   @sem '    ret
+  lsft   _    _    @scolor brdn brup _ _    _    _    _    up   rsft
+  fn     lctl lalt lmet          lrld        rmet ralt left down rght
 )
 
-;; 6. BROWSER LAYER (HYPRKAN CONTEXT)
+;; 5. APPS LAUNCHER LAYER
+(deflayer apps
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab   @adavin @amword @aexcel @arecut @ateams @ayoutu @awhats @asocia @a--obs @a1pass [ ] \
+  caps  @afindr _    @adisco @aforkl @achrom @aspoti @akitty @abrave _    @achatg @asystm ret
+  lsft  @a-zoom @anotes @acalen @aprevw @avival @aneovd @a-mail @awinap _ _ up rsft
+  fn     lctl lalt lmet          spc         rmet ralt left down rght
+)
+
+;; 6. BROWSER LAYER (HYPRKAN CONTEXT-AWARE)
 (deflayer browser
-  XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX
-  XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     XX     @msymb
-  @mretu q      @b-cls _      @b-rld @b-new _      @b-reop @b-url @b-bmrk p     \      XX     \
-  @mnavi @mlctl @msyst @mlmet @mlalt @mtrik @b-back @b-ntab @b-ptab @b-fwd @mrctl @mral2 @mappr
-  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n      @mtcop ,      @mhome /      ▲      rsft
-  fn     lctl   lalt   @msymb        @mhypr               @mappr        rmet   ralt   ◀      ▼
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab    q    @b-cls _  @b-rld @b-new _  @b-reop @b-url @b-bmrk p [ ] \
+  @cap   @a   @s   @d   @f   g    @b-back @b-ntab @b-ptab @b-fwd @mrctl @mral2 ret
+  lsft   z    x    c    v    b    n    m    ,    .    /    up   rsft
+  fn     lctl lalt lmet          @spc        rmet ralt left down rght
 )
