@@ -70,6 +70,7 @@ return {
     ft = "markdown",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
+      detect_cwd = false,
       workspaces = { { name = "till", path = "/home/archer/til" } },
       daily_notes = { folder = "daily", template = "daily.md" },
       new_notes_location = "current_dir",
