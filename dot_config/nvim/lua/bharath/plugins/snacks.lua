@@ -33,7 +33,7 @@ return {
     indent = { enabled = true, char = "┊" }, -- indent guides (replaces indent-blankline)
     dim = { enabled = true }, -- dim unfocused scope (replaces twilight.nvim)
     zen = { enabled = true }, -- zen mode (replaces zen-mode.nvim + vim-maximizer)
-    image = { enabled = true }, -- image viewer via kitty graphics protocol
+    image = { enabled = false }, -- disabled to prevent freezing when opening markdown with images
     animate = { enabled = true }, -- smooth animations for scroll/indent
 
     -- ── Notifier ────────────────────────────────────────────────────────

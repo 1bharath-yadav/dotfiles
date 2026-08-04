@@ -138,7 +138,7 @@ return {
   -- ── 7. Paste clipboard images → assets/timestamp.png ─────────────────────
   {
     "HakonHarnes/img-clip.nvim",
-    event = "BufEnter",
+    cmd = "PasteImage",
     ft = "markdown",
     opts = {
       default = {
@@ -213,21 +213,21 @@ return {
     end,
   },
 
-  -- ── 11. Word count in lualine status bar ──────────────────────────────────
-  {
-    "nvim-lualine/lualine.nvim",
-    optional = true,
-    opts = function(_, opts)
-      local function word_count()
-        if vim.bo.filetype == "markdown" then
-          return "  " .. tostring(vim.fn.wordcount().words) .. "w"
-        end
-        return ""
-      end
-      opts.sections = opts.sections or {}
-      opts.sections.lualine_x = opts.sections.lualine_x or {}
-      table.insert(opts.sections.lualine_x, 1, word_count)
-      return opts
-    end,
-  },
+  --   -- ── 11. Word count in lualine status bar ──────────────────────────────────
+  --   {
+  --     "nvim-lualine/lualine.nvim",
+  --     optional = true,
+  --     opts = function(_, opts)
+  --       local function word_count()
+  --         if vim.bo.filetype == "markdown" then
+  --           return "  " .. tostring(vim.fn.wordcount().words) .. "w"
+  --         end
+  --         return ""
+  --       end
+  --       opts.sections = opts.sections or {}
+  --       opts.sections.lualine_x = opts.sections.lualine_x or {}
+  --       table.insert(opts.sections.lualine_x, 1, word_count)
+  --       return opts
+  --     end,
+  --   },
 }
