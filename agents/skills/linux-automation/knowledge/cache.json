@@ -1,0 +1,22 @@
+{
+  "hashes": {
+    "/home/archer/.config/hypr/hyprland.lua": "b5511930aaa23e4147ef0eea4ef12804a277064724410a0d6a2188fb97464f6e",
+    "/home/archer/.config/hypr/hyprland/rules.lua": "73f155e255eaf02c46eb0d9faf6ec9163172e515ce0f02add867ca89b6009b10",
+    "/home/archer/.config/hypr/hyprland/general.lua": "40eb5ecd29d739e6951bd8b04feca44dea64e918eee72e6b3628c75c6e58bcde",
+    "/home/archer/.config/hypr/hyprland/env.lua": "9c4dc22fcf5d212d84ca371038232889184e392be15bc612bcc01f8ef906f49d",
+    "/home/archer/.config/hypr/hyprland/execs.lua": "d3dd5e837b14dcd4f3d1f1803dd7e4d10fd5b5c61928ddd9fff6e58f5d955532",
+    "/home/archer/.config/hypr/hyprland/keybinds.lua": "497a00c6d08c1124d3ae3044369c8234f2ac4ebf4e057939f3034eeb40ba3e24",
+    "/home/archer/.config/hypr/hyprland/variables.lua": "a0dbc4b2bf268757bbf231aff02525eecafe1783a041a1d90ecd90698238eb60",
+    "/home/archer/.config/hypr/hyprland/colors.lua": "66a8433ce12153868fa559f36fcedaa2abd1f330a6348f3791d297e1f48088ce",
+    "/home/archer/.config/hypr/custom/rules.lua": "6f404caa314259ebbdec4937b627a4beb28a0859bc84d84f891e0fa98b6195ae",
+    "/home/archer/.config/hypr/custom/general.lua": "468d6d3d451bffffdff3d378b9c647cfa4f620708e854caa10c52e4c506448e0",
+    "/home/archer/.config/hypr/custom/env.lua": "3da0018873ba562071594b0cbc29521d2b33561fcf174a5b6f975b1a5faa87e7",
+    "/home/archer/.config/hypr/custom/execs.lua": "0937e120e66d9adc54d7c0e3f434cedd99011ac35bc3e962566a6fed45a73561",
+    "/home/archer/.config/hypr/custom/keybinds.lua": "8ace828124d1e0551effd89d1e9e278da5e611ad86a3c7f60b1d1ebf9cdd87ef",
+    "/home/archer/.config/hypr/custom/variables.lua": "d9b431eed36f3beddb9823c66cb94b5ce46db2eb583a7a08f95c20abab15a0b6",
+    "/home/archer/.config/hypr/hyprland/shellOverrides/main.lua": "d76f446bf6a32871f3e6db83f703f2c0a8568f5dc695ecec40bd0ab8fcf77309",
+    "/home/archer/.config/hypr/hyprland/services/init.lua": "cb49c84186334ca83f71f6f7687fade66393ec7d5699b8d1f4518b3aec9739dd",
+    "/home/archer/.config/hypr/hyprland/services/create_custom_config.lua": "fc843e8e9fb0c3291cc8cf3fcd02f0762941cca99340d2466d39781dd013b23b",
+    "/home/archer/.config/hypr/hyprland/lib/init.lua": "b07a6ae8d1f83c4278a16dbd31fd0bfdaeeb8f9d23a22b1aef572cba90056318"
+  }
+}

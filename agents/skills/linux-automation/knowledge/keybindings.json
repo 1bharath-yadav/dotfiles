@@ -1,0 +1,752 @@
+[
+  {
+    "keys": "SUPER + SUPER_L",
+    "action": "hl.dsp.global(\"quickshell:searchToggleRelease\")",
+    "description": "Shell: Toggle search"
+  },
+  {
+    "keys": "SUPER + SUPER_R",
+    "action": "hl.dsp.global(\"quickshell:searchToggleRelease\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SUPER_L",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || pkill fuzzel || fuzzel\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SUPER_R",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || pkill fuzzel || fuzzel\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER_L",
+    "action": "hl.dsp.global(\"quickshell:workspaceNumber\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER_R",
+    "action": "hl.dsp.global(\"quickshell:workspaceNumber\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER_L",
+    "action": "hl.dsp.global(\"quickshell:workspaceNumber\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER_R",
+    "action": "hl.dsp.global(\"quickshell:workspaceNumber\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + Tab",
+    "action": "hl.dsp.global(\"quickshell:overviewWorkspacesToggle\")",
+    "description": "Shell: Toggle overview"
+  },
+  {
+    "keys": "SUPER + V",
+    "action": "hl.dsp.global(\"quickshell:overviewClipboardToggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + Period",
+    "action": "hl.dsp.global(\"quickshell:overviewEmojiToggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + A",
+    "action": "hl.dsp.global(\"quickshell:sidebarLeftToggle\")",
+    "description": "Shell: Toggle left sidebar"
+  },
+  {
+    "keys": "SUPER + ALT + A",
+    "action": "hl.dsp.global(\"quickshell:sidebarLeftToggleDetach\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + B",
+    "action": "hl.dsp.global(\"quickshell:sidebarLeftToggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + O",
+    "action": "hl.dsp.global(\"quickshell:sidebarLeftToggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + N",
+    "action": "hl.dsp.global(\"quickshell:sidebarRightToggle\")",
+    "description": "Shell: Toggle right sidebar"
+  },
+  {
+    "keys": "SUPER + Slash",
+    "action": "hl.dsp.global(\"quickshell:cheatsheetToggle\")",
+    "description": "Shell: Toggle cheatsheet"
+  },
+  {
+    "keys": "SUPER + K",
+    "action": "hl.dsp.global(\"quickshell:oskToggle\")",
+    "description": "Shell: Toggle on-screen keyboard"
+  },
+  {
+    "keys": "SUPER + M",
+    "action": "hl.dsp.global(\"quickshell:mediaControlsToggle\")",
+    "description": "Shell: Toggle media controls"
+  },
+  {
+    "keys": "SUPER + G",
+    "action": "hl.dsp.global(\"quickshell:overlayToggle\")",
+    "description": "Shell: Toggle widget overlay"
+  },
+  {
+    "keys": "CTRL + ALT + Delete",
+    "action": "hl.dsp.global(\"quickshell:sessionToggle\")",
+    "description": "Shell: Toggle session menu"
+  },
+  {
+    "keys": "SUPER + J",
+    "action": "hl.dsp.global(\"quickshell:barToggle\")",
+    "description": "Shell: Toggle bar"
+  },
+  {
+    "keys": "CTRL + ALT + Delete",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || pkill wlogout || wlogout -p layer-shell\")",
+    "description": ""
+  },
+  {
+    "keys": "SHIFT + SUPER + ALT + Slash",
+    "action": "hl.dsp.exec_cmd(\"qs -p $HOME/.config/quickshell/$qsConfig/welcome.qml\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86MonBrightnessUp",
+    "action": "hl.dsp.exec_cmd(qsIpcCall .. \" brightness increment || brightnessctl s 5%+\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86MonBrightnessDown",
+    "action": "hl.dsp.exec_cmd(qsIpcCall .. \" brightness decrement || brightnessctl s 5%-\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioRaiseVolume",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l 1.5\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioLowerVolume",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-\")",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SUPER + T",
+    "action": "hl.dsp.global(\"quickshell:wallpaperSelectorToggle\")",
+    "description": "Shell: Change wallpaper"
+  },
+  {
+    "keys": "CTRL + SUPER + ALT + T",
+    "action": "hl.dsp.global(\"quickshell:wallpaperSelectorRandom\")",
+    "description": "Shell: Random wallpaper"
+  },
+  {
+    "keys": "CTRL + SUPER + SHIFT + D",
+    "action": "hl.dsp.global(\"quickshell:toggleLightDark\")",
+    "description": "Shell: Toggle light/dark mode"
+  },
+  {
+    "keys": "CTRL + SUPER + T",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || \" .. qsScripts .. \"/colors/switchwall.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SUPER + R",
+    "action": "hl.dsp.exec_cmd(\"killall ydotool qs quickshell; qs -c $qsConfig &\")",
+    "description": "Shell: Restart widgets"
+  },
+  {
+    "keys": "CTRL + SUPER + P",
+    "action": "hl.dsp.global(\"quickshell:panelFamilyCycle\")",
+    "description": "Shell: Cycle panel family"
+  },
+  {
+    "keys": "SUPER + V",
+    "action": "hl.dsp.exec_cmd(\n        qsIsAlive .. \" || pkill fuzzel || cliphist list | fuzzel --match-mode fzf --dmenu | cliphist decode | wl-copy\")",
+    "description": "Utilities: Clipboard history >> clipboard"
+  },
+  {
+    "keys": "SUPER + Period",
+    "action": "hl.dsp.exec_cmd(\n        qsIsAlive .. \" || pkill fuzzel || \" .. hyprScripts .. \"/fuzzel-emoji.sh copy\")",
+    "description": "Utilities: Emoji >> clipboard"
+  },
+  {
+    "keys": "SUPER + SHIFT + S",
+    "action": "hl.dsp.global(\"quickshell:regionScreenshot\")",
+    "description": "Utilities: Screen snip"
+  },
+  {
+    "keys": "SUPER + SHIFT + S",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || pidof slurp || hyprshot --freeze --clipboard-only --mode region --silent\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + A",
+    "action": "hl.dsp.global(\"quickshell:regionSearch\")",
+    "description": "Utilities: Google Lens"
+  },
+  {
+    "keys": "SUPER + SHIFT + A",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || pidof slurp || \" .. hyprScripts .. \"/snip_to_search.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + X",
+    "action": "hl.dsp.global(\"quickshell:regionOcr\")",
+    "description": "Utilities: Character recognition >> clipboard"
+  },
+  {
+    "keys": "SUPER + SHIFT + T",
+    "action": "hl.dsp.global(\"quickshell:screenTranslate\")",
+    "description": "Utilities: Translate screen content"
+  },
+  {
+    "keys": "SUPER + SHIFT + X",
+    "action": "hl.dsp.exec_cmd(\n    qsIsAlive ..\n    \" || pidof slurp || grim -g \\\"$(slurp $SLURP_ARGS)\\\" \\\"/tmp/ocr_image.png\\\" && tesseract \\\"/tmp/ocr_image.png\\\" stdout -l $(tesseract --list-langs | awk 'NR>1{print $1}' | tr '\\\\\\\\n' '+' | sed 's/\\\\\\\\+$/\\\\\\\\n/') | wl-copy && rm \\\"/tmp/ocr_image.png\\\"\"\n)",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + C",
+    "action": "hl.dsp.exec_cmd(\"hyprpicker -a\")",
+    "description": "Utilities: Pick color #RRGGBB >> clipboard"
+  },
+  {
+    "keys": "SUPER + SHIFT + R",
+    "action": "hl.dsp.global(\"quickshell:regionRecord\")",
+    "description": "Utilities: Record region (no sound)"
+  },
+  {
+    "keys": "SUPER + SHIFT + R",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || \" .. qsScripts .. \"/videos/record.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + R",
+    "action": "hl.dsp.global(\"quickshell:regionRecord\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + R",
+    "action": "hl.dsp.exec_cmd(qsIsAlive .. \" || \" .. qsScripts .. \"/videos/record.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + ALT + R",
+    "action": "hl.dsp.exec_cmd(qsScripts .. \"/videos/record.sh --fullscreen\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + ALT + R",
+    "action": "hl.dsp.exec_cmd(qsScripts .. \"/videos/record.sh --fullscreen --sound\")",
+    "description": "Utilities: Record screen (with sound)"
+  },
+  {
+    "keys": "Print",
+    "action": "hl.dsp.exec_cmd(grimhyprctl .. \" - | wl-copy\")",
+    "description": "Utilities: Screenshot >> clipboard"
+  },
+  {
+    "keys": "CTRL + Print",
+    "action": "hl.dsp.exec_cmd(\n    \"mkdir -p $(xdg-user-dir PICTURES)/Screenshots && \" ..\n    grimhyprctl .. \" $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\\\"$(date '+%Y-%m-%d_%H.%M.%S')\\\".png\"\n)",
+    "description": "Utilities: Screenshot >> clipboard & file"
+  },
+  {
+    "keys": "CTRL + Print",
+    "action": "hl.dsp.exec_cmd(grimhyprctl .. \" - | wl-copy\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + ALT + mouse:273",
+    "action": "hl.dsp.exec_cmd(hyprScripts .. \"/ai/primary-buffer-query.sh\")",
+    "description": "Utilities: Generate AI summary for selected text"
+  },
+  {
+    "keys": "SUPER + Minus",
+    "action": "function() zoomfunction(-0.3) end",
+    "description": "Screen: Zoom out"
+  },
+  {
+    "keys": "SUPER + Equal",
+    "action": "function() zoomfunction(0.3) end",
+    "description": "Screen: Zoom in"
+  },
+  {
+    "keys": "SUPER + code:82",
+    "action": "function() zoomfunction(-0.3) end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + code:86",
+    "action": "function() zoomfunction(0.3) end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + N",
+    "action": "hl.dsp.exec_cmd(mediaNextCommand)",
+    "description": "Media: Next track"
+  },
+  {
+    "keys": "XF86AudioNext",
+    "action": "hl.dsp.exec_cmd(mediaNextCommand)",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioPrev",
+    "action": "hl.dsp.exec_cmd(\"playerctl previous\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + ALT + mouse:275",
+    "action": "hl.dsp.exec_cmd(\"playerctl previous\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + ALT + mouse:276",
+    "action": "hl.dsp.exec_cmd(mediaNextCommand)",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + B",
+    "action": "hl.dsp.exec_cmd(\"playerctl previous\")",
+    "description": "Media: Previous track"
+  },
+  {
+    "keys": "SUPER + SHIFT + P",
+    "action": "hl.dsp.exec_cmd(\"playerctl play-pause\")",
+    "description": "Media: Play/pause media"
+  },
+  {
+    "keys": "XF86AudioPlay",
+    "action": "hl.dsp.exec_cmd(\"playerctl play-pause\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioPause",
+    "action": "hl.dsp.exec_cmd(\"playerctl play-pause\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioMute",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-mute @DEFAULT_SINK@ toggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + M",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-mute @DEFAULT_SINK@ toggle\")",
+    "description": "Media: Toggle mute"
+  },
+  {
+    "keys": "ALT + XF86AudioMute",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-mute @DEFAULT_SOURCE@ toggle\")",
+    "description": ""
+  },
+  {
+    "keys": "XF86AudioMicMute",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-mute @DEFAULT_SOURCE@ toggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + M",
+    "action": "hl.dsp.exec_cmd(\"wpctl set-mute @DEFAULT_SOURCE@ toggle\")",
+    "description": "Media: Toggle mic"
+  },
+  {
+    "keys": "SUPER + mouse:272",
+    "action": "hl.dsp.window.drag()",
+    "description": "Window: Move"
+  },
+  {
+    "keys": "SUPER + mouse:274",
+    "action": "hl.dsp.window.drag()",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + mouse:273",
+    "action": "hl.dsp.window.resize()",
+    "description": "Window: Resize"
+  },
+  {
+    "keys": "SUPER + \" .. arrowkey[i]",
+    "action": "hl.dsp.focus({ direction = focusdir[i] })",
+    "description": "Window: Focus "
+  },
+  {
+    "keys": "SUPER + \" .. arrowkey[i]",
+    "action": "hl.dsp.focus({ direction = focusdir[i] })",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + \" .. arrowkey[i]",
+    "action": "hl.dsp.window.move({ direction = focusdir[i] })",
+    "description": "Window: Move "
+  },
+  {
+    "keys": "ALT + F4",
+    "action": "function()\n        hl.exec_cmd(\n            \"notify-send \\\"Wrong close keybind\\\" \\\"Super+Q to close. Use Alt+F4 for Windows VMs\\\" -a Hyprland\")\n    end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + Q",
+    "action": "hl.dsp.window.close()",
+    "description": "Window: Close"
+  },
+  {
+    "keys": "SUPER + SHIFT + ALT + Q",
+    "action": "hl.dsp.exec_cmd(\"hyprctl kill\")",
+    "description": "Window: Forcefully zap a window"
+  },
+  {
+    "keys": "SUPER + Semicolon",
+    "action": "hl.dsp.layout(\"splitratio -0.1\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + Apostrophe",
+    "action": "hl.dsp.layout(\"splitratio +0.1\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + Space",
+    "action": "hl.dsp.window.float({ action = \"toggle\" })",
+    "description": "Window: Float/Tile"
+  },
+  {
+    "keys": "SUPER + D",
+    "action": "hl.dsp.window.fullscreen({ mode = \"maximized\", action = \"toggle\" })",
+    "description": "Window: Maximize"
+  },
+  {
+    "keys": "SUPER + F",
+    "action": "hl.dsp.window.fullscreen({ mode = \"fullscreen\", action = \"toggle\" })",
+    "description": "Window: Fullscreen"
+  },
+  {
+    "keys": "SUPER + ALT + F",
+    "action": "hl.dsp.window.fullscreen_state({ internal = 0, client = 3, action = \"toggle\" })",
+    "description": "Window: Fullscreen spoof"
+  },
+  {
+    "keys": "SUPER + P",
+    "action": "hl.dsp.window.pin()",
+    "description": "Window: Pin"
+  },
+  {
+    "keys": "SUPER + ALT + \" .. (i % 10)",
+    "action": "function()\n        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))\n    end",
+    "description": "Window: Send to workspace "
+  },
+  {
+    "keys": "SUPER + ALT + code:\" .. numberkey[i]",
+    "action": "function()\n--         hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))\n--     end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + code:\" .. numpadkey[i]",
+    "action": "function()\n        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))\n    end",
+    "description": ""
+  },
+  {
+    "keys": "keycombos[i]",
+    "action": "hl.dsp.window.move({ workspace = prefix[i] .. \"1\" })",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + SHIFT + Page_\" .. keydirs[i]",
+    "action": "hl.dsp.window.move({ workspace = prefix[i] .. \"1\" })",
+    "description": "Window: Send to workspace "
+  },
+  {
+    "keys": "keycombos[i]",
+    "action": "hl.dsp.window.move({ workspace = prefix[i] .. \"1\" })",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + S",
+    "action": "hl.dsp.window.move({ workspace = \"special:special\", follow = false })",
+    "description": "Window: Send to scratchpad"
+  },
+  {
+    "keys": "CTRL + SUPER + S",
+    "action": "hl.dsp.workspace.toggle_special(\"special\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + \" .. (i % 10)",
+    "action": "function()\n        hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(i) }))\n    end",
+    "description": "Workspace: Focus "
+  },
+  {
+    "keys": "SUPER + code:\" .. numberkey[i]",
+    "action": "function()\n        hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(i) }))\n    end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + code:\" .. numpadkey[i]",
+    "action": "function()\n        hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(i) }))\n    end",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SUPER + \" .. keys[i]",
+    "action": "hl.dsp.focus({ workspace = prefix[i] .. \"1\" })",
+    "description": "Workspace: Focus "
+  },
+  {
+    "keys": "CTRL + SUPER + ALT + \" .. keys[i]",
+    "action": "hl.dsp.focus({ workspace = prefix[i] .. \"1\" })",
+    "description": ""
+  },
+  {
+    "keys": "keycombos[i]",
+    "action": "hl.dsp.focus({ workspace = prefix[i] .. \"1\" })",
+    "description": ""
+  },
+  {
+    "keys": "keycombos[i]",
+    "action": "hl.dsp.focus({ workspace = prefix[i] .. \"1\" })",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + S",
+    "action": "hl.dsp.workspace.toggle_special(\"special\")",
+    "description": "Workspace: Toggle scratchpad"
+  },
+  {
+    "keys": "SUPER + mouse:275",
+    "action": "hl.dsp.workspace.toggle_special(\"special\")",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SUPER + \" .. key[i]",
+    "action": "hl.dsp.focus({ workspace = prefix[i] })",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + F1",
+    "action": "function()\n        local currentsubmap = hl.get_current_submap()\n        if currentsubmap == \"virtual-machine\" then\n            hl.dispatch(hl.dsp.exec_cmd(\n                \"notify-send 'Exited Virtual Machine submap' 'Keybinds re-enabled' -a 'Hyprland'\"))\n            hl.dispatch(hl.dsp.submap(\"reset\"))\n        elseif currentsubmap == \"\" then\n            hl.dispatch(hl.dsp.exec_cmd(\n                \"notify-send 'Entered Virtual Machine submap' 'Keybinds disabled. hit SUPER+ALT+F1 to escape' -a 'Hyprland'\"))\n            hl.dispatch(hl.dsp.submap(\"virtual-machine\"))\n        end\n    end",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + F11",
+    "action": "hl.dsp.exec_cmd(\n        \"bash -c 'RANDOM_IMAGE=$(find ~/Pictures -type f | shuf -n 1); ACTION=$(notify-send \\\"Test notification with body image\\\" \\\"This notification should contain your user account <b>image</b> and <a href=\\\\\\\"https://discord.com/app\\\\\\\">Discord</a> <b>icon</b>. Oh and here is a random image in your Pictures folder: <img src=\\\\\\\"$RANDOM_IMAGE\\\\\\\" alt=\\\\\\\"Testing image\\\\\\\"/>\\\" -a \\\"Hyprland\\\" -p -h \\\"string:image-path:/var/lib/AccountsService/icons/$USER\\\" -t 6000 -i \\\"discord\\\" -A \\\"openImage=Profile image\\\" -A \\\"action2=Open the random image\\\" -A \\\"action3=Useless button\\\"); [[ $ACTION == *openImage ]] && xdg-open \\\"/var/lib/AccountsService/icons/$USER\\\"; [[ $ACTION == *action2 ]] && xdg-open \\\"$RANDOM_IMAGE\\\"'\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + F12",
+    "action": "hl.dsp.exec_cmd(\n        \"bash -c 'RANDOM_IMAGE=$(find ~/Pictures -type f | shuf -n 1); ACTION=$(notify-send \\\"Test notification\\\" \\\"This notification should contain a random image in your <b>Pictures</b> folder and <a href=\\\\\\\"https://discord.com/app\\\\\\\">Discord</a> <b>icon</b>.\\n<i>Flick right to dismiss!</i>\\\" -a \\\"Discord (fake)\\\" -p -h \\\"string:image-path:$RANDOM_IMAGE\\\" -t 6000 -i \\\"discord\\\" -A \\\"openImage=Profile image\\\" -A \\\"action2=Useless button\\\"); [[ $ACTION == *openImage ]] && xdg-open \\\"/var/lib/AccountsService/icons/$USER\\\"'\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + Equal",
+    "action": "hl.dsp.exec_cmd(\"notify-send 'Urgent notification' 'Ah hell no' -u critical -a 'Hyprland keybind'\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + L",
+    "action": "hl.dsp.exec_cmd(\"loginctl lock-session\")",
+    "description": "Session: Lock"
+  },
+  {
+    "keys": "SUPER + SHIFT + L",
+    "action": "hl.dsp.exec_cmd(\"systemctl suspend || loginctl suspend\")",
+    "description": "Session: Sleep"
+  },
+  {
+    "keys": "switch:on:Lid Switch",
+    "action": "hl.dsp.exec_cmd(\"systemctl suspend || loginctl suspend\")",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SHIFT + ALT + SUPER + Delete",
+    "action": "hl.dsp.exec_cmd(\"systemctl poweroff || loginctl poweroff\")",
+    "description": "Session: Shut down"
+  },
+  {
+    "keys": "SUPER + Return",
+    "action": "hl.dsp.exec_cmd(terminal)",
+    "description": "App: Terminal"
+  },
+  {
+    "keys": "SUPER + T",
+    "action": "hl.dsp.exec_cmd(terminal)",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + ALT + T",
+    "action": "hl.dsp.exec_cmd(terminal)",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + E",
+    "action": "hl.dsp.exec_cmd(fileManager)",
+    "description": "App: File manager"
+  },
+  {
+    "keys": "SUPER + W",
+    "action": "hl.dsp.exec_cmd(browser)",
+    "description": "App: Browser"
+  },
+  {
+    "keys": "SUPER + C",
+    "action": "hl.dsp.exec_cmd(codeEditor)",
+    "description": "App: Code editor"
+  },
+  {
+    "keys": "CTRL + SUPER + SHIFT + ALT + W",
+    "action": "hl.dsp.exec_cmd(officeSoftware)",
+    "description": "App: Office software"
+  },
+  {
+    "keys": "SUPER + X",
+    "action": "hl.dsp.exec_cmd(textEditor)",
+    "description": "App: Text editor"
+  },
+  {
+    "keys": "CTRL + SUPER + V",
+    "action": "hl.dsp.exec_cmd(volumeMixer)",
+    "description": "App: Volume mixer"
+  },
+  {
+    "keys": "SUPER + I",
+    "action": "hl.dsp.exec_cmd(settingsApp)",
+    "description": "App: Settings app"
+  },
+  {
+    "keys": "CTRL + SHIFT + Escape",
+    "action": "hl.dsp.exec_cmd(taskManager)",
+    "description": "App: Task manager"
+  },
+  {
+    "keys": "CTRL + SUPER + Backslash",
+    "action": "hl.dsp.window.resize({ x = 640, y = 480, \"exact\" })",
+    "description": ""
+  },
+  {
+    "keys": "CTRL + SUPER + Slash",
+    "action": "hl.dsp.exec_cmd(\"nvim ~/.config/illogical-impulse/config.json\")",
+    "description": "Edit shell config"
+  },
+  {
+    "keys": "CTRL + SUPER + ALT + Slash",
+    "action": "hl.dsp.exec_cmd(\"xdg-open ~/.config/hypr/custom/keybinds.lua\")",
+    "description": "Edit user keybinds"
+  },
+  {
+    "keys": "ALT + BracketLeft",
+    "action": "hl.dsp.exec_cmd(\"brightnessctl set 1%-\")",
+    "description": ""
+  },
+  {
+    "keys": "ALT + BracketRight",
+    "action": "hl.dsp.exec_cmd(\"brightnessctl set +1%\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + F4",
+    "action": "hl.dsp.global(\"quickshell:sessionToggle\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + G",
+    "action": "hl.dsp.exec_cmd(\"~/.config/hypr/custom/scripts/toggle-gdrive.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + I",
+    "action": "hl.dsp.exec_cmd(\"~/.local/bin/send_file.sh\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + P",
+    "action": "hl.dsp.exec_cmd(\"grim - | wl-copy\")",
+    "description": "Screenshot >> clipboard"
+  },
+  {
+    "keys": "CTRL + ALT + P",
+    "action": "hl.dsp.exec_cmd(\n\t\t\"mkdir -p $(xdg-user-dir PICTURES)/Screenshots && grim $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\\\"$(date '+%Y-%m-%d_%H.%M.%S')\\\".png\"\n\t)",
+    "description": "Screenshot >> clipboard & save"
+  },
+  {
+    "keys": "SUPER + ALT + E",
+    "action": "hl.dsp.exec_cmd(\"zen-browser\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + K",
+    "action": "hl.dsp.exec_cmd(\"koodo-reader\")",
+    "description": ""
+  },
+  {
+    "keys": "SUPER + ALT + O",
+    "action": "hl.dsp.workspace.toggle_special(\"obsidian\")",
+    "description": "Toggle Obsidian scratchpad"
+  },
+  {
+    "keys": "SUPER + Y",
+    "action": "hl.dsp.workspace.toggle_special(\"yazi\")",
+    "description": "Toggle Yazi scratchpad"
+  },
+  {
+    "keys": "SUPER + Z",
+    "action": "hl.dsp.workspace.toggle_special(\"kitty\")",
+    "description": "Toggle Kitty scratchpad"
+  },
+  {
+    "keys": "SUPER + Minus",
+    "action": "hl.dsp.workspace.toggle_special(\"quicknote\")",
+    "description": "Toggle Quicknote scratchpad"
+  },
+  {
+    "keys": "CTRL + SUPER + C",
+    "action": "hl.dsp.workspace.toggle_special(\"calendar\")",
+    "description": "Toggle Calendar scratchpad"
+  },
+  {
+    "keys": "CTRL + SUPER + K",
+    "action": "hl.dsp.workspace.toggle_special(\"keep\")",
+    "description": "Toggle Google Keep scratchpad"
+  },
+  {
+    "keys": "CTRL + SUPER + L",
+    "action": "hl.dsp.workspace.toggle_special(\"tasks\")",
+    "description": "Toggle Google Tasks scratchpad"
+  },
+  {
+    "keys": "CTRL + SUPER + M",
+    "action": "hl.dsp.workspace.toggle_special(\"gmail\")",
+    "description": "Toggle Gmail scratchpad"
+  },
+  {
+    "keys": "SUPER + Comma",
+    "action": "hl.dsp.workspace.toggle_special(\"hermes\")",
+    "description": "Toggle Hermes scratchpad"
+  },
+  {
+    "keys": "SUPER + Right",
+    "action": "hl.dsp.focus({ workspace = \"r+1\" })",
+    "description": "Move to right workspace"
+  },
+  {
+    "keys": "SUPER + Left",
+    "action": "hl.dsp.focus({ workspace = \"r-1\" })",
+    "description": "Move to left workspace"
+  },
+  {
+    "keys": "SUPER + ALT + P",
+    "action": "hl.dsp.exec_cmd(\"~/.dotfiles/dot_local/bin/executable_send_file.sh\")",
+    "description": "Send clipboard content to phone"
+  },
+  {
+    "keys": "SUPER + H",
+    "action": "hl.dsp.exec_cmd(\"~/.local/bin/transcribe --mode toggle\")",
+    "description": "Dictation toggle"
+  }
+]

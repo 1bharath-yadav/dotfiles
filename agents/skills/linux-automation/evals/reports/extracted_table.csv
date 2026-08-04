@@ -1,0 +1,4 @@
+ID,Component,Status
+101,Hyprland IPC,Active
+102,Chrome CDP,Connected
+103,AT-SPI Bus,Ready

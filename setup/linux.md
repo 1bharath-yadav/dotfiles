@@ -80,9 +80,12 @@ sudo timedatectl set-timezone Asia/Kolkata
 Snapshot installed AUR packages (run periodically and commit):
 
 ```bash
-pacman -Qm | grep -v '\-debug$' | awk '{print $1}' \
-  > ~/.dotfiles/setup/aur-packages.txt
+pacman -Qeq \
+| \grep -Ev '(^illogical-|.*-debug$)' \
+> ~/.dotfiles/setup/explicit-packages.txt
 ```
+
+search Pipewire in chrome://flags and enable it.
 
 # rclone setup and pull first time then bidirectional sync
 

@@ -22,5 +22,5 @@ alias battery='termux-battery-status'
 alias clipboard='termux-clipboard-get'
 alias notify='termux-notification --title'
 
-# ── dotfiles update (Termux = no nix-on-droid, pure pkg) ─────────────────────
+# ── dotfiles update (Termux) ─────────────────────
 alias dots-sync='cd ~/.dotfiles && git pull'

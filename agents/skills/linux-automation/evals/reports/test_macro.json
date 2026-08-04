@@ -1,0 +1,42 @@
+[
+  {
+    "type": "launch",
+    "params": {
+      "cmd": "kitty --title Macro_Run_Window"
+    },
+    "timestamp": 1785783818.811842
+  },
+  {
+    "type": "wait",
+    "params": {
+      "seconds": 0.5
+    },
+    "timestamp": 1785783818.8122795
+  },
+  {
+    "type": "type",
+    "params": {
+      "text": "echo MACRO_TEST_SUCCESS > /tmp/macro_result.txt"
+    },
+    "timestamp": 1785783818.8125591
+  },
+  {
+    "type": "hotkey",
+    "params": {
+      "keys": "return"
+    },
+    "timestamp": 1785783818.8127773
+  },
+  {
+    "type": "wait",
+    "params": {
+      "seconds": 0.5
+    },
+    "timestamp": 1785783818.8129656
+  },
+  {
+    "type": "window_close",
+    "params": {},
+    "timestamp": 1785783818.8131354
+  }
+]

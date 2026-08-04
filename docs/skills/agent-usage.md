@@ -10,9 +10,8 @@
 ### Starting a Session (any agent)
 
 Tell the agent:
-```
-Read ~/.dotfiles/agents/skill.md, then ~/til/wiki/schema/USER.md, 
-then ~/til/wiki/schema/MEMORY.md, then first 10 lines of ~/til/optima.md.
+```use config-refresh skill and read first 10 lines of ~/til/optima.md.
+and update dot_tmux.conf
 ```
 
 Or shorter: "Read my skill.md and context files, then help me with X."
@@ -58,7 +57,6 @@ You have ~1.5 hrs/day for non-study tasks. Use agents efficiently:
 
 ### What NOT to delegate
 - Understanding GATE concepts (you need to learn, not the agent)
-- Anki card content decisions (only you know what you got wrong)
 - Schedule adherence (no agent can make you sit down)
 
 ---

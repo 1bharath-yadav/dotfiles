@@ -1,24 +1,22 @@
 return {
   {
     "folke/tokyonight.nvim",
-    lazy = true,
+    lazy = false,
     priority = 1000,
     opts = {
-      style = "night",
+      style = "night", -- storm, moon, night, day
       transparent = true,
     },
     config = function(_, opts)
-      require("tokyonight").setup({
-        style = opts.style,
-        transparent = opts.transparent,
-      })
+      require("tokyonight").setup(opts)
+      vim.cmd("colorscheme tokyonight")
     end,
   },
 
   {
     "catppuccin/nvim",
     name = "catppuccin",
-    lazy = false,
+    lazy = true,
     priority = 1000,
     opts = {
       flavour = "mocha",
@@ -39,13 +37,13 @@ return {
     },
     config = function(_, opts)
       require("catppuccin").setup(opts)
-      vim.cmd([[colorscheme catppuccin-macchiato]])
+      -- Do not set colorscheme here
     end,
   },
 
   {
     "ellisonleao/gruvbox.nvim",
-    lazy = true,
+    lazy = false,
     priority = 1000,
     opts = {
       contrast = "hard",

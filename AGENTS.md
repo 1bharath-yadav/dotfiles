@@ -30,5 +30,5 @@
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
 - linux-automation: added mandatory workspace planning & max 2 apps/workspace organization rules. Subcommands `workspace organize` and `launch --workspace` implemented and tested.
-- nvim: keybindings optimized; which-key groups defined (u/g/h/b/x/t), snacks UI toggles added, git mappings consolidated.
+- nvim: config refreshed for Nvim 0.12.4; lazydev replacing neodev, native diagnostic jump, smoothscroll & undofile added, netrw disabled.
 - next update: overwrite current-state only, max 5 lines

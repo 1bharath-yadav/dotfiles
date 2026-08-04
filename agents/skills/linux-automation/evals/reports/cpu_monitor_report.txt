@@ -1,0 +1,12 @@
+CPU MONITORING REPORT (10 Seconds)
+========================================
+Second 01: [██                  ] | %Cpu(s):  4.6 us,  1.4 sy,  0.0 ni, 90.9 id,  2.6 wa,  0.3 hi,  0.3 si,  0.0 st
+Second 02: [████                ] | %Cpu(s):  0.6 us,  0.6 sy,  0.0 ni, 98.6 id,  0.0 wa,  0.3 hi,  0.0 si,  0.0 st
+Second 03: [██████              ] | %Cpu(s):  2.0 us,  0.9 sy,  0.0 ni, 96.8 id,  0.0 wa,  0.3 hi,  0.0 si,  0.0 st
+Second 04: [████████            ] | %Cpu(s):  3.1 us,  1.1 sy,  0.0 ni, 94.9 id,  0.6 wa,  0.3 hi,  0.0 si,  0.0 st
+Second 05: [██████████          ] | %Cpu(s):  0.3 us,  0.3 sy,  0.0 ni, 99.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+Second 06: [████████████        ] | %Cpu(s):  2.0 us,  1.7 sy,  0.0 ni, 93.2 id,  2.8 wa,  0.3 hi,  0.0 si,  0.0 st
+Second 07: [██████████████      ] | %Cpu(s): 15.5 us,  2.0 sy,  0.0 ni, 80.5 id,  0.3 wa,  1.4 hi,  0.3 si,  0.0 st
+Second 08: [████████████████    ] | %Cpu(s):  2.3 us,  0.8 sy,  0.0 ni, 95.5 id,  0.0 wa,  1.1 hi,  0.3 si,  0.0 st
+Second 09: [██████████████████  ] | %Cpu(s):  0.9 us,  0.9 sy,  0.0 ni, 98.0 id,  0.0 wa,  0.3 hi,  0.0 si,  0.0 st
+Second 10: [████████████████████] | %Cpu(s):  0.6 us,  0.6 sy,  0.0 ni, 98.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st

@@ -102,7 +102,10 @@ Organizing workspaces is a **required and mandatory part** of this skill:
      - **Workspace 2**: AI Desktop Apps / Specialized Clients (Claude Desktop)
      - **Workspace 3**: Terminal / Code Editors / Shell
      - **Workspace 4**: Docs / Auxiliary Apps / Media
-2. **Workspace Reorganization (`workspace organize`)**:
+2. **Application Launching Rule**:
+   - Always launch applications using `nohup`, `gtk-launch`, or desktop entries (or via `Super` key launcher) so applications remain open independently even if the terminal subshell closes.
+   - Example: `nohup claude-desktop >/dev/null 2>&1 &` or `linux-automation launch "claude-desktop" --workspace 2`.
+3. **Workspace Reorganization (`workspace organize`)**:
    - Always run `linux-automation workspace organize` when launching multiple applications to ensure windows are organized, spaced out cleanly, and capped at 2 windows per workspace.
 
 ### Common patterns

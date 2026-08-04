@@ -24,3 +24,8 @@ alias gitrprint='git remote -v | sed -n "/github.com.*push/{ s/^[^[:space:]]\+[[
 
 # Remove .DS_Store from index
 alias gitrmds='find . -name .DS_Store -exec git rm --ignore-unmatch --cached {} +'
+
+export GITHUB_TOKEN=$(gh auth token)
+
+export OPENAI_API_KEY="$(secret-tool lookup service openai account default)"
+export GEMINI_API_KEY="$(secret-tool lookup service gemini account default)"

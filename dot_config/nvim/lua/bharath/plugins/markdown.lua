@@ -70,7 +70,6 @@ return {
     ft = "markdown",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
-      detect_cwd = false,
       workspaces = { { name = "till", path = "/home/archer/til" } },
       daily_notes = { folder = "daily", template = "daily.md" },
       new_notes_location = "current_dir",
@@ -83,7 +82,7 @@ return {
       legacy_commands = false,
       -- ── use snacks.picker instead of telescope ─────────────────────────
       picker = { name = "snacks.picker" },
-      ui = { enable = false }, -- render-markdown.nvim handles visuals
+      ui = { enable = true }, -- render-markdown.nvim handles visuals
     },
     keys = {
       { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New note" },
