@@ -54,6 +54,8 @@ return {
       ensure_installed = {
         "bash",
         "c",
+        "clojure",
+        "commonlisp",
         "css",
         "dockerfile",
         "gitignore",
@@ -66,6 +68,7 @@ return {
         "markdown_inline",
         "prisma",
         "query",
+        "scheme",
         "svelte",
         "tsx",
         "typescript",

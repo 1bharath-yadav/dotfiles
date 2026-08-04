@@ -1,80 +1,52 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Kanata Configuration
-;; System-wide remapping with TCP server mode for Hyprkan dynamic layer switching
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Video related to this file
+;; https://youtu.be/jvJ3f4HHiMY
+
+;; Kanata docs
+;; https://github.com/jtroo/kanata/blob/main/docs/config.adoc
+
+;; OS key code mappings
+;; https://github.com/jtroo/kanata/blob/main/parser/src/keys/mod.rs
 
 (defcfg
   process-unmapped-keys yes
+  log-layer-changes no
+  danger-enable-cmd yes
   concurrent-tap-hold yes
+
+  ;; When any non-chord activation happens, this timeout begins. Until this timeout expires
+  ;; all inputs will immediately skip chords processing and be processed by the active layer.
+  ;; chords-v2-min-idle 250
 )
 
+;; Variables
+(defvar
+ tap-time 300
+ hold-time 300
+ chord-time 60
+)
+
+;; Only one defsrc is allowed.
+;;
+;; defsrc defines the keys that will be intercepted by kanata. The order of the
+;; keys matches with deflayer declarations and all deflayer declarations must
+;; have the same number of keys as defsrc. Any keys not listed in defsrc will
+;; be passed straight to the operating system.
 (defsrc
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  caps a    s    d    f    g    h    j    k    l    ;    '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
-  lctl lmet lalt           spc            ralt rmet rctl
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab    q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps   a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft   z    x    c    v    b    n    m    ,    .    /    ▲   rsft
+  fn   lctl  lalt lmet          spc         rmet ralt ◀    ▼    ▶
 )
-
-;; Chords: Simultaneous j+k press outputs Escape (50ms window)
-(defchords jk-chord 50
-  (j  ) j
-  (  k) k
-  (j k) esc
-)
-
+;; scams
 (defalias
-  j (chord jk-chord j)
-  k (chord jk-chord k)
-  spc-nav (tap-hold-press 200 200 spc (layer-toggle nav))
-  spc-brw (tap-hold-press 200 200 spc (layer-toggle browser_nav))
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Base Layer
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(deflayer base
-  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  caps a    s    d    f    g    h    @j   @k   l    ;    '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
-  lctl lmet lalt           @spc-nav       ralt rmet rctl
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Navigation Layer (Activated by holding Space in base layer)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(deflayer nav
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    pgup _    _    _    home up   end  _    _    _    _
-  _    _    _    pgdn _    _    left down up   right _   _    _
-  _    _    _    _    _    _    pgdn pgup _    _    _    _
-  _    _    _              _              _    _    _
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Browser Layer (Activated dynamically by Hyprkan when browser is focused)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(deflayer browser
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    _    _    _    _    @j   @k   _    _    _    _
-  _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _              @spc-brw       _    _    _
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Browser Navigation Sub-Layer (Activated by holding Space in browser layer)
-;; Shortcuts for browser navigation without breaking normal typing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(deflayer browser_nav
-  _    C-1  C-2  C-3  C-4  C-5  C-6  C-7  C-8  C-9  C-0  _    _    _
-  _    _    C-w  _    C-r  C-t  _    pgup pgdn _    _    _    _    _
-  _    _    _    _    C-f  _    A-left C-pgdn C-pgup A-right C-l _ _
-  _    C-S-t _   _    _    _    C-S-tab C-tab _   _    _    _
-  _    _    _              _              _    _    _
+  scam6 S-C-A-M-6 ;; homerow
+  scam0 S-C-A-M-0 ;; cleanshot capture area
+  scam9 S-C-A-M-9 ;; cleanshot capture previous area
+  scamt S-C-A-M-tab ;; cleanshot capture history
+  scam= S-C-A-M-= ;; cleanshot capture history
+  scamw S-C-A-M-w ;; paste app
+  scamz S-C-A-M-z ;; mouseless app
+  scamd S-C-A-M-d ;; presentify app
 )
