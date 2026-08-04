@@ -1,0 +1,80 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Kanata Configuration
+;; System-wide remapping with TCP server mode for Hyprkan dynamic layer switching
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defcfg
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+)
+
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+;; Chords: Simultaneous j+k press outputs Escape (50ms window)
+(defchords jk-chord 50
+  (j  ) j
+  (  k) k
+  (j k) esc
+)
+
+(defalias
+  j (chord jk-chord j)
+  k (chord jk-chord k)
+  spc-nav (tap-hold-press 200 200 spc (layer-toggle nav))
+  spc-brw (tap-hold-press 200 200 spc (layer-toggle browser_nav))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Base Layer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(deflayer base
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    @j   @k   l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc-nav       ralt rmet rctl
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Navigation Layer (Activated by holding Space in base layer)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(deflayer nav
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    pgup _    _    _    home up   end  _    _    _    _
+  _    _    _    pgdn _    _    left down up   right _   _    _
+  _    _    _    _    _    _    pgdn pgup _    _    _    _
+  _    _    _              _              _    _    _
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Browser Layer (Activated dynamically by Hyprkan when browser is focused)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(deflayer browser
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    @j   @k   _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              @spc-brw       _    _    _
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Browser Navigation Sub-Layer (Activated by holding Space in browser layer)
+;; Shortcuts for browser navigation without breaking normal typing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(deflayer browser_nav
+  _    C-1  C-2  C-3  C-4  C-5  C-6  C-7  C-8  C-9  C-0  _    _    _
+  _    _    C-w  _    C-r  C-t  _    pgup pgdn _    _    _    _    _
+  _    _    _    _    C-f  _    A-left C-pgdn C-pgup A-right C-l _ _
+  _    C-S-t _   _    _    _    C-S-tab C-tab _   _    _    _
+  _    _    _              _              _    _    _
+)

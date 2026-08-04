@@ -1,0 +1,13 @@
+[Unit]
+Description=Kanata Keyboard Remapper
+Documentation=https://github.com/jtroo/kanata
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/kanata --port 10000 --cfg %h/.config/kanata/kanata.kbd --no-wait
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target
