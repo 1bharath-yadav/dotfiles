@@ -50,9 +50,7 @@ return {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     ft = { "markdown" },
-    build = function()
-      vim.fn["mkdp#util#install"]()
-    end,
+    build = "cd app && npm install",
     keys = {
       { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown preview toggle" },
     },
@@ -61,7 +59,6 @@ return {
       vim.g.mkdp_theme = "dark"
     end,
   },
-
   -- ── 3. Obsidian vault: wiki-links, backlinks, tags, daily notes ───────────
   {
     "obsidian-nvim/obsidian.nvim",
@@ -127,7 +124,7 @@ return {
     "dhruvasagar/vim-table-mode",
     ft = "markdown",
     keys = {
-      { "<leader>mt", "<cmd>TableModeToggle<cr>", desc = "Table mode toggle" },
+      { "<leader>mt", "<cmd>TableModeToggle<cr>",  desc = "Table mode toggle" },
       { "<leader>mf", "<cmd>TableModeRealign<cr>", desc = "Realign table" },
     },
     config = function()
@@ -171,8 +168,8 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     keys = {
       { "<leader>mo", "<cmd>AerialToggle!<cr>", desc = "Outline / TOC toggle" },
-      { "[h", "<cmd>AerialPrev<cr>", desc = "Prev heading" },
-      { "]h", "<cmd>AerialNext<cr>", desc = "Next heading" },
+      { "[h",         "<cmd>AerialPrev<cr>",    desc = "Prev heading" },
+      { "]h",         "<cmd>AerialNext<cr>",    desc = "Next heading" },
     },
     opts = {
       backends = { "treesitter", "markdown" },
@@ -213,21 +210,21 @@ return {
     end,
   },
 
-  --   -- ── 11. Word count in lualine status bar ──────────────────────────────────
-  --   {
-  --     "nvim-lualine/lualine.nvim",
-  --     optional = true,
-  --     opts = function(_, opts)
-  --       local function word_count()
-  --         if vim.bo.filetype == "markdown" then
-  --           return "  " .. tostring(vim.fn.wordcount().words) .. "w"
-  --         end
-  --         return ""
-  --       end
-  --       opts.sections = opts.sections or {}
-  --       opts.sections.lualine_x = opts.sections.lualine_x or {}
-  --       table.insert(opts.sections.lualine_x, 1, word_count)
-  --       return opts
-  --     end,
-  --   },
+  -- ── 11. Word count in lualine status bar ──────────────────────────────────
+  {
+    "nvim-lualine/lualine.nvim",
+    optional = true,
+    opts = function(_, opts)
+      local function word_count()
+        if vim.bo.filetype == "markdown" then
+          return "  " .. tostring(vim.fn.wordcount().words) .. "w"
+        end
+        return ""
+      end
+      opts.sections = opts.sections or {}
+      opts.sections.lualine_x = opts.sections.lualine_x or {}
+      table.insert(opts.sections.lualine_x, 1, word_count)
+      return opts
+    end,
+  },
 }
