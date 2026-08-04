@@ -1,6 +1,6 @@
 ;; Kanata Power-User Configuration for Arch Linux / Hyprland
-;; Exact reference home-row modifiers: d/k = Super, a/; = Control, f/j = Alt
-;; Symbol layer on home row (1-0 on A-;) + top alpha symbols (!-() + nav/syst/apps/browser layers
+;; Main typing layer handles 100% standard alpha typing in browsers and apps.
+;; Holding Spacebar / Caps Lock activates the Navigation & Browser Shortcuts Layer.
 
 (defcfg
   process-unmapped-keys yes
@@ -78,7 +78,7 @@
   saircn S-C-A-M-1
   sairsw S-C-A-M-2
 
-  ;; Reference Home-Row Modifiers (d/k = Super, a/; = Ctrl, f/j = Alt)
+  ;; Reference Home-Row Modifiers (d/k = Super, a/; = Ctrl, f/j = Alt, s = Syst)
   mlctl (tap-hold-release $tap-time $hold-time a lctl)
   msyst (tap-hold-release $tap-time $hold-time s (layer-toggle syst))
   mlmet (tap-hold-release $tap-time $hold-time d lmet)
@@ -95,7 +95,7 @@
   mpast (tap-hold $tap-time $hold-time v C-v)
   mmtab (tap-hold $tap-time $hold-time z A-tab)
   mmgrv (tap-hold $tap-time $hold-time x A-grv)
-  mescc (tap-hold $tap-time $hold-time esc caps)
+  mescc (tap-hold-release $tap-time $hold-time esc lctl)
   maltk (tap-hold $tap-time $hold-time b (macro C-b 20 l))
   mtcop (tap-hold $tap-time $hold-time m (macro C-b 20 v))
   mretu (tap-hold $tap-time $hold-time tab ret)
@@ -107,7 +107,7 @@
   mhypr (tap-hold $tap-time $hold-time spc (layer-toggle navi))
   spc (tap-hold-release $tap-time $hold-time spc (layer-toggle navi))
 
-  ;; Browser Action Aliases (Hyprkan Context)
+  ;; Browser Actions (Used in Navigation Layer)
   b-back A-left
   b-fwd  A-right
   b-ntab C-tab
@@ -145,7 +145,7 @@
   (spc caps) caps $chord-time first-release ()
 )
 
-;; 1. MAIN LAYER (Reference Layout: d/k = Super, a/; = Ctrl, f/j = Alt, s = Syst)
+;; 1. MAIN LAYER (Default Typing Layer for All Apps & Browsers)
 (deflayer main
   esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
@@ -155,13 +155,13 @@
   fn     lctl lalt lmet          @spc        rmet ralt left down rght
 )
 
-;; 2. NAVIGATION LAYER (Hold Spacebar or Caps Lock)
+;; 2. NAVIGATION LAYER (Hold Spacebar or Caps Lock for Arrows & Browser Actions)
 (deflayer navi
   lrld   f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv    1    2    3    4    5    6    7    8    9    0    -    =    del
-  tab    _    _    _    _    _    _    home pgdn pgup end  _    _    _
-  @mescc  @mlctl @msyst @mlmet @mlalt _    left down up   rght _    _    ret
-  lsft   _    _    _    _    _    _    _    _    _    _    up   rsft
+  tab    q    @b-cls _  @b-rld @b-new _  @b-reop @b-url @b-bmrk p [  ]   \
+  @mescc @mlctl @msyst @mlmet @mlalt g   left down up   rght @mrctl @mral2 ret
+  lsft   z    x    c    v    b    @b-back @b-ntab @b-ptab @b-fwd / up rsft
   fn     lctl lalt lmet          _           rmet ralt left down rght
 )
 
@@ -195,12 +195,12 @@
   fn     lctl lalt lmet          spc         rmet ralt left down rght
 )
 
-;; 6. BROWSER LAYER (HYPRKAN CONTEXT-AWARE)
+;; 6. BROWSER LAYER (Matches Main Layer for Full Typing Support)
 (deflayer browser
   esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab    q    @b-cls _  @b-rld @b-new _  @b-reop @b-url @b-bmrk p [ ] \
-  @mescc  @mlctl @msyst @mlmet @mlalt g    @b-back @b-ntab @b-ptab @b-fwd @mrctl @mral2 ret
-  lsft   z    x    c    v    b    n    m    ,    .    /    up   rsft
+  @mretu q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @mnavi @mlctl @msyst @mlmet @mlalt @mtrik h    @mralt @mrmet @mmous @mrctl @mral2 @mappr
+  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n    @mtcop ,    @mhome /    up   rsft
   fn     lctl lalt lmet          @spc        rmet ralt left down rght
 )

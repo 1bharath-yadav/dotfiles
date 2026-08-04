@@ -1,9 +1,5 @@
 [
   {
-    "class": "(google-chrome|chromium|chrome|Brave-browser|firefox|zen|zen-browser|Vivaldi-stable|LibreWolf)",
-    "layer": "browser"
-  },
-  {
     "class": ".*",
     "layer": "main"
   }
