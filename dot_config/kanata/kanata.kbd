@@ -1,52 +1,82 @@
-;; Video related to this file
-;; https://youtu.be/jvJ3f4HHiMY
-
-;; Kanata docs
-;; https://github.com/jtroo/kanata/blob/main/docs/config.adoc
-
-;; OS key code mappings
-;; https://github.com/jtroo/kanata/blob/main/parser/src/keys/mod.rs
+;; Kanata Power-User Configuration for Arch Linux / Hyprland
+;; Global hardware-level remapping + Home-Row Mods + Navigation Layer + Hyprkan integration
 
 (defcfg
   process-unmapped-keys yes
   log-layer-changes no
-  danger-enable-cmd yes
   concurrent-tap-hold yes
-
-  ;; When any non-chord activation happens, this timeout begins. Until this timeout expires
-  ;; all inputs will immediately skip chords processing and be processed by the active layer.
-  ;; chords-v2-min-idle 250
 )
 
-;; Variables
 (defvar
- tap-time 300
- hold-time 300
- chord-time 60
+  tap-time 200
+  hold-time 180
+  chord-time 50
 )
 
-;; Only one defsrc is allowed.
-;;
-;; defsrc defines the keys that will be intercepted by kanata. The order of the
-;; keys matches with deflayer declarations and all deflayer declarations must
-;; have the same number of keys as defsrc. Any keys not listed in defsrc will
-;; be passed straight to the operating system.
 (defsrc
-  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab    q    w    e    r    t    y    u    i    o    p    [    ]    \
-  caps   a    s    d    f    g    h    j    k    l    ;    '    ret
-  lsft   z    x    c    v    b    n    m    ,    .    /    ▲   rsft
-  fn   lctl  lalt lmet          spc         rmet ralt ◀    ▼    ▶
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
 )
-;; scams
+
 (defalias
-  scam6 S-C-A-M-6 ;; homerow
-  scam0 S-C-A-M-0 ;; cleanshot capture area
-  scam9 S-C-A-M-9 ;; cleanshot capture previous area
-  scamt S-C-A-M-tab ;; cleanshot capture history
-  scam= S-C-A-M-= ;; cleanshot capture history
-  scamw S-C-A-M-w ;; paste app
-  scamz S-C-A-M-z ;; mouseless app
-  scamd S-C-A-M-d ;; presentify app
+  ;; Home-Row Mods (Left Hand)
+  a (tap-hold-release $tap-time $hold-time a lmet)
+  s (tap-hold-release $tap-time $hold-time s lalt)
+  d (tap-hold-release $tap-time $hold-time d lctl)
+  f (tap-hold-release $tap-time $hold-time f lsft)
+
+  ;; Home-Row Mods (Right Hand)
+  j (tap-hold-release $tap-time $hold-time j rsft)
+  k (tap-hold-release $tap-time $hold-time k rctl)
+  l (tap-hold-release $tap-time $hold-time l ralt)
+  sem (tap-hold-release $tap-time $hold-time ; rmet)
+
+  ;; CapsLock -> Tap Escape, Hold Control
+  cap (tap-hold-release $tap-time $hold-time esc lctl)
+
+  ;; Spacebar -> Tap Space, Hold Nav Layer
+  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle nav))
+
+  ;; Browser Action Aliases
+  b-back A-left
+  b-fwd  A-right
+  b-ntab C-tab
+  b-ptab C-S-tab
+  b-new  C-t
+  b-cls  C-w
+  b-rld  C-r
+  b-reop C-S-t
+  b-url  C-l
+  b-bmrk C-d
+)
+
+(defchordsv2
+  (j k) esc $chord-time first-release ()
+)
+
+(deflayer base
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap @a   @s   @d   @f   g    h    @j   @k   @l   @sem '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc           ralt rmet rctl
+)
+
+(deflayer nav
+  lrld f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  del
+  tab  _    _    _    _    _    _    home pgdn pgup end  _    _    _
+  @cap @a   @s   @d   @f   _    left down up   rght _    _    ret
+  lsft _    _    _    _    _    _    _    _    _    _    rsft
+  lctl lmet lalt           _              ralt rmet rctl
+)
+
+(deflayer browser
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    @b-cls _  @b-rld @b-new _  @b-reop @b-url @b-bmrk p [ ] \
+  @cap @a   @s   @d   @f   g    @b-back @b-ntab @b-ptab @b-fwd ; ' ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc           ralt rmet rctl
 )
