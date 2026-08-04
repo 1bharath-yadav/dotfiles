@@ -5,6 +5,6 @@
   },
   {
     "class": ".*",
-    "layer": "base"
+    "layer": "main"
   }
 ]
