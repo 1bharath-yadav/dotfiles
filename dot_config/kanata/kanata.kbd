@@ -35,6 +35,8 @@
   k (tap-hold-release $tap-time $hold-time k rctl)
   l (tap-hold-release $tap-time $hold-time l ralt)
   sem (tap-hold-release $tap-time $hold-time ; rmet)
+  mrctl (tap-hold-release $tap-time $hold-time ; rctl)
+  mral2 (tap-hold-release $tap-time $hold-time ' ralt)
 
   ;; CapsLock -> Tap Escape, Hold Control / Nav
   cap (tap-hold-release $tap-time $hold-time esc lctl)
