@@ -1,0 +1,10 @@
+[Unit]
+Description=Run hisual Autonomous Orchestrator daily at 6pm (or next login if missed)
+
+[Timer]
+OnCalendar=*-*-* 18:00:00
+Persistent=true
+AccuracySec=5min
+
+[Install]
+WantedBy=timers.target
