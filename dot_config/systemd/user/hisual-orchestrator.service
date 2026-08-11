@@ -1,8 +1,7 @@
 [Unit]
-Description=hisual Autonomous Orchestrator Dispatch
-Documentation=file://%h/projects/hisual/hisuality/runtime/PROTOCOL.md
+Description=hisual Claude Dispatch
 After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/projects/hisual/hisuality/runtime/dispatch.sh default %h/projects/hisual/hisuality/runtime/prompts/orchestrator-pointer.txt
+ExecStart=%h/.local/bin/claude-dispatch.sh
