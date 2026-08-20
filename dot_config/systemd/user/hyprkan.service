@@ -1,14 +1,14 @@
-[Unit]
-Description=Hyprkan App-Aware Kanata Layer Switcher
-Documentation=https://github.com/haithium/hyprkan
-Wants=kanata.service
-After=kanata.service
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/python3 %h/.local/bin/hyprkan.py --port 10000 --config %h/.config/kanata/apps.json --log-level INFO
-Restart=on-failure
-RestartSec=3s
-
-[Install]
-WantedBy=default.target
+; [Unit]
+; Description=Hyprkan App-Aware Kanata Layer Switcher
+; Documentation=https://github.com/haithium/hyprkan
+; Wants=kanata.service
+; After=kanata.service
+;
+; [Service]
+; Type=simple
+; ExecStart=/usr/bin/python3 %h/.local/bin/hyprkan.py --port 10000 --config %h/.config/kanata/apps.json --log-level INFO
+; Restart=on-failure
+; RestartSec=3s
+;
+; [Install]
+; WantedBy=default.target

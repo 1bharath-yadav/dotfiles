@@ -2,20 +2,23 @@
 
 -- Meta / edit configs
 hl.bind(
-	"CTRL + SUPER + Slash",
-	hl.dsp.exec_cmd("nvim ~/.config/illogical-impulse/config.json"),
-	{ description = "Edit shell config" }
+  "CTRL + SUPER + Slash",
+  hl.dsp.exec_cmd("nvim ~/.config/illogical-impulse/config.json"),
+  { description = "Edit shell config" }
 )
 hl.bind(
-	"CTRL + SUPER + ALT + Slash",
-	hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"),
-	{ description = "Edit user keybinds" }
+  "CTRL + SUPER + ALT + Slash",
+  hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"),
+  { description = "Edit user keybinds" }
 )
 
--- Hardware
-hl.bind("ALT + BracketLeft", hl.dsp.exec_cmd("brightnessctl set 1%-"), { repeating = true })
-hl.bind("ALT + BracketRight", hl.dsp.exec_cmd("brightnessctl set +1%"), { repeating = true })
+local qsIpcCall = "qs -c $qsConfig ipc call"
 
+-- Hardware
+hl.bind("ALT + BracketRight", hl.dsp.exec_cmd(qsIpcCall .. " brightness increment || brightnessctl s 2%+"),
+  { locked = true, repeating = true })
+hl.bind("ALT + BracketLeft", hl.dsp.exec_cmd(qsIpcCall .. " brightness decrement || brightnessctl s 2%-"),
+  { locked = true, repeating = true })
 -- Session / toggles
 hl.bind("SUPER + ALT + F4", hl.dsp.global("quickshell:sessionToggle"))
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-gdrive.sh"))
@@ -23,16 +26,16 @@ hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("~/.local/bin/send_file.sh"))
 
 -- Screenshots
 hl.bind(
-	"SUPER + ALT + P",
-	hl.dsp.exec_cmd("grim - | wl-copy"),
-	{ locked = true, description = "Screenshot >> clipboard" }
+  "SUPER + ALT + P",
+  hl.dsp.exec_cmd("grim - | wl-copy"),
+  { locked = true, description = "Screenshot >> clipboard" }
 )
 hl.bind(
-	"CTRL + ALT + P",
-	hl.dsp.exec_cmd(
-		"mkdir -p $(xdg-user-dir PICTURES)/Screenshots && grim $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png"
-	),
-	{ locked = true, description = "Screenshot >> clipboard & save" }
+  "CTRL + ALT + P",
+  hl.dsp.exec_cmd(
+    "mkdir -p $(xdg-user-dir PICTURES)/Screenshots && grim $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png"
+  ),
+  { locked = true, description = "Screenshot >> clipboard & save" }
 )
 
 -- Apps
@@ -46,9 +49,9 @@ hl.bind("SUPER + Minus", hl.dsp.workspace.toggle_special("quicknote"), { descrip
 hl.bind("CTRL + SUPER + C", hl.dsp.workspace.toggle_special("calendar"), { description = "Toggle Calendar scratchpad" })
 hl.bind("CTRL + SUPER + K", hl.dsp.workspace.toggle_special("keep"), { description = "Toggle Google Keep scratchpad" })
 hl.bind(
-	"CTRL + SUPER + L",
-	hl.dsp.workspace.toggle_special("tasks"),
-	{ description = "Toggle Google Tasks scratchpad" }
+  "CTRL + SUPER + L",
+  hl.dsp.workspace.toggle_special("tasks"),
+  { description = "Toggle Google Tasks scratchpad" }
 )
 hl.bind("CTRL + SUPER + M", hl.dsp.workspace.toggle_special("gmail"), { description = "Toggle Gmail scratchpad" })
 hl.bind("SUPER + Comma", hl.dsp.workspace.toggle_special("hermes"), { description = "Toggle Hermes scratchpad" })
@@ -57,11 +60,5 @@ hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "M
 hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Move to left workspace" })
 
 
---- send clipboard content to phone
-hl.bind(
-	"SUPER + ALT + P",
-	hl.dsp.exec_cmd("~/.dotfiles/dot_local/bin/executable_send_file.sh"),
-	{ description = "Send clipboard content to phone" }
-)
 -- Dictation
 hl.bind("SUPER + H", hl.dsp.exec_cmd("~/.local/bin/transcribe --mode toggle"), { description = "Dictation toggle" })

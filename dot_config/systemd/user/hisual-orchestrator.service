@@ -4,4 +4,4 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/bin/claude-dispatch.sh
+ExecStart=%h/.local/bin/claude-dispatch.sh content-ader -r 3

@@ -25,13 +25,12 @@ gui:
     unstagedChangesColor: ["#e06c75"] # kitty color1
     defaultFgColor: ["#979eab"] # kitty foreground
     searchingActiveBorderColor: ["#e5c07b"] # kitty color3
-
 git:
   # --paging=never: prevents delta spawning less inside lazygit ("terminal not fully functional")
   # --syntax-theme=ansi: uses terminal's own colours, no conflict with One Dark
   # all bg colours match kitty surface shades
-  pagers:
-    - pager: "delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format='lazygit-edit://{path}:{line}' --syntax-theme=ansi --minus-style='syntax #3a2020' --minus-emph-style='syntax #6b2020' --plus-style='syntax #1e3a1e' --plus-emph-style='syntax #1e5c1e' --line-numbers-minus-style='#e06c75' --line-numbers-plus-style='#98c379' --line-numbers-zero-style='#393e48' --hunk-header-style='syntax #2c313a' --hunk-header-decoration-style='#393e48 box'"
+  diffRenderers:
+    - command: "delta --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format='lazygit-edit://{path}:{line}' --syntax-theme=ansi --minus-style='syntax #3a2020' --minus-emph-style='syntax #6b2020' --plus-style='syntax #1e3a1e' --plus-emph-style='syntax #1e5c1e' --line-numbers-minus-style='#e06c75' --line-numbers-plus-style='#98c379' --line-numbers-zero-style='#393e48' --hunk-header-style='syntax #2c313a' --hunk-header-decoration-style='#393e48 box'"
       colorArg: always
   commit:
     autoWrapCommitMessage: true
@@ -47,16 +46,13 @@ git:
   branchLogCmd: "git log --graph --color=always --abbrev-commit --decorate --date=relative --format='%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' {{branchName}} --"
   allBranchesLogCmds:
     - "git log --graph --all --color=always --abbrev-commit --decorate --date=relative --format='%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'"
-
 os:
   editPreset: "nvim-remote"
-
 # ── Custom Commands ────────────────────────────────────────────────────────
 # AI commits (files panel):
 #   <c-c> copilot  <c-g> gemini  <c-x> codex  <c-l> ollama
 #   <c-a> fzf provider picker + edit in $EDITOR before commit
 # Extras: O=open on GitHub  Y=yank SHA  I=interactive rebase N commits
-
 customCommands:
   - key: "<c-c>"
     context: "files"
@@ -64,54 +60,45 @@ customCommands:
     loadingText: "Generating with Copilot..."
     command: "aicommit copilot"
     output: terminal
-
   - key: "<c-g>"
     context: "files"
     description: "AI commit (gemini)"
     loadingText: "Generating with Gemini..."
     command: "aicommit gemini"
     output: terminal
-
   - key: "<c-x>"
     context: "files"
     description: "AI commit (codex)"
     loadingText: "Generating with Codex..."
     command: "aicommit codex"
     output: terminal
-
   - key: "<c-l>"
     context: "files"
     description: "AI commit (ollama)"
     loadingText: "Running local model..."
     command: "aicommit ollama"
     output: terminal
-
   - key: "<c-a>"
     context: "files"
     description: "AI commit (pick provider)"
     loadingText: "Loading providers..."
     command: >-
-      PROVIDER=$(printf 'copilot\ncodex\ngemini\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) &&
-      aicommit "$PROVIDER"
+      PROVIDER=$(printf 'copilot\ncodex\ngemini\nollama' | fzf --prompt='AI Provider: ' --height=6 --no-sort) && aicommit "$PROVIDER"
     output: terminal
-
   - key: "O"
     context: "files"
     description: "Open file on GitHub"
     command: >-
       xdg-open "$(git remote get-url origin | sed 's|git@github.com:|https://github.com/|;s|\.git$||')/blob/$(git branch --show-current)/{{selectedFile}}"
     output: none
-
   - key: "Y"
     context: "commits"
     description: "Yank commit SHA to clipboard"
     command: "git rev-parse {{selectedCommit}} | tr -d '\n' | wl-copy"
     output: none
-
   - key: "I"
     context: "commits"
     description: "Interactive rebase last N commits"
     command: >-
-      N=$(seq 2 20 | fzf --prompt='Rebase last N: ' --height=8) &&
-      git rebase -i HEAD~"$N"
+      N=$(seq 2 20 | fzf --prompt='Rebase last N: ' --height=8) && git rebase -i HEAD~"$N"
     output: terminal

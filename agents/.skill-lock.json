@@ -131,6 +131,61 @@
       "pluginName": "example-skills",
       "installedAt": "2026-08-03T07:29:38.669Z",
       "updatedAt": "2026-08-03T07:29:38.669Z"
+    },
+    "product-brainstorming": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/knowledge-work-plugins.git",
+      "skillPath": "product-management/skills/product-brainstorming/SKILL.md",
+      "skillFolderHash": "87927826dc1b27c4c9e84b88be10f3dc383a3e4b",
+      "installedAt": "2026-08-04T20:08:37.611Z",
+      "updatedAt": "2026-08-04T20:08:37.611Z"
+    },
+    "algorithmic-art": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/skills.git",
+      "skillPath": "skills/algorithmic-art/SKILL.md",
+      "skillFolderHash": "4aef6bcad51d058ec32b1acb9da436851863e56e",
+      "pluginName": "example-skills",
+      "installedAt": "2026-08-04T20:10:41.307Z",
+      "updatedAt": "2026-08-04T20:10:41.307Z"
+    },
+    "code-review": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/knowledge-work-plugins.git",
+      "skillPath": "engineering/skills/code-review/SKILL.md",
+      "skillFolderHash": "434f3ffc700ca7a6fe937bc72d11ddc180fc81c0",
+      "installedAt": "2026-08-04T20:10:51.717Z",
+      "updatedAt": "2026-08-04T20:10:51.717Z"
+    },
+    "neon-postgres": {
+      "source": "neondatabase/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/neondatabase/agent-skills.git",
+      "skillPath": "skills/neon-postgres/SKILL.md",
+      "skillFolderHash": "be987a4bb5b1b37d40284b1f04912dd25ac5fc13",
+      "installedAt": "2026-08-07T09:06:04.551Z",
+      "updatedAt": "2026-08-07T09:06:04.551Z"
+    },
+    "manimce-best-practices": {
+      "source": "adithya-s-k/manim_skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/adithya-s-k/manim_skill.git",
+      "skillPath": "skills/manimce-best-practices/SKILL.md",
+      "skillFolderHash": "12f05bc0b33394aa665dea9720e32ebb9b9dda92",
+      "installedAt": "2026-08-10T03:43:16.152Z",
+      "updatedAt": "2026-08-10T03:43:16.152Z"
+    },
+    "shadcn": {
+      "source": "shadcn-ui/ui",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/shadcn-ui/ui.git",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "skillFolderHash": "0a31c3c2535a62b22bf23a1b10a142178a6b7dbf",
+      "installedAt": "2026-08-13T18:13:22.298Z",
+      "updatedAt": "2026-08-13T18:13:22.298Z"
     }
   },
   "dismissed": {

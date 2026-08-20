@@ -5,7 +5,7 @@ After=local-fs.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/kanata --port 10000 --cfg %h/.config/kanata/kanata.kbd --no-wait
+ExecStart=/usr/bin/kanata --cfg %h/.config/kanata/kanata.kbd
 Restart=on-failure
 RestartSec=3s
 

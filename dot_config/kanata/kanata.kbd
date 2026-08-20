@@ -24,71 +24,34 @@
 )
 
 (defalias
-  ;; System & Hyper Macro Triggers
-  scam6 S-C-A-M-6
-  scam0 S-C-A-M-0
-  scam9 S-C-A-M-9
-  scamt S-C-A-M-tab
-  scam= S-C-A-M-=
-  scamw S-C-A-M-w
-  scamz S-C-A-M-z
-  scamd S-C-A-M-d
+  ;; Application Key Signals (Matched to Hyprland) — preserved for use in macros/chords
+  akitty M-z          ;; Kitty scratchpad (SUPER + Z) or M-ret (Terminal)
+  aterm M-ret         ;; Main Terminal
+  abrave M-w          ;; Browser (SUPER + W)
+  anotes M-A-o        ;; Obsidian (SUPER + ALT + O)
+  acalen C-M-c        ;; Calendar (CTRL + SUPER + C)
+  afindr M-e          ;; File Manager (SUPER + E)
+  acode M-c           ;; Code Editor (SUPER + C)
+  akeep C-M-k         ;; Keep (CTRL + SUPER + K)
+  atasks C-M-l        ;; Tasks (CTRL + SUPER + L)
+  a-mail C-M-m        ;; Gmail (CTRL + SUPER + M)
+  aherm M-,           ;; Hermes (SUPER + Comma)
+  ayazi M-y           ;; Yazi (SUPER + Y)
+  aqnote M--          ;; Quicknote (SUPER + Minus)
 
-  ;; Application Key Signals (Caught by Hyprland/Hyprkan)
-  akitty S-C-A-M-k
-  achrom S-C-A-M-c
-  abrave S-C-A-M-b
-  avival M-A-e
-  adisco S-C-A-M-d
-  anotes M-A-o
-  acalen C-M-c
-  aspoti S-C-A-M-s
-  afindr M-e
-  asystm S-C-A-M-a
-  adavin S-C-A-M-v
-  amword S-C-A-M-w
-  aexcel S-C-A-M-x
-  arecut S-C-A-M-r
-  ateams S-C-A-M-t
-  ayoutu S-C-A-M-y
-  awhats S-C-A-M-h
-  asocia S-C-A-M-g
-  a--obs S-C-A-M-o
-  a1pass S-C-A-M-p
-  aforkl S-C-A-M-f
-  audemy S-C-A-M-u
-  asetap S-C-A-M-i
-  awinap S-C-A-M-n
-  a-zoom S-C-A-M-z
-  aprevw S-C-A-M-q
-  aneovd M-c
-  a-mail C-M-m
-  achatg S-C-A-M-e
-
-  ;; Hardware Controls
-  vold vold
-  volu volu
-  prev prev
-  next next
-  pp   pp
-  brdn brdn
-  brup brup
-  s-task (macro C-b 20 7)
-  scolor S-M-c
-  saircn S-C-A-M-1
-  sairsw S-C-A-M-2
-
-  ;; Reference Home-Row Modifiers (d/k = Super, a/; = Ctrl, f/j = Alt, s = Syst)
+  ;; Optimal Home-Row Modifiers (Hyprland Spec)
+  ;; Pinky=Ctrl, Ring=Alt, Middle=Super, Index=Shift
   mlctl (tap-hold-release $tap-time $hold-time a lctl)
-  msyst (tap-hold-release $tap-time $hold-time s (layer-toggle syst))
+  mlalt (tap-hold-release $tap-time $hold-time s lalt)
   mlmet (tap-hold-release $tap-time $hold-time d lmet)
-  mlalt (tap-hold-release $tap-time $hold-time f lalt)
-  mtrik (tap-hold $tap-time $hold-time g C-z)
+  mlsft (tap-hold-release $tap-time $hold-time f lsft)
 
-  mralt (tap-hold-release $tap-time $hold-time j ralt)
+  mrsft (tap-hold-release $tap-time $hold-time j rsft)
   mrmet (tap-hold-release $tap-time $hold-time k rmet)
-  mmous (tap-hold-release $tap-time $hold-time l @scamz)
+  mralt (tap-hold-release $tap-time $hold-time l ralt)
   mrctl (tap-hold-release $tap-time $hold-time ; rctl)
+
+  mtrik (tap-hold $tap-time $hold-time g C-z)
   mral2 (tap-hold-release $tap-time $hold-time ' ralt)
 
   mcopy (tap-hold $tap-time $hold-time c C-c)
@@ -99,13 +62,14 @@
   maltk (tap-hold $tap-time $hold-time b (macro C-b 20 l))
   mtcop (tap-hold $tap-time $hold-time m (macro C-b 20 v))
   mretu (tap-hold $tap-time $hold-time tab ret)
-  mhome (tap-hold $tap-time $hold-time . @scam6)
+  mhome (tap-hold $tap-time $hold-time . .)
 
-  mappr (tap-hold-press $tap-time $hold-time ret (layer-toggle apps))
-  msymb (tap-hold $tap-time $hold-time bspc (layer-toggle symb))
-  mnavi (tap-hold-press $tap-time $hold-time esc (layer-toggle navi))
-  mhypr (tap-hold $tap-time $hold-time spc (layer-toggle navi))
-  spc (tap-hold-release $tap-time $hold-time spc (layer-toggle navi))
+  ;; Tap = Escape, Hold = Symbol layer
+  mcaps (tap-hold-release $tap-time $hold-time esc (layer-toggle symb))
+  spc   (tap-hold-release $tap-time $hold-time spc (layer-toggle navi))
+
+  ;; Hold / -> Symbol layer, Tap / -> /
+  mrsym (tap-hold-release $tap-time $hold-time / (layer-toggle symb))
 
   ;; Browser Actions (Used in Navigation Layer)
   b-back A-left
@@ -127,8 +91,8 @@
   (a s d) vold $chord-time first-release ()
   (spc j k) - $chord-time first-release ()
   (spc j l) S-- $chord-time first-release ()
-  (spc u i) ` $chord-time first-release ()
-  (spc u o) S-` $chord-time first-release ()
+  (spc u i) grv $chord-time first-release ()
+  (spc u o) S-grv $chord-time first-release ()
   (spc m ,) = $chord-time first-release ()
   (spc m .) S-= $chord-time first-release ()
   (spc f g) A-tab $chord-time first-release ()
@@ -150,8 +114,8 @@
   esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
   @mretu q    w    e    r    t    y    u    i    o    p    [    ]    \
-  @mnavi @mlctl @msyst @mlmet @mlalt @mtrik h    @mralt @mrmet @mmous @mrctl @mral2 @mappr
-  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n    @mtcop ,    @mhome /    up   rsft
+  @mcaps @mlctl @mlalt @mlmet @mlsft @mtrik h    @mrsft @mrmet @mralt @mrctl @mral2 ret
+  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n    @mtcop ,    @mhome @mrsym up   rsft
   fn     lctl lalt lmet          @spc        rmet ralt left down rght
 )
 
@@ -160,47 +124,20 @@
   lrld   f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
   grv    1    2    3    4    5    6    7    8    9    0    -    =    del
   tab    q    @b-cls _  @b-rld @b-new _  @b-reop @b-url @b-bmrk p [  ]   \
-  @mescc @mlctl @msyst @mlmet @mlalt g   left down up   rght @mrctl @mral2 ret
+  @mescc @mlctl @mlalt @mlmet @mlsft g   left down up   rght @mrctl @mral2 ret
   lsft   z    x    c    v    b    @b-back @b-ntab @b-ptab @b-fwd / up rsft
   fn     lctl lalt lmet          _           rmet ralt left down rght
 )
 
-;; 3. SYMBOL LAYER (Hold Backspace) — Numbers 1-0 on Home Row, Symbols !-) on Top Row
+;; 3. SYMBOL LAYER (Hold Backspace / Caps Lock / Slash) — Numbers & Symbols
 (deflayer symb
   esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab    S-1  S-2  S-3  S-4  S-5  S-6  S-7  S-8  S-9  S-0  [    ]    \
-  caps   1    2    3    4    5    6    7    8    9    0    '    ret
-  lsft   z    x    c    v    b    [    S-[  S-]  ]    /    up   rsft
-  fn     lctl lalt lmet          bspc        rmet ralt left down rght
-)
-
-;; 4. SYSTEM CONTROL LAYER (Hold S key)
-(deflayer syst
-  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab    _    _    _    _    _    prev vold volu next pp   _    _    _
-  caps   @mlctl @msyst @mlmet @mlalt _    _    @mralt @mrmet @mmous @mrctl ' ret
-  lsft   _    _    @scolor brdn brup _  _    _    _    _    up   rsft
-  fn     lctl lalt lmet          lrld        rmet ralt left down rght
-)
-
-;; 5. APPS LAUNCHER LAYER (Hold Enter key)
-(deflayer apps
-  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  tab   @adavin @amword @aexcel @arecut @ateams @ayoutu @awhats @asocia @a--obs @a1pass [ ] \
-  caps  @afindr _    @adisco @aforkl @achrom @aspoti @akitty @abrave _    @achatg @asystm ret
-  lsft  @a-zoom @anotes @acalen @aprevw @avival @aneovd @a-mail @awinap _ _ up rsft
+  grv    S-1  S-2  S-3  S-4  S-5  S-6  S-7  S-8  S-9  S-0  S--  S-=  bspc
+  tab    S-1  S-2  S-3  S-4  S-5  S-6  S-7  S-8  S-9  S-0  S--  S-=  S-\
+  esc    1    2    3    4    5    6    7    8    9    0    S-;  ret
+  lsft   [    ]    S-,  S-.  -    =    /    \    grv  S-grv up  rsft
   fn     lctl lalt lmet          spc         rmet ralt left down rght
 )
 
-;; 6. BROWSER LAYER (Matches Main Layer for Full Typing Support)
-(deflayer browser
-  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
-  grv    1    2    3    4    5    6    7    8    9    0    -    =    bspc
-  @mretu q    w    e    r    t    y    u    i    o    p    [    ]    \
-  @mnavi @mlctl @msyst @mlmet @mlalt @mtrik h    @mralt @mrmet @mmous @mrctl @mral2 @mappr
-  lsft   @mmtab @mmgrv @mcopy @mpast @maltk n    @mtcop ,    @mhome /    up   rsft
-  fn     lctl lalt lmet          @spc        rmet ralt left down rght
-)
+;; For more info, see the configuration guide:
+;; https://github.com/jtroo/kanata/blob/main/docs/config.adoc
