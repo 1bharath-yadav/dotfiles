@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 
-PORT=8022
+PORT=22
 
-# start ssh server if not running
-pgrep sshd >/dev/null || sshd
+pgrep -x sshd >/dev/null || sudo /usr/bin/sshd
 
-# detect local ip
-IP=$(ifconfig | awk '/inet / && $2!="127.0.0.1"{print $2; exit}')
+ss -tln | grep -q ":$PORT " || {
+    echo "sshd not listening on port $PORT"
+    exit 1
+}
 
-USER=$(whoami)
-CMD="ssh -p $PORT $USER@$IP"
+IP=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')
+
+[ -n "$IP" ] || {
+    echo "Could not determine IP address"
+    exit 1
+}
+
+CMD="ssh $(whoami)@$IP"
 
 echo
-echo "SSH command:"
 echo "$CMD"
 echo
-echo "Scan QR to connect:"
-echo
 
-qrencode -t ansiutf8 "$CMD"
-
-echo
+command -v qrencode >/dev/null &&
+    qrencode -t ansiutf8 "$CMD"
