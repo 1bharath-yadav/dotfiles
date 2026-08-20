@@ -10,3 +10,4 @@
 # LLM Wiki Agent tools
 export PATH="$PATH:${HOME}.local/share/mise/installs/node//bin"
 
+export PATH="/system/bin:$PATH"
