@@ -1,7 +1,15 @@
 [Unit]
-Description=hisual Claude Dispatch
+Description=Hisual Claude Autonomous Curriculum Orchestrator
 After=graphical-session.target
+Wants=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/bin/claude-dispatch.sh content-ader -r 3
+TimeoutStartSec=infinity
+Environment="PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=%h/.local/bin/claude-dispatch.sh auto --interval 600 --timeout 1200
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
