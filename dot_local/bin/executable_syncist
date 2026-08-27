@@ -18,19 +18,35 @@ readonly PROG="${0##*/}"
 # Add new sync targets here — one line each.
 declare -A PROFILES=(
   [gate]="$HOME/gate:gate"
-  # [documents]="$HOME/Documents:documents"
-  # [projects]="$HOME/projects:projects"
 )
 
+readonly SYNCIST_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/syncist"
+readonly SYNCIST_PROFILES_FILE="$SYNCIST_CONFIG_DIR/profiles"
+
+if [[ -f "$SYNCIST_PROFILES_FILE" ]]; then
+  while IFS='=' read -r key val; do
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    PROFILES["$key"]="$val"
+  done < "$SYNCIST_PROFILES_FILE"
+fi
+
 # ── default filter rules (written when no .filter file exists) ─────────────────
-readonly DEFAULT_FILTER='- **/.git/**
+readonly DEFAULT_FILTER='- .git/
+- **/.git/**
+- node_modules/
 - **/node_modules/**
+- .venv/
 - **/.venv/**
+- __pycache__/
 - **/__pycache__/**
+- .cache/
 - **/.cache/**
 - **/.DS_Store
+- .direnv/
 - **/.direnv/**
+- .terraform/
 - **/.terraform/**
+- target/
 - **/target/**
 - **/*.swp
 - **/*~
@@ -112,7 +128,17 @@ preflight() {
 resolve_profile() {
   local profile="$1"
   if [[ -z "${PROFILES[$profile]+x}" ]]; then
-    die "Unknown profile '${profile}'. Available: ${!PROFILES[*]}"
+    if [[ "$OPT_MODE" == "init" ]]; then
+      local local_path="$PWD"
+      local remote_sub="$profile"
+      info "Registering new profile '$profile' -> $local_path"
+      PROFILES[$profile]="$local_path:$remote_sub"
+      mkdir -p "$SYNCIST_CONFIG_DIR"
+      echo "$profile=$local_path:$remote_sub" >> "$SYNCIST_PROFILES_FILE"
+      ok "Profile saved to $SYNCIST_PROFILES_FILE"
+    else
+      die "Unknown profile '${profile}'. Available: ${!PROFILES[*]}"
+    fi
   fi
 }
 
@@ -545,6 +571,58 @@ do_status() {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  TUI IMPLEMENTATION
+# ══════════════════════════════════════════════════════════════════════════════
+run_tui() {
+  command -v fzf >/dev/null 2>&1 || die "fzf is required for TUI. Install fzf or use CLI arguments."
+
+  local profiles_list="[ All Profiles ]"
+  for p in $(printf '%s\n' "${!PROFILES[@]}" | sort); do
+    local l_path
+    local r_path
+    l_path=$(get_local "$p")
+    r_path=$(get_rsub "$p")
+    profiles_list+=$'\n'"$p (Local: $l_path | Remote: $OPT_REMOTE:$r_path)"
+  done
+
+  local sel_profile
+  sel_profile=$(printf '%s' "$profiles_list" | fzf --prompt="Select Profile> " --height=15 --layout=reverse --info=inline)
+  [[ -z "$sel_profile" ]] && exit 0
+
+  if [[ "$sel_profile" == "[ All Profiles ]" ]]; then
+    mapfile -t OPT_PROFILES < <(printf '%s\n' "${!PROFILES[@]}" | sort)
+  else
+    OPT_PROFILES=("${sel_profile%% *}")
+  fi
+
+  local sel_action
+  sel_action=$(printf 'bisync\npush\npull\ncheck\ninit\nstatus\nlist\n' | fzf --prompt="Select Action> " --height=10 --layout=reverse --info=inline)
+  [[ -z "$sel_action" ]] && exit 0
+
+  if [[ "$sel_action" == "list" ]]; then
+    OPT_LIST=1
+    return 0
+  fi
+  
+  if [[ "$sel_action" == "status" ]]; then
+    OPT_STATUS=1
+    return 0
+  fi
+
+  if [[ "$sel_action" == "push" || "$sel_action" == "pull" ]]; then
+    printf '\n%sWARNING: %s is a destructive operation.%s\n' "$C_RED" "$sel_action" "$C_RESET"
+    local conf
+    conf=$(printf 'No\nYes\n' | fzf --prompt="Are you sure you want to $sel_action? (destructive) > " --height=5 --layout=reverse)
+    if [[ "$conf" != "Yes" ]]; then
+      info "Aborted by user."
+      exit 0
+    fi
+  fi
+
+  OPT_MODE="$sel_action"
+}
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  USAGE
 # ══════════════════════════════════════════════════════════════════════════════
 usage() {
@@ -555,10 +633,11 @@ ${C_BOLD}USAGE${C_RESET}
   ${PROG} [COMMAND] [PROFILE...] [OPTIONS]
 
   If no profile is specified, the command applies to ${C_BOLD}all${C_RESET} registered profiles.
-  If no command is specified, defaults to ${C_BOLD}bisync${C_RESET}.
+  If run with no arguments, launches the interactive ${C_BOLD}TUI${C_RESET}.
 
 ${C_BOLD}COMMANDS${C_RESET}
-  bisync              Bidirectional sync ${C_DIM}(default)${C_RESET}
+  tui                 Launch interactive TUI (default if no args)
+  bisync              Bidirectional sync
   push                One-way sync: local → remote ${C_YELLOW}(destructive)${C_RESET}
   pull                One-way sync: remote → local ${C_YELLOW}(destructive)${C_RESET}
   check               Compare local vs remote, no changes
@@ -580,7 +659,7 @@ ${C_BOLD}MODIFIERS${C_RESET}
   --no-filter         Ignore profile filter file
 
 ${C_BOLD}EXAMPLES${C_RESET}
-  ${PROG}                          # bisync all profiles
+  ${PROG}                          # launch interactive TUI
   ${PROG} gate                     # bisync gate
   ${PROG} push gate                # push gate to gdrive
   ${PROG} pull gate -n             # dry-run pull from gdrive
@@ -618,10 +697,16 @@ OPT_NO_FILTER=0
 OPT_LIST=0
 OPT_STATUS=0
 OPT_PROFILES=()
+OPT_TUI=0
+
+if [[ $# -eq 0 ]]; then
+  OPT_TUI=1
+fi
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     # ── subcommands (bare words) ──
+    tui)          OPT_TUI=1; shift ;;
     bisync)       OPT_MODE="bisync"; shift ;;
     push)         OPT_MODE="push";   shift ;;
     pull)         OPT_MODE="pull";   shift ;;
@@ -632,6 +717,7 @@ while [[ $# -gt 0 ]]; do
     help)         usage; exit 0 ;;
 
     # ── flags (kept for flexibility) ──
+    --tui)        OPT_TUI=1; shift ;;
     --bisync)     OPT_MODE="bisync"; shift ;;
     --push)       OPT_MODE="push";   shift ;;
     --pull)       OPT_MODE="pull";   shift ;;
@@ -663,6 +749,10 @@ done
 # ══════════════════════════════════════════════════════════════════════════════
 #  MAIN
 # ══════════════════════════════════════════════════════════════════════════════
+
+if [[ "$OPT_TUI" -eq 1 ]]; then
+  run_tui
+fi
 
 # ── meta commands (no lock needed) ─────────────────────────────────────────────
 if [[ "$OPT_LIST" -eq 1 ]]; then
