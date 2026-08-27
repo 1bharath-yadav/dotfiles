@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ╔══════════════════════════════════════════════════════════════════════════════╗
-# ║  syncist — production-grade rclone sync CLI                                ║
+# ║  syncer — production-grade rclone sync CLI                                ║
 # ║  Supports bisync, push (local→remote), pull (remote→local) with           ║
 # ║  multi-profile management, safety guards, and operational polish.          ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -20,14 +20,14 @@ declare -A PROFILES=(
   [gate]="$HOME/gate:gate"
 )
 
-readonly SYNCIST_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/syncist"
-readonly SYNCIST_PROFILES_FILE="$SYNCIST_CONFIG_DIR/profiles"
+readonly SYNCER_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/syncer"
+readonly SYNCER_PROFILES_FILE="$SYNCER_CONFIG_DIR/profiles"
 
-if [[ -f "$SYNCIST_PROFILES_FILE" ]]; then
+if [[ -f "$SYNCER_PROFILES_FILE" ]]; then
   while IFS='=' read -r key val; do
     [[ -z "$key" || "$key" == \#* ]] && continue
     PROFILES["$key"]="$val"
-  done < "$SYNCIST_PROFILES_FILE"
+  done < "$SYNCER_PROFILES_FILE"
 fi
 
 # ── default filter rules (written when no .filter file exists) ─────────────────
@@ -88,10 +88,10 @@ LOCK_FD=
 LOCK_FILE=
 acquire_lock() {
   local profile="$1"
-  LOCK_FILE="${LOCK_DIR}/syncist-${profile}.lock"
+  LOCK_FILE="${LOCK_DIR}/syncer-${profile}.lock"
   exec {LOCK_FD}>"$LOCK_FILE"
   if ! flock -n "$LOCK_FD"; then
-    die "Another syncist instance is running for profile '${profile}'."
+    die "Another syncer instance is running for profile '${profile}'."
   fi
 }
 release_lock() {
@@ -133,9 +133,9 @@ resolve_profile() {
       local remote_sub="$profile"
       info "Registering new profile '$profile' -> $local_path"
       PROFILES[$profile]="$local_path:$remote_sub"
-      mkdir -p "$SYNCIST_CONFIG_DIR"
-      echo "$profile=$local_path:$remote_sub" >> "$SYNCIST_PROFILES_FILE"
-      ok "Profile saved to $SYNCIST_PROFILES_FILE"
+      mkdir -p "$SYNCER_CONFIG_DIR"
+      echo "$profile=$local_path:$remote_sub" >> "$SYNCER_PROFILES_FILE"
+      ok "Profile saved to $SYNCER_PROFILES_FILE"
     else
       die "Unknown profile '${profile}'. Available: ${!PROFILES[*]}"
     fi
@@ -627,7 +627,7 @@ run_tui() {
 # ══════════════════════════════════════════════════════════════════════════════
 usage() {
   cat <<EOF
-${C_BOLD}syncist${C_RESET} — production-grade rclone sync CLI
+${C_BOLD}syncer${C_RESET} — production-grade rclone sync CLI
 
 ${C_BOLD}USAGE${C_RESET}
   ${PROG} [COMMAND] [PROFILE...] [OPTIONS]
@@ -676,7 +676,7 @@ $(for p in $(printf '%s\n' "${!PROFILES[@]}" | sort); do
 
 ${C_DIM}Filter files: ${RCLONE_CONF_DIR}/<profile>.filter
 Logs:         ${RCLONE_STATE_DIR}/<profile>-<mode>.log
-Lock files:   ${LOCK_DIR}/syncist-<profile>.lock${C_RESET}
+Lock files:   ${LOCK_DIR}/syncer-<profile>.lock${C_RESET}
 EOF
 }
 
@@ -741,7 +741,7 @@ while [[ $# -gt 0 ]]; do
 
     -h|--help)    usage; exit 0 ;;
     --)           shift; OPT_PROFILES+=("$@"); break ;;
-    -*)           die "Unknown option: $1 (see 'syncist help')" ;;
+    -*)           die "Unknown option: $1 (see 'syncer help')" ;;
     *)            OPT_PROFILES+=("$1"); shift ;;
   esac
 done
