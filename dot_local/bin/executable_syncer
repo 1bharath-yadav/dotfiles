@@ -574,19 +574,19 @@ do_status() {
 #  TUI IMPLEMENTATION
 # ══════════════════════════════════════════════════════════════════════════════
 run_tui() {
-  command -v fzf >/dev/null 2>&1 || die "fzf is required for TUI. Install fzf or use CLI arguments."
+  command -v gum >/dev/null 2>&1 || die "gum is required for TUI. Install gum or use CLI arguments."
 
-  local profiles_list="[ All Profiles ]"
+  local -a profile_options=("[ All Profiles ]")
   for p in $(printf '%s\n' "${!PROFILES[@]}" | sort); do
     local l_path
     local r_path
     l_path=$(get_local "$p")
     r_path=$(get_rsub "$p")
-    profiles_list+=$'\n'"$p (Local: $l_path | Remote: $OPT_REMOTE:$r_path)"
+    profile_options+=("$p (Local: $l_path | Remote: $OPT_REMOTE:$r_path)")
   done
 
   local sel_profile
-  sel_profile=$(printf '%s' "$profiles_list" | fzf --prompt="Select Profile> " --height=15 --layout=reverse --info=inline)
+  sel_profile=$(printf '%s\n' "${profile_options[@]}" | gum choose --header="Select Profile")
   [[ -z "$sel_profile" ]] && exit 0
 
   if [[ "$sel_profile" == "[ All Profiles ]" ]]; then
@@ -596,7 +596,7 @@ run_tui() {
   fi
 
   local sel_action
-  sel_action=$(printf 'bisync\npush\npull\ncheck\ninit\nstatus\nlist\n' | fzf --prompt="Select Action> " --height=10 --layout=reverse --info=inline)
+  sel_action=$(gum choose --header="Select Action" "bisync" "push" "pull" "check" "init" "status" "list")
   [[ -z "$sel_action" ]] && exit 0
 
   if [[ "$sel_action" == "list" ]]; then
@@ -610,10 +610,9 @@ run_tui() {
   fi
 
   if [[ "$sel_action" == "push" || "$sel_action" == "pull" ]]; then
-    printf '\n%sWARNING: %s is a destructive operation.%s\n' "$C_RED" "$sel_action" "$C_RESET"
-    local conf
-    conf=$(printf 'No\nYes\n' | fzf --prompt="Are you sure you want to $sel_action? (destructive) > " --height=5 --layout=reverse)
-    if [[ "$conf" != "Yes" ]]; then
+    echo ""
+    gum style --foreground 196 --border double --margin "0 1" --padding "0 1" "WARNING: $sel_action is a DESTRUCTIVE operation."
+    if ! gum confirm "Are you sure you want to $sel_action?"; then
       info "Aborted by user."
       exit 0
     fi
