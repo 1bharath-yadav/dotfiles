@@ -31,4 +31,5 @@
 - current-state:
 - linux-automation: added mandatory workspace planning & max 2 apps/workspace organization rules. Subcommands `workspace organize` and `launch --workspace` implemented and tested.
 - nvim: config refreshed for Nvim 0.12.4; lazydev replacing neodev, native diagnostic jump, smoothscroll & undofile added, netrw disabled.
+- archmcp: Added clever gum-based interactive launcher for MCP servers (filesystem, remote desktop-commander, local_mcp).
 - next update: overwrite current-state only, max 5 lines
