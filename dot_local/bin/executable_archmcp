@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+if ! command -v gum &> /dev/null; then
+    echo "gum could not be found. Please install it."
+    exit 1
+fi
+
+declare -A SERVERS
+SERVERS["Filesystem (/home/archer)"]="npx -y @modelcontextprotocol/server-filesystem /home/archer"
+SERVERS["Desktop Commander (Remote)"]="npx -y @wonderwhy-er/desktop-commander@latest remote"
+SERVERS["Local Bash MCP (local_mcp)"]="local_mcp"
+
+# Use gum to select options
+CHOICES=$(printf "%s\n" "${!SERVERS[@]}" | gum choose --no-limit --header "Select MCP Servers to Start (Space to select, Enter to confirm)")
+
+if [[ -z "$CHOICES" ]]; then
+    gum style --foreground 212 "No servers selected. Exiting."
+    exit 0
+fi
+
+gum style --foreground 212 "Starting selected servers..."
+
+> /tmp/archmcp_pids
+
+# Start selected servers
+while IFS= read -r choice; do
+    if [[ -n "${SERVERS[$choice]}" ]]; then
+        gum style --foreground 82 "Starting: $choice"
+        # Run in background
+        ${SERVERS[$choice]} &
+        echo $! >> /tmp/archmcp_pids
+    fi
+done <<< "$CHOICES"
+
+gum style --foreground 212 "Servers are running in the background."
+gum style --foreground 212 "Press Ctrl+C to stop all."
+
+cleanup() {
+    echo ""
+    gum style --foreground 196 "Stopping servers..."
+    if [[ -s /tmp/archmcp_pids ]]; then
+        kill $(cat /tmp/archmcp_pids) 2>/dev/null
+        rm -f /tmp/archmcp_pids
+    fi
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM EXIT
+
+# Wait indefinitely until interrupted
+wait
