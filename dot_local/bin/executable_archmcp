@@ -20,6 +20,10 @@ fi
 
 gum style --foreground 212 "Starting selected servers..."
 
+if [[ -f ~/.env ]]; then
+    source ~/.env
+fi
+
 > /tmp/archmcp_pids
 
 # Start selected servers
