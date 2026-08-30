@@ -1,29 +1,64 @@
-# A TOML linter such as https://taplo.tamasfe.dev/ can use this schema to validate your config.
-# If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
-# "$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
-
 [[mgr.prepend_keymap]]
-on   = "l"
-run  = "plugin smart-enter"
-desc = "Enter the child directory, or open the file"
+on = "l"
+run = "plugin smart-enter"
+desc = "Enter directory or open file"
 
 [[mgr.prepend_keymap]]
 on = ["<Enter>"]
 run = "plugin smart-enter"
-desc = "Enter the child directory, or open the selected file"
+desc = "Enter directory or open file"
 
 [[mgr.prepend_keymap]]
 on = ["<Backspace>"]
 run = "leave"
-desc = "Go back to the parent directory"
-
-prepend_keymap = [
-    # glow.yazi  ctrl+e , ctrl+y
-    { on = ["<C-e>"], run = "seek 5" },
-    { on = ["<C-y>"], run = "seek -5" },
-]
+desc = "Go to parent directory"
 
 [[mgr.prepend_keymap]]
-on   = "T"
-run  = "plugin max-preview"
-desc = "Maximize or restore preview"
+on = ["<C-e>"]
+run = "seek 5"
+desc = "Seek preview down"
+
+[[mgr.prepend_keymap]]
+on = ["<C-y>"]
+run = "seek -5"
+desc = "Seek preview up"
+
+[[mgr.prepend_keymap]]
+on = "T"
+run = "plugin toggle-pane max-preview"
+desc = "Toggle or maximize preview"
+
+[[mgr.prepend_keymap]]
+on = ["f"]
+run = "plugin smart-filter"
+desc = "Smart filter"
+
+[[mgr.prepend_keymap]]
+on = ["p"]
+run = "plugin smart-paste"
+desc = "Smart paste"
+
+[[mgr.prepend_keymap]]
+on = ["z"]
+run = "plugin zoom 1"
+desc = "Zoom preview in"
+
+[[mgr.prepend_keymap]]
+on = ["Z"]
+run = "plugin zoom -1"
+desc = "Zoom preview out"
+
+[[mgr.prepend_keymap]]
+on = ["g", "d"]
+run = "cd ~/Downloads"
+desc = "Go to Downloads"
+
+[[mgr.prepend_keymap]]
+on = ["g", "c"]
+run = "cd ~/.config"
+desc = "Go to config"
+
+[[mgr.prepend_keymap]]
+on = ["g", "h"]
+run = "cd ~"
+desc = "Go home"
