@@ -1,0 +1,23 @@
+[Unit]
+Description=Mitham FastAPI backend
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/mitham/apps/api
+Environment=HOME=%h
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin
+EnvironmentFile=%h/.config/mitham/environment
+ExecStart=/usr/bin/uv run fastapi run mitham_api/main.py --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+NoNewPrivileges=yes
+PrivateTmp=yes
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=mitham.target

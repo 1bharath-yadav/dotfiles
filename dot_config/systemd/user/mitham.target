@@ -1,0 +1,7 @@
+[Unit]
+Description=Mitham self-hosted application stack
+Wants=mitham-api.service mitham-web.service cloudflared-mitham.service
+After=network-online.target
+
+[Install]
+WantedBy=default.target

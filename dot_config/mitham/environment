@@ -1,0 +1,25 @@
+# Mitham local/self-host runtime environment.
+# This template is safe to track; real secrets must remain in ~/.config/mitham/environment.
+NEXT_PUBLIC_API_BASE_URL=https://api.mitham.app
+NEXT_PUBLIC_APP_URL=https://mitham.app
+NEXT_PUBLIC_COLLAB_WS_URL=wss://api.mitham.app/ws
+MITHAM_FRONTEND_URL=https://mitham.app
+MITHAM_API_PUBLIC_URL=https://api.mitham.app
+MITHAM_CORS_ORIGINS=["https://mitham.app","https://www.mitham.app","http://localhost:3000"]
+MITHAM_CONTENT_DB_URL=
+MITHAM_LEARNER_DB_URL=
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+MITHAM_SENTRY_ENVIRONMENT=production
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.1
+NEXT_PUBLIC_SENTRY_PROFILES_SAMPLE_RATE=0.05
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=
+NEXT_PUBLIC_UMAMI_SCRIPT_URL=https://cloud.umami.is/script.js
+NEXT_PUBLIC_UMAMI_HOST_URL=
+MITHAM_RAZORPAY_KEY_ID=
+MITHAM_RAZORPAY_KEY_SECRET=
+MITHAM_RAZORPAY_WEBHOOK_SECRET=
+GOOGLE_API_KEY=
+MITHAM_DAILY_API_KEY=
+MITHAM_PISTON_URL=http://localhost:2000
+MITHAM_SECRET_KEY=

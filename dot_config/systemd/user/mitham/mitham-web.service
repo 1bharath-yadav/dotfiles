@@ -1,0 +1,23 @@
+[Unit]
+Description=Mitham Next.js production server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/mitham/apps/web
+Environment=HOME=%h
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin
+EnvironmentFile=%h/.config/mitham/environment
+ExecStart=/usr/bin/pnpm start
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+NoNewPrivileges=yes
+PrivateTmp=yes
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=mitham.target
