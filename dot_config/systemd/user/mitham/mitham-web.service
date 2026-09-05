@@ -1,7 +1,7 @@
 [Unit]
 Description=Mitham Next.js production server
-Wants=network-online.target
-After=network-online.target
+Wants=network-online.target mitham-api.service
+After=network-online.target mitham-api.service
 
 [Service]
 Type=simple

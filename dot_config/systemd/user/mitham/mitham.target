@@ -1,0 +1,7 @@
+[Unit]
+Description=Mitham Application Stack (API, Web, Cloudflare Tunnel)
+Wants=mitham-api.service mitham-web.service cloudflared-mitham.service
+After=network-online.target
+
+[Install]
+WantedBy=default.target
