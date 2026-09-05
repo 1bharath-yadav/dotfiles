@@ -5,23 +5,23 @@
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^([Oo]bsidian)$" },
-	float = true,
+  match = { class = "^([Oo]bsidian)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^([Oo]bsidian)$" },
-	size = { "(monitor_w*0.90)", "(monitor_h*0.90)" },
+  match = { class = "^([Oo]bsidian)$" },
+  size = { "(monitor_w*0.90)", "(monitor_h*0.90)" },
 })
 
 hl.window_rule({
-	match = { class = "^([Oo]bsidian)$" },
-	center = true,
+  match = { class = "^([Oo]bsidian)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^([Oo]bsidian)$" },
-	workspace = "special:obsidian",
+  match = { class = "^([Oo]bsidian)$" },
+  workspace = "special:obsidian",
 })
 
 --------------------------------------------------
@@ -29,23 +29,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(yazi-sp)$" },
-	float = true,
+  match = { class = "^(yazi-sp)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(yazi-sp)$" },
-	size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
+  match = { class = "^(yazi-sp)$" },
+  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
 })
 
 hl.window_rule({
-	match = { class = "^(yazi-sp)$" },
-	center = true,
+  match = { class = "^(yazi-sp)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(yazi-sp)$" },
-	workspace = "special:yazi",
+  match = { class = "^(yazi-sp)$" },
+  workspace = "special:yazi",
 })
 
 --------------------------------------------------
@@ -53,23 +53,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(kitty-sp)$" },
-	float = true,
+  match = { class = "^(kitty-sp)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(kitty-sp)$" },
-	size = { "(monitor_w*0.85)", "(monitor_h*0.85)" },
+  match = { class = "^(kitty-sp)$" },
+  size = { "(monitor_w*0.85)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(kitty-sp)$" },
-	center = true,
+  match = { class = "^(kitty-sp)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(kitty-sp)$" },
-	workspace = "special:kitty",
+  match = { class = "^(kitty-sp)$" },
+  workspace = "special:kitty",
 })
 
 --------------------------------------------------
@@ -77,23 +77,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(quicknote)$" },
-	float = true,
+  match = { class = "^(quicknote)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(quicknote)$" },
-	size = { "(monitor_w*0.85)", "(monitor_h*0.85)" },
+  match = { class = "^(quicknote)$" },
+  size = { "(monitor_w*0.85)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(quicknote)$" },
-	center = true,
+  match = { class = "^(quicknote)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(quicknote)$" },
-	workspace = "special:quicknote",
+  match = { class = "^(quicknote)$" },
+  workspace = "special:quicknote",
 })
 
 --------------------------------------------------
@@ -101,47 +101,133 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(hermes-sp)$" },
-	float = true,
+  match = { class = "^(hermes-sp)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(hermes-sp)$" },
-	size = { "(monitor_w*0.90)", "(monitor_h*0.90)" },
+  match = { class = "^(hermes-sp)$" },
+  size = { "(monitor_w*0.90)", "(monitor_h*0.90)" },
 })
 
 hl.window_rule({
-	match = { class = "^(hermes-sp)$" },
-	center = true,
+  match = { class = "^(hermes-sp)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(hermes-sp)$" },
-	workspace = "special:hermes",
+  match = { class = "^(hermes-sp)$" },
+  workspace = "special:hermes",
 })
 
+--------------------------------------------------
+-- CHATGPT SCRATCHPAD
+--------------------------------------------------
+
+hl.window_rule({
+  match = { class = "^(chatgpt)$" },
+  float = true,
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt)$" },
+  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt)$" },
+  center = true,
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt)$" },
+  workspace = "special:chatgpt",
+})
+
+--------------------------------------------------
+-- WHATSAPP SCRATCHPAD
+--------------------------------------------------
+
+hl.window_rule({
+  match = { class = "^(whatsapp)$" },
+  float = true,
+})
+
+hl.window_rule({
+  match = { class = "^(whatsapp)$" },
+  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
+})
+
+hl.window_rule({
+  match = { class = "^(whatsapp)$" },
+  center = true,
+})
+
+hl.window_rule({
+  match = { class = "^(whatsapp)$" },
+  workspace = "special:whatsapp",
+})
+
+--------------------------------------------------
+-- CHATGPT / WHATSAPP SCRATCHPADS
+--------------------------------------------------
+
+hl.window_rule({
+  match = { class = "^(chatgpt|whatsapp)$" },
+  float = true,
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt|whatsapp)$" },
+  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt|whatsapp)$" },
+  center = true,
+})
+
+hl.window_rule({
+  match = { class = "^(chatgpt)$" },
+  workspace = "special:chatgpt",
+})
+
+hl.window_rule({
+  match = { class = "^(whatsapp)$" },
+  workspace = "special:whatsapp",
+})
+
+--------------------------------------------------
+-- XOY CDP CHROME SCRATCHPAD
+--------------------------------------------------
+
+-- hl.window_rule({
+-- 	match = { class = "^(google-chrome)$", title = ".*" },
+-- 	workspace = "special:xoy-cdp silent",
+-- })
+--
 --------------------------------------------------
 -- GOOGLE CALENDAR
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(chrome-calendar.google.com__-Default)$" },
-	float = true,
+  match = { class = "^(chrome-calendar.google.com__-Default)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-calendar.google.com__-Default)$" },
-	size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
+  match = { class = "^(chrome-calendar.google.com__-Default)$" },
+  size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-calendar.google.com__-Default)$" },
-	center = true,
+  match = { class = "^(chrome-calendar.google.com__-Default)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-calendar.google.com__-Default)$" },
-	workspace = "special:calendar",
+  match = { class = "^(chrome-calendar.google.com__-Default)$" },
+  workspace = "special:calendar",
 })
 
 --------------------------------------------------
@@ -154,18 +240,18 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
-	float = true,
+  match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
-	size = { 520, 680 },
+  match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+  size = { 520, 680 },
 })
 
 hl.window_rule({
-	match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
-	center = true,
+  match = { class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" },
+  center = true,
 })
 
 --------------------------------------------------
@@ -173,23 +259,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(chrome-keep.google.com__-Default)$" },
-	float = true,
+  match = { class = "^(chrome-keep.google.com__-Default)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-keep.google.com__-Default)$" },
-	size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
+  match = { class = "^(chrome-keep.google.com__-Default)$" },
+  size = { "(monitor_w*0.65)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-keep.google.com__-Default)$" },
-	center = true,
+  match = { class = "^(chrome-keep.google.com__-Default)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-keep.google.com__-Default)$" },
-	workspace = "special:keep",
+  match = { class = "^(chrome-keep.google.com__-Default)$" },
+  workspace = "special:keep",
 })
 
 --------------------------------------------------
@@ -197,23 +283,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(chrome-tasks.google.com__-Default)$" },
-	float = true,
+  match = { class = "^(chrome-tasks.google.com__-Default)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-tasks.google.com__-Default)$" },
-	size = { "(monitor_w*0.45)", "(monitor_h*0.85)" },
+  match = { class = "^(chrome-tasks.google.com__-Default)$" },
+  size = { "(monitor_w*0.45)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-tasks.google.com__-Default)$" },
-	center = true,
+  match = { class = "^(chrome-tasks.google.com__-Default)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-tasks.google.com__-Default)$" },
-	workspace = "special:tasks",
+  match = { class = "^(chrome-tasks.google.com__-Default)$" },
+  workspace = "special:tasks",
 })
 
 --------------------------------------------------
@@ -221,23 +307,23 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.window_rule({
-	match = { class = "^(chrome-mail.google.com__-Default)$" },
-	float = true,
+  match = { class = "^(chrome-mail.google.com__-Default)$" },
+  float = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-mail.google.com__-Default)$" },
-	size = { "(monitor_w*0.75)", "(monitor_h*0.85)" },
+  match = { class = "^(chrome-mail.google.com__-Default)$" },
+  size = { "(monitor_w*0.75)", "(monitor_h*0.85)" },
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-mail.google.com__-Default)$" },
-	center = true,
+  match = { class = "^(chrome-mail.google.com__-Default)$" },
+  center = true,
 })
 
 hl.window_rule({
-	match = { class = "^(chrome-mail.google.com__-Default)$" },
-	workspace = "special:gmail",
+  match = { class = "^(chrome-mail.google.com__-Default)$" },
+  workspace = "special:gmail",
 })
 
 --------------------------------------------------
@@ -245,46 +331,79 @@ hl.window_rule({
 --------------------------------------------------
 
 hl.workspace_rule({
-	workspace = "special:obsidian",
-	on_created_empty = "obsidian",
+  workspace = "special:xoy-cdp",
+  persistent = true,
 })
 
 hl.workspace_rule({
-	workspace = "special:yazi",
-	on_created_empty = "kitty --class yazi-sp -e yazi",
+  workspace = "special:obsidian",
+  on_created_empty = "obsidian",
 })
 
 hl.workspace_rule({
-	workspace = "special:kitty",
-	on_created_empty = "kitty --class kitty-sp",
+  workspace = "special:yazi",
+  on_created_empty = "kitty --class yazi-sp -e yazi",
 })
 
 hl.workspace_rule({
-	workspace = "special:quicknote",
-	on_created_empty = "kitty --class quicknote -e yazi '/home/archer/til/'",
+  workspace = "special:kitty",
+  on_created_empty = "kitty --class kitty-sp",
 })
 
 hl.workspace_rule({
-	workspace = "special:calendar",
-	on_created_empty = "google-chrome-stable --app=https://calendar.google.com",
+  workspace = "special:quicknote",
+  on_created_empty = "kitty --class quicknote -e yazi '/home/archer/til/'",
 })
 
 hl.workspace_rule({
-	workspace = "special:keep",
-	on_created_empty = "google-chrome-stable --app=https://keep.google.com",
+  workspace = "special:calendar",
+  on_created_empty = "google-chrome-stable --app=https://calendar.google.com",
 })
 
 hl.workspace_rule({
-	workspace = "special:tasks",
-	on_created_empty = "google-chrome-stable --app=https://tasks.google.com",
+  workspace = "special:keep",
+  on_created_empty = "google-chrome-stable --app=https://keep.google.com",
 })
 
 hl.workspace_rule({
-	workspace = "special:gmail",
-	on_created_empty = "google-chrome-stable --app=https://mail.google.com",
+  workspace = "special:tasks",
+  on_created_empty = "google-chrome-stable --app=https://tasks.google.com",
 })
 
 hl.workspace_rule({
-	workspace = "special:hermes",
-	on_created_empty = "kitty --class hermes-sp -e hermes --tui",
+  workspace = "special:gmail",
+  on_created_empty = "google-chrome-stable --app=https://mail.google.com",
+})
+
+hl.workspace_rule({
+  workspace = "special:hermes",
+  on_created_empty = "kitty --class hermes-sp -e hermes --tui",
+})
+
+hl.workspace_rule({
+  workspace = "special:chatgpt",
+  on_created_empty = "google-chrome-stable --app=https://chatgpt.com",
+})
+
+hl.workspace_rule({
+  workspace = "special:whatsapp",
+  on_created_empty = "google-chrome-stable --app=https://web.whatsapp.com",
+})
+--------------------------------------------------
+-- SATTY SCREENSHOT ANNOTATOR
+--------------------------------------------------
+
+hl.window_rule({
+  match = { class = "^(com.gabm.satty|satty)$" },
+  float = true,
+})
+
+hl.window_rule({
+  match = { class = "^(com.gabm.satty|satty)$" },
+  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
+})
+
+hl.window_rule({
+  match = { class = "^(com.gabm.satty|satty)$" },
+  center = true,
 })

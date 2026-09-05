@@ -1,5 +1,5 @@
 -- custom/execs.lua
--- Session environment propagation so launcher-started apps see Hyprland env
+-- Session environment propagation for user services/apps.
 
 hl.on("hyprland.start", function()
 	hl.exec_cmd("systemctl --user import-environment --all")

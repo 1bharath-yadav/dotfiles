@@ -21,7 +21,7 @@ hl.bind("ALT + BracketLeft", hl.dsp.exec_cmd(qsIpcCall .. " brightness decrement
   { locked = true, repeating = true })
 -- Session / toggles
 hl.bind("SUPER + ALT + F4", hl.dsp.global("quickshell:sessionToggle"))
-hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("~/.config/hypr/custom/scripts/toggle-gdrive.sh"))
+hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("~/.local/bin/toggle-gdrive.sh"))
 hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("~/.local/bin/send_file.sh"))
 
 -- Screenshots
@@ -36,6 +36,13 @@ hl.bind(
     "mkdir -p $(xdg-user-dir PICTURES)/Screenshots && grim $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png"
   ),
   { locked = true, description = "Screenshot >> clipboard & save" }
+)
+
+-- Screenshot with annotation (satty) — direct region capture + annotation.
+hl.bind(
+  "SUPER + ALT + semicolon",
+  hl.dsp.exec_cmd([[grim -g "$(slurp)" - | satty --filename -]]),
+  { locked = true, description = "Screenshot >> annotate with Satty" }
 )
 
 -- Apps
@@ -55,6 +62,8 @@ hl.bind(
 )
 hl.bind("CTRL + SUPER + M", hl.dsp.workspace.toggle_special("gmail"), { description = "Toggle Gmail scratchpad" })
 hl.bind("SUPER + Comma", hl.dsp.workspace.toggle_special("hermes"), { description = "Toggle Hermes scratchpad" })
+hl.bind("SUPER + ALT + Y", hl.dsp.workspace.toggle_special("xoy-cdp"),
+  { description = "Toggle XOY CDP Chrome scratchpad" })
 
 hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "Move to right workspace" })
 hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Move to left workspace" })
