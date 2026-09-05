@@ -1,35 +1,49 @@
 [tools]
-# runtimes
 node = "latest"
-rust = "stable"
 pnpm = "latest"
+rust = "stable"
 
-# js / ts global clis
+# Python CLI tooling via mise's pipx backend.
+"pipx:ruff" = "latest"
+"pipx:black" = "latest"
+"pipx:pylint" = "latest"
+"pipx:isort" = "latest"
+"pipx:mypy" = "latest"
+"pipx:yamllint" = "latest"
+"pipx:sqlfluff" = "latest"
+
+# JavaScript / documentation CLIs.
+"npm:prettier" = "latest"
+"npm:eslint_d" = "latest"
+"npm:markdownlint-cli2" = "latest"
+"npm:@mermaid-js/mermaid-cli" = "latest"
+"npm:sql-formatter" = "latest"
+"npm:agent-browser" = "latest"
+# Existing development / AI tools.
 "npm:@openai/codex" = "latest"
 "npm:@google/gemini-cli" = "latest"
 "npm:@googleworkspace/cli" = "latest"
-# "npm:llm-wiki-compiler" = "latest"
-# python global clis
-# "uv:aider-chat" = "latest"
-# "uv:edge-tts" = "latest"
-# "uv:huggingface-hub" = "latest"
+"npm:screenpipe" = "latest"
 
-# rust global clis
 
-# GitHub‑provided binaries (no compilation)
-"github:rtk-ai/rtk" = "latest"
 "copilot-cli" = "latest"
 "agy" = "latest"
 "gh" = "latest"
-# apps
-"github:mudler/LocalAI" = "latest"
+"vercel" = "latest"
+"azure-cli" = "latest"
+# "github:mudler/LocalAI" = "latest"
 "github:openai/tunnel-client" = "latest"
 "github:jtroo/kanata" = "latest"
+# "github:iOfficeAI/OfficeCLI" = "latest"
+
 [settings]
 experimental = true
 jobs = 4
 legacy_version_file = true
-idiomatic_version_file_enable_tools = ["python", "node", "rust", "uv", "pnpm"]
+idiomatic_version_file_enable_tools = ["node", "python", "rust", "pnpm"]
+
+minimum_release_age = "0s" 
 
 [settings.cargo]
 binstall = true
+

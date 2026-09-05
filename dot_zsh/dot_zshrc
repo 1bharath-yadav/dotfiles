@@ -34,3 +34,6 @@ done
 alias dots='${EDITOR:-nvim} $HOME/.dotfiles'
 
 
+
+# User-local CLI binaries
+export PATH="/home/archer/.local/bin:/home/archer/.local/share/mise/installs/node/latest/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
