@@ -24,3 +24,5 @@ sync_end4dots() {
 }
 
 [[ $(uname) == Linux ]] && grep -qi "arch" /etc/os-release && sync_end4dots || warn "End4dots sync skipped (not Arch Linux or sync failed)"
+
+command -v dots-migrate >/dev/null 2>&1 && dots-migrate || warn "dots-migrate not found on PATH; skipping migrations"

@@ -1,28 +1,72 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "[*] Switching to MEMORY_MAX mode: zram (2 * RAM) + swapfile..."
+readonly CONFIG=/etc/systemd/zram-generator.conf
+readonly ZRAM_UNIT=systemd-zram-setup@zram0.service
+readonly SWAPFILE=/swapfile
 
-# 1. Recreate zram-generator config for big zram
-sudo tee /etc/systemd/zram-generator.conf >/dev/null <<'EOF'
+log() { printf '[*] %s\n' "$*"; }
+fatal() { printf '[!] %s\n' "$*" >&2; exit 1; }
+
+(( EUID == 0 )) && SUDO=() || SUDO=(sudo)
+run() { "${SUDO[@]}" "$@"; }
+
+log 'Switching to MEMORY_MAX mode: zram (2 × RAM) + swapfile'
+
+# default-mode masks this unit; unmask it before generator/startup.
+if run systemctl is-enabled --quiet "$ZRAM_UNIT" 2>/dev/null; then
+  :
+elif run systemctl is-enabled "$ZRAM_UNIT" 2>&1 | grep -q 'masked'; then
+  log 'Removing stale zram unit mask'
+  run systemctl unmask "$ZRAM_UNIT"
+else
+  # is-enabled may report masked on some systemd versions only on stderr.
+  if run systemctl cat "$ZRAM_UNIT" >/dev/null 2>&1; then
+    run systemctl unmask "$ZRAM_UNIT" 2>/dev/null || true
+  fi
+fi
+
+run install -d -m 0755 /etc/systemd
+cat <<'EOF' | run tee "$CONFIG" >/dev/null
 [zram0]
 zram-size = ram * 2
 compression-algorithm = zstd
 EOF
 
-# 2. Reload systemd config
-sudo systemctl daemon-reload
+run systemctl daemon-reload
 
-# 3. Make sure any old zram swap is off before reconfig
-sudo swapoff /dev/zram0 2>/dev/null || true
+# Tear down an old zram swap cleanly; ignore absence.
+run swapoff /dev/zram0 2>/dev/null || true
+run systemctl stop "$ZRAM_UNIT" 2>/dev/null || true
 
-# 4. Restart zram setup (this will create /dev/zram0, mkswap, and swapon)
-sudo systemctl restart systemd-zram-setup@zram0.service
+# Generate the unit from the config, then start it explicitly.
+run systemctl start "$ZRAM_UNIT" || {
+  run systemctl unmask "$ZRAM_UNIT"
+  run systemctl daemon-reload
+  run systemctl start "$ZRAM_UNIT"
+}
 
-# 5. Enable swapfile (assuming it exists and is in /etc/fstab)
-if [ -f /swapfile ]; then
-  sudo swapon /swapfile || true
+# Create a real swapfile when missing. Cap it at 32 GiB to avoid pathological sizes.
+if [ ! -e "$SWAPFILE" ]; then
+  RAM_KIB=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
+  (( RAM_KIB > 0 )) || fatal 'Cannot determine system RAM'
+  SIZE_KIB=$((RAM_KIB * 2))
+  MAX_KIB=$((32 * 1024 * 1024))
+  (( SIZE_KIB > MAX_KIB )) && SIZE_KIB=$MAX_KIB
+  log "Creating $SWAPFILE (${SIZE_KIB} KiB)"
+  run fallocate -l "${SIZE_KIB}K" "$SWAPFILE" 2>/dev/null ||
+    run dd if=/dev/zero of="$SWAPFILE" bs=1M count=$(((SIZE_KIB + 1023) / 1024)) status=progress
+  run chmod 0600 "$SWAPFILE"
+  run mkswap "$SWAPFILE" >/dev/null
 fi
 
-echo "[✓] Memory_Max mode applied: zram + swapfile active."
+run chmod 0600 "$SWAPFILE"
+run swapon "$SWAPFILE" 2>/dev/null || true
 
+# Final verification: never print success unless both swaps are actually active.
+swaps=$(run swapon --noheadings --show=NAME 2>/dev/null || true)
+printf '%s\n' "$swaps" | grep -Fxq '/dev/zram0' || fatal '/dev/zram0 is not active'
+printf '%s\n' "$swaps" | grep -Fxq "$SWAPFILE" || fatal "$SWAPFILE is not active"
+
+log 'MEMORY_MAX active: zram + swapfile'
+run swapon --show

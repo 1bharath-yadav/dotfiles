@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Removes a web app installed by webapp-install: its .desktop entry, icon,
+# and the Lua window-rule block it added to custom/rules.lua.
+#
+# Usage: webapp-remove "App Name"
+set -euo pipefail
+
+name="${1:?Usage: webapp-remove <name>}"
+slug="$(echo "$name" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')"
+class="webapp-${slug}"
+
+rm -f "$HOME/.local/share/applications/$class.desktop"
+rm -f "$HOME/.local/share/icons/webapps/$slug.png"
+update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
+
+SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.dotfiles")"
+RULES_FILE="$SOURCE_DIR/dot_config/hypr/custom/rules.lua"
+BEGIN_MARK="--#! BEGIN webapp-install: $class"
+END_MARK="--#! END webapp-install: $class"
+
+if [[ -f "$RULES_FILE" ]] && grep -qF "$BEGIN_MARK" "$RULES_FILE"; then
+  sed -i "/^${BEGIN_MARK//\//\\/}\$/,/^${END_MARK//\//\\/}\$/d" "$RULES_FILE"
+  echo "Removed rule block for $class from $RULES_FILE"
+  command -v chezmoi >/dev/null 2>&1 && chezmoi apply
+  command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
+else
+  echo "No rule block found for $class in $RULES_FILE"
+fi

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Runs pending dotfiles migrations, once each, per machine.
+# Pattern adapted from Omarchy's migrations/ + omarchy-migrate (basecamp/omarchy),
+# ported onto chezmoi: migrations live in the chezmoi source tree and are
+# tracked in local state rather than in a package-managed install.
+set -euo pipefail
+
+SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.dotfiles")"
+MIGRATIONS_DIR="$SOURCE_DIR/migrations"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles"
+LEDGER="$STATE_DIR/migrations-applied"
+
+mkdir -p "$STATE_DIR"
+touch "$LEDGER"
+
+if [[ ! -d "$MIGRATIONS_DIR" ]]; then
+  echo "No migrations directory at $MIGRATIONS_DIR"
+  exit 0
+fi
+
+shopt -s nullglob
+ran=0
+for script in "$MIGRATIONS_DIR"/*.sh; do
+  name="$(basename "$script")"
+  grep -qxF "$name" "$LEDGER" && continue
+
+  echo "[migrate] running $name"
+  if bash "$script"; then
+    echo "$name" >>"$LEDGER"
+    ran=$((ran + 1))
+  else
+    echo "[migrate] $name FAILED" >&2
+    read -r -p "Skip this migration and continue? [y/N] " reply
+    [[ $reply =~ ^[Yy]$ ]] || exit 1
+    echo "$name" >>"$LEDGER" # mark skipped so it isn't retried forever
+  fi
+done
+
+if [[ $ran -eq 0 ]]; then
+  echo "No pending migrations."
+else
+  echo "Applied $ran migration(s)."
+fi

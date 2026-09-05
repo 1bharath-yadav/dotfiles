@@ -1,55 +1,48 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-if ! command -v gum &> /dev/null; then
-    echo "gum could not be found. Please install it."
-    exit 1
-fi
+command -v gum >/dev/null 2>&1 || { echo "archmcp: gum is required" >&2; exit 127; }
+[[ -f "$HOME/.env" ]] && source "$HOME/.env"
 
-declare -A SERVERS
-SERVERS["Filesystem (/home/archer)"]="npx -y @modelcontextprotocol/server-filesystem /home/archer"
-SERVERS["Desktop Commander (Remote)"]="npx -y @wonderwhy-er/desktop-commander@latest remote"
-SERVERS["Local Bash MCP (local_mcp)"]="local_mcp"
+declare -a LABELS=(
+  "Filesystem (/home/archer)"
+  "Desktop Commander (Remote)"
+  "Local Bash MCP (local_mcp)"
+)
+declare -a CMDS=(
+  "npx -y @modelcontextprotocol/server-filesystem /home/archer"
+  "npx -y @wonderwhy-er/desktop-commander@latest remote"
+  "local_mcp"
+)
 
-# Use gum to select options
-CHOICES=$(printf "%s\n" "${!SERVERS[@]}" | gum choose --no-limit --header "Select MCP Servers to Start (Space to select, Enter to confirm)")
+gum style --border rounded --padding '0 1' --bold 'archmcp · server launcher'
+selection="$(printf '%s\n' "${LABELS[@]}" | gum choose --no-limit --header 'Space select · Enter confirm' --cursor '▶ ')"
+[[ -n "$selection" ]] || { gum style --foreground 214 'No servers selected.'; exit 0; }
 
-if [[ -z "$CHOICES" ]]; then
-    gum style --foreground 212 "No servers selected. Exiting."
-    exit 0
-fi
-
-gum style --foreground 212 "Starting selected servers..."
-
-if [[ -f ~/.env ]]; then
-    source ~/.env
-fi
-
-> /tmp/archmcp_pids
-
-# Start selected servers
-while IFS= read -r choice; do
-    if [[ -n "${SERVERS[$choice]}" ]]; then
-        gum style --foreground 82 "Starting: $choice"
-        # Run in background
-        ${SERVERS[$choice]} &
-        echo $! >> /tmp/archmcp_pids
-    fi
-done <<< "$CHOICES"
-
-gum style --foreground 212 "Servers are running in the background."
-gum style --foreground 212 "Press Ctrl+C to stop all."
-
+pids=()
 cleanup() {
-    echo ""
-    gum style --foreground 196 "Stopping servers..."
-    if [[ -s /tmp/archmcp_pids ]]; then
-        kill $(cat /tmp/archmcp_pids) 2>/dev/null
-        rm -f /tmp/archmcp_pids
-    fi
-    exit 0
+  trap - EXIT INT TERM
+  for pid in "${pids[@]:-}"; do kill "$pid" 2>/dev/null || true; done
+  wait 2>/dev/null || true
 }
+trap cleanup EXIT INT TERM
 
-trap cleanup SIGINT SIGTERM EXIT
+while IFS= read -r choice; do
+  [[ -n "$choice" ]] || continue
+  idx=-1
+  for i in "${!LABELS[@]}"; do
+    [[ "${LABELS[$i]}" == "$choice" ]] && idx="$i"
+  done
+  (( idx >= 0 )) || continue
+  gum style --foreground 82 "Starting: ${LABELS[$idx]}"
+  bash -lc "${CMDS[$idx]}" &
+  pids+=("$!")
+done <<< "$selection"
 
-# Wait indefinitely until interrupted
+if ((${#pids[@]} == 0)); then
+  gum style --foreground 196 'No valid servers selected.'
+  exit 1
+fi
+
+gum style --foreground 82 "${#pids[@]} server(s) started · Ctrl+C stops all"
 wait

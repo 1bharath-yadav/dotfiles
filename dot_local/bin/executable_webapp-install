@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Install a URL as a launchable "web app": a .desktop entry with its own
+# window class, plus a floating/centered Hyprland window rule (and,
+# optionally, a scratchpad workspace) — generalizing the pattern already
+# hand-written in dot_config/hypr/custom/rules.lua for Gmail/Calendar/
+# Keep/Tasks, so new ones don't require editing Lua by hand.
+# Loosely modeled on Omarchy's omarchy-webapp-install (basecamp/omarchy).
+#
+# Usage: webapp-install "App Name" "https://example.com" ["special-workspace"]
+#   webapp-install "HEY Calendar" "https://calendar.google.com"
+#   webapp-install "Linear" "https://linear.app" linear
+set -euo pipefail
+
+name="${1:?Usage: webapp-install <name> <url> [special-workspace]}"
+url="${2:?Usage: webapp-install <name> <url> [special-workspace]}"
+special="${3:-}"
+
+slug="$(echo "$name" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')"
+class="webapp-${slug}"
+browser_bin="google-chrome-stable"
+
+apps_dir="$HOME/.local/share/applications"
+icons_dir="$HOME/.local/share/icons/webapps"
+mkdir -p "$apps_dir" "$icons_dir"
+
+icon_path="$icons_dir/$slug.png"
+domain="$(echo "$url" | sed -E 's#^[a-z]+://##; s#/.*$##')"
+if ! curl -fsSL "https://www.google.com/s2/favicons?sz=128&domain=$domain" \
+      -o "$icon_path" 2>/dev/null || [[ ! -s "$icon_path" ]]; then
+  rm -f "$icon_path"
+  icon_path="applications-internet" # themed fallback icon name
+fi
+
+desktop_file="$apps_dir/$class.desktop"
+cat >"$desktop_file" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=$name
+Comment=$name (web app)
+Exec=$browser_bin --app="$url" --class=$class --name=$class
+Icon=$icon_path
+Terminal=false
+StartupWMClass=$class
+Categories=Network;WebBrowser;
+EOF
+
+update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
+
+SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.dotfiles")"
+RULES_FILE="$SOURCE_DIR/dot_config/hypr/custom/rules.lua"
+BEGIN_MARK="--#! BEGIN webapp-install: $class"
+END_MARK="--#! END webapp-install: $class"
+
+if [[ -f "$RULES_FILE" ]] && grep -qF "$BEGIN_MARK" "$RULES_FILE"; then
+  echo "A rule block for $class already exists in $RULES_FILE."
+  echo "Run 'webapp-remove \"$name\"' first if you want to redefine it."
+else
+  {
+    echo ""
+    echo "$BEGIN_MARK"
+    echo "hl.window_rule({ match = { class = \"^($class)\$\" }, float = true })"
+    echo "hl.window_rule({ match = { class = \"^($class)\$\" }, size = { \"(monitor_w*0.75)\", \"(monitor_h*0.85)\" } })"
+    echo "hl.window_rule({ match = { class = \"^($class)\$\" }, center = true })"
+    if [[ -n "$special" ]]; then
+      echo "hl.window_rule({ match = { class = \"^($class)\$\" }, workspace = \"special:$special\" })"
+      echo "hl.workspace_rule({ workspace = \"special:$special\", on_created_empty = \"$browser_bin --app=$url --class=$class\" })"
+    fi
+    echo "$END_MARK"
+  } >>"$RULES_FILE"
+  echo "Added window rule block to $RULES_FILE"
+fi
+
+if command -v chezmoi >/dev/null 2>&1; then
+  chezmoi apply
+fi
+command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
+
+echo "Installed '$name' as $class. Launch it from your app launcher (Super), or run:"
+echo "  $browser_bin --app=\"$url\" --class=$class"
