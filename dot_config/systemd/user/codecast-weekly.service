@@ -1,0 +1,24 @@
+[Unit]
+Description=Weekly 1bharath-yadav Codecast Generator
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+TimeoutStartSec=infinity
+WorkingDirectory=%h/projects/1bharath-yadav/week
+Environment="PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin"
+Environment="AGENT_BROWSER=%h/.local/share/mise/installs/node/latest/bin/agent-browser"
+Environment="CLAUDE_CDP_PORT=9222"
+Environment="XOY_DATA_DIR=%h/.config/xoy"
+Environment="CHROME_BIN=/usr/bin/google-chrome-stable"
+Environment="CDP_CLAUDE_AGENT=%h/.agents/skills/cdp-agents/claude/claude.py"
+Environment="CDP_CLAUDE_PROJECT=hisual"
+Environment="CDP_CLAUDE_TIMEOUT=240"
+EnvironmentFile=-%h/.env
+ExecStart=%h/.dotfiles/dot_local/bin/codecast-weekly
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Desktop Commander Remote Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/archer
+Environment="HOME=/home/archer"
+Environment="USER=archer"
+Environment="DEVICE_ID=6ec3445e-218c-4c3d-9c77-16686d590b87"
+Environment="PATH=/home/archer/.local/share/mise/installs/node/latest/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/archer/.local/share/mise/installs/node/latest/bin/desktop-commander remote --persist-session
+Restart=always
+RestartSec=5
+RestartMaxDelaySec=30
+
+[Install]
+WantedBy=default.target

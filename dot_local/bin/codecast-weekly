@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO="${CODECAST_REPO:-$HOME/projects/1bharath-yadav}"
+CLAUDE_AGENT="${CDP_CLAUDE_AGENT:-$HOME/.agents/skills/cdp-agents/claude/claude.py}"
+cd "$REPO/week"
+[[ -f "$CLAUDE_AGENT" ]] || { echo "codecast-weekly: missing Claude CDP adapter: $CLAUDE_AGENT" >&2; exit 1; }
+export CODECAST_SCRIPT_PROVIDER=cdp-claude
+export CDP_CLAUDE_AGENT="$CLAUDE_AGENT"
+export CDP_CLAUDE_PROJECT="${CDP_CLAUDE_PROJECT:-hisual}"
+export CDP_CLAUDE_TIMEOUT="${CDP_CLAUDE_TIMEOUT:-240}"
+uv run summary.py -u 1bharath-yadav -n Bharath --script-provider cdp-claude
+uv run update_readme.py
+gh release upload main "$(date -u +%F)/podcast-$(date -u +%F).mp3" --clobber
+gh release upload main podcast.xml --clobber

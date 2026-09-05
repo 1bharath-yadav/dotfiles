@@ -1,0 +1,12 @@
+[Unit]
+Description=Run weekly Codecast generator
+
+[Timer]
+OnCalendar=Sun *-*-* 08:00:00
+Persistent=true
+AccuracySec=5min
+RandomizedDelaySec=10min
+Unit=codecast-weekly.service
+
+[Install]
+WantedBy=timers.target
