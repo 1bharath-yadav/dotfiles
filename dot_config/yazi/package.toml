@@ -9,14 +9,40 @@ rev = "230b9c6"
 hash = "56fdabc96fc1f4d53c96eb884b02a5be"
 
 [[plugin.deps]]
-use = "wekauwau/yatline-tokyo-night"
-rev = "b4a6310"
-hash = "215729a555fe5286f1eb35520963d08"
+use = "yazi-rs/plugins:smart-filter"
+rev = "c591a36"
 
 [[plugin.deps]]
-use = "Ape/simple-status"
-rev = "d0da104"
-hash = "68603fdd1dcaf415227e2c77a9317947"
+use = "yazi-rs/plugins:smart-paste"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:toggle-pane"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:zoom"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:jump-to-char"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:diff"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:mount"
+rev = "c591a36"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "c591a36"
 
 [[plugin.deps]]
 use = "Reledia/glow"
@@ -29,9 +55,19 @@ rev = "dc61636"
 hash = "2fa34959353b6f1a1c33659f50e098fd"
 
 [[plugin.deps]]
+use = "Ape/simple-status"
+rev = "d0da104"
+hash = "68603fdd1dcaf415227e2c77a9317947"
+
+[[plugin.deps]]
 use = "Rolv-Apneseth/starship"
 rev = "eca1861"
 hash = "e519d894e94ded741e06aae4d4775981"
+
+[[plugin.deps]]
+use = "wekauwau/yatline-tokyo-night"
+rev = "b4a6310"
+hash = "215729a555fe5286f1eb35520963d08"
 
 [[plugin.deps]]
 use = "wakaka6/yatline-dracula"

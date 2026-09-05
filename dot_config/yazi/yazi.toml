@@ -1,4 +1,5 @@
 [mgr]
+ratio = [1, 4, 3]
 linemode = "size_and_mtime"
 show_hidden = false
 

@@ -1,64 +1,53 @@
 [[mgr.prepend_keymap]]
-on = "l"
+on = ["l"]
 run = "plugin smart-enter"
 desc = "Enter directory or open file"
-
 [[mgr.prepend_keymap]]
 on = ["<Enter>"]
 run = "plugin smart-enter"
 desc = "Enter directory or open file"
-
 [[mgr.prepend_keymap]]
 on = ["<Backspace>"]
 run = "leave"
 desc = "Go to parent directory"
-
 [[mgr.prepend_keymap]]
 on = ["<C-e>"]
 run = "seek 5"
 desc = "Seek preview down"
-
 [[mgr.prepend_keymap]]
 on = ["<C-y>"]
 run = "seek -5"
 desc = "Seek preview up"
-
-[[mgr.prepend_keymap]]
-on = "T"
-run = "plugin toggle-pane max-preview"
-desc = "Toggle or maximize preview"
-
 [[mgr.prepend_keymap]]
 on = ["f"]
 run = "plugin smart-filter"
 desc = "Smart filter"
-
 [[mgr.prepend_keymap]]
-on = ["p"]
-run = "plugin smart-paste"
-desc = "Smart paste"
-
+on = ["C"]
+run = "plugin chmod"
+desc = "Change permissions"
 [[mgr.prepend_keymap]]
-on = ["z"]
-run = "plugin zoom 1"
-desc = "Zoom preview in"
-
+on = ["D"]
+run = "plugin diff"
+desc = "Diff selected and hovered"
 [[mgr.prepend_keymap]]
-on = ["Z"]
-run = "plugin zoom -1"
-desc = "Zoom preview out"
-
+on = ["M"]
+run = "plugin mount"
+desc = "Mount manager"
 [[mgr.prepend_keymap]]
 on = ["g", "d"]
 run = "cd ~/Downloads"
 desc = "Go to Downloads"
-
 [[mgr.prepend_keymap]]
 on = ["g", "c"]
 run = "cd ~/.config"
 desc = "Go to config"
-
 [[mgr.prepend_keymap]]
 on = ["g", "h"]
 run = "cd ~"
 desc = "Go home"
+
+[[mgr.prepend_keymap]]
+on = ["?"]
+run = "help"
+desc = "Yazi help / keybindings"
