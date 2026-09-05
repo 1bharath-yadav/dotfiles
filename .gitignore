@@ -3,3 +3,13 @@
 *.age.tmp
 .aider*
 site
+__pycache__/
+*.py[cod]
+
+.cache/
+**/.cache/
+*.bak-*
+pre-*/
+backup-*/
+final-cleanup-*/
+

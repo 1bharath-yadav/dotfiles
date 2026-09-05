@@ -1,16 +1,14 @@
-# chezmoi ignores — non-dotfile repo content
-# Rule: any root file/folder not prefixed dot_/private_ must be listed here.
+# Repository-only content: never materialize into $HOME
 .git*
 .github/**
-.cache
+.cache/
 
-# docs & meta
+# Documentation / agent workspace / bootstrap helpers
 docs/
 agents/
 prompts/
 setup/
-systemds/
-
-# mkdocs build artefacts
+scripts/
+migrations/
 mkdocs.yml
 site/

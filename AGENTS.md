@@ -29,7 +29,8 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- linux-automation: added mandatory workspace planning & max 2 apps/workspace organization rules. Subcommands `workspace organize` and `launch --workspace` implemented and tested.
-- nvim: config refreshed for Nvim 0.12.4; lazydev replacing neodev, native diagnostic jump, smoothscroll & undofile added, netrw disabled.
-- archmcp: Added clever gum-based interactive launcher for MCP servers (filesystem, remote desktop-commander, local_mcp).
+- chezmoi: repository is the source of truth; generated config is refreshed from `.chezmoi.toml.tmpl`; backups/caches are excluded.
+- nvim: power-user editor stack refreshed with Snacks/Which-Key/Harpoon/Persistence/DAP/Neotest/Yazi integration and project replace workflow.
+- yazi: native three-pane layout preserved; plugin expansion and `?` help binding retained.
+- package-ownership: pacman system, mise global runtimes/CLIs, pnpm JS projects, uv Python projects, cargo Rust projects.
 - next update: overwrite current-state only, max 5 lines
