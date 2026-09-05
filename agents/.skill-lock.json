@@ -15,9 +15,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/skills.git",
       "skillPath": "skills/find-skills/SKILL.md",
-      "skillFolderHash": "eb6a23305aea6e340d14b9de3766e721f9f4861b",
+      "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
       "installedAt": "2026-06-24T17:30:23.976Z",
-      "updatedAt": "2026-06-24T17:30:23.976Z"
+      "updatedAt": "2026-09-02T11:22:42.531Z"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
@@ -33,9 +33,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "037e8078db4b20b4aa25c04f21c6de7d335ec449",
+      "skillFolderHash": "82def67855a0d2aad7794207951820fa5422fdb0",
       "installedAt": "2026-08-01T19:10:56.192Z",
-      "updatedAt": "2026-08-01T19:13:55.638Z"
+      "updatedAt": "2026-09-02T11:22:44.248Z"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
@@ -79,10 +79,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "skillFolderHash": "bce229692e60dff3462e49bc5e774e83bef348e6",
-      "pluginName": "mattpocock-skills",
+      "skillFolderHash": "3d35cd438f4067b03c8b3792e038960e4ac11526",
       "installedAt": "2026-08-02T07:59:37.249Z",
-      "updatedAt": "2026-08-02T07:59:37.249Z"
+      "updatedAt": "2026-09-02T11:22:46.563Z"
     },
     "clerk-nextjs-patterns": {
       "source": "clerk/skills",
@@ -108,10 +107,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "skillFolderHash": "c817f6f36acd483294144694a935a76d3e3eb101",
-      "pluginName": "mattpocock-skills",
+      "skillFolderHash": "3df14e2d3a89459bf300614be9247e3ce74798f8",
       "installedAt": "2026-08-02T08:24:51.405Z",
-      "updatedAt": "2026-08-02T08:24:51.405Z"
+      "updatedAt": "2026-09-02T11:22:48.800Z"
     },
     "Browser Automation": {
       "source": "claude-office-skills/skills",
@@ -165,9 +163,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/neondatabase/agent-skills.git",
       "skillPath": "skills/neon-postgres/SKILL.md",
-      "skillFolderHash": "be987a4bb5b1b37d40284b1f04912dd25ac5fc13",
+      "skillFolderHash": "4c6c09525ec0f24f2949df404ab4333b64c151ad",
       "installedAt": "2026-08-07T09:06:04.551Z",
-      "updatedAt": "2026-08-07T09:06:04.551Z"
+      "updatedAt": "2026-09-02T11:22:50.929Z"
     },
     "manimce-best-practices": {
       "source": "adithya-s-k/manim_skill",
@@ -183,9 +181,27 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/shadcn-ui/ui.git",
       "skillPath": "skills/shadcn/SKILL.md",
-      "skillFolderHash": "0a31c3c2535a62b22bf23a1b10a142178a6b7dbf",
+      "skillFolderHash": "d24ae83d8555877ca133847a9d7e6d44bff51b0e",
       "installedAt": "2026-08-13T18:13:22.298Z",
-      "updatedAt": "2026-08-13T18:13:22.298Z"
+      "updatedAt": "2026-09-02T11:23:12.143Z"
+    },
+    "gpt-taste": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/leonxlnx/taste-skill.git",
+      "skillPath": "skills/gpt-tasteskill/SKILL.md",
+      "skillFolderHash": "c87d529ad945cd35985b19475bf53f41682d4f69",
+      "installedAt": "2026-08-28T06:35:56.718Z",
+      "updatedAt": "2026-08-28T06:35:56.718Z"
+    },
+    "stitch-mcp": {
+      "source": "genericservice/claude-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/genericservice/claude-skills.git",
+      "skillPath": "skills/stitch-mcp/SKILL.md",
+      "skillFolderHash": "acecb58d336e45cba5be328c7886b59c9ab36830",
+      "installedAt": "2026-08-28T07:01:34.130Z",
+      "updatedAt": "2026-08-28T07:01:34.130Z"
     }
   },
   "dismissed": {
