@@ -2,6 +2,8 @@
 -- Features: render, preview, wiki-links, tables, zen, image-paste, snippets, outline
 
 return {
+  -- 󰍔 Markdown tooling
+
 
   -- ── 1. Inline rendering (headings, code blocks, checkboxes, tables) ───────
   {
@@ -95,7 +97,7 @@ return {
       { "<leader>ol", "<cmd>Obsidian link<cr>", mode = "v", desc = "Link selection" },
       { "<leader>oL", "<cmd>Obsidian link_new<cr>", mode = "v", desc = "Link → new note" },
       { "<leader>oe", "<cmd>Obsidian extract_note<cr>", mode = "v", desc = "Extract → note" },
-      { "<leader>op", "<cmd>Obsidian paste_img<cr>", desc = "Paste image" },
+      { "<leader>op", "<cmd>Obsidian paste_img<cr>", desc = "󰍔 Paste image" },
       { "<leader>or", "<cmd>Obsidian rename<cr>", desc = "Rename + update links" },
       { "<leader>oc", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle checkbox" },
       { "<leader>oT", "<cmd>Obsidian template<cr>", desc = "Insert template" },

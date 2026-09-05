@@ -1,68 +1,33 @@
 return {
   "mfussenegger/nvim-lint",
   event = { "BufReadPre", "BufNewFile" },
-  config = function()
+  opts = {
+    linters_by_ft = {
+      python = { "ruff", "pylint" },
+      javascript = { "eslint_d" },
+      javascriptreact = { "eslint_d" },
+      typescript = { "eslint_d" },
+      typescriptreact = { "eslint_d" },
+      json = { "jsonlint" },
+      markdown = { "markdownlint" },
+      yaml = { "yamllint" },
+      shell = { "shellcheck" },
+      sh = { "shellcheck" },
+      bash = { "shellcheck" },
+      dockerfile = { "hadolint" },
+      sql = { "sqlfluff" },
+    },
+  },
+  config = function(_, opts)
     local lint = require("lint")
-
-    lint.linters_by_ft = {
-      python = { "pylint" },
-    }
-
-    local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
-
-    local function file_in_cwd(file_name)
-      return vim.fs.find(file_name, {
-        upward = true,
-        stop = vim.loop.cwd():match("(.+)/"),
-        path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
-        type = "file",
-      })[1]
-    end
-
-    local function remove_linter(linters, linter_name)
-      for k, v in pairs(linters) do
-        if v == linter_name then
-          linters[k] = nil
-          break
-        end
-      end
-    end
-
-    local function linter_in_linters(linters, linter_name)
-      for k, v in pairs(linters) do
-        if v == linter_name then
-          return true
-        end
-      end
-      return false
-    end
-
-    local function remove_linter_if_missing_config_file(linters, linter_name, config_file_name)
-      if linter_in_linters(linters, linter_name) and not file_in_cwd(config_file_name) then
-        remove_linter(linters, linter_name)
-      end
-    end
-
-    local function try_linting()
-      local linters = lint.linters_by_ft[vim.bo.filetype]
-
-      -- if linters then
-      --   -- remove_linter_if_missing_config_file(linters, "eslint_d", ".eslintrc.cjs")
-      --   remove_linter_if_missing_config_file(linters, "eslint_d", "eslint.config.js")
-      -- end
-
-      lint.try_lint(linters)
-    end
-
+    lint.linters_by_ft = opts.linters_by_ft
+    local group = vim.api.nvim_create_augroup("bharath-lint", { clear = true })
     vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-      group = lint_augroup,
+      group = group,
       callback = function()
-        try_linting()
+        lint.try_lint()
       end,
     })
-
-    vim.keymap.set("n", "<leader>l", function()
-      try_linting()
-    end, { desc = "Trigger linting for current file" })
+    vim.keymap.set("n", "<leader>cl", function() lint.try_lint() end, { desc = "Lint buffer" })
   end,
 }

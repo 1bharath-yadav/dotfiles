@@ -178,13 +178,6 @@ return {
       end,
       desc = "LSP type definitions",
     },
-    {
-      "<leader>D",
-      function()
-        Snacks.picker.diagnostics_buffer()
-      end,
-      desc = "Buffer diagnostics",
-    },
 
     -- ── LazyGit ──────────────────────────────────────────────────────
     {
@@ -264,7 +257,6 @@ return {
     { "<leader>uw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Toggle Wrap" },
     { "<leader>ud", function() Snacks.toggle.diagnostics():toggle() end, desc = "Toggle Diagnostics" },
     { "<leader>uh", function() Snacks.toggle.inlay_hints():toggle() end, desc = "Toggle Inlay Hints" },
-    { "<leader>I", function() Snacks.toggle.indent():toggle() end, desc = "Toggle Indent Guides" },
     {
       "<leader>uz",
       function()
@@ -287,13 +279,6 @@ return {
         Snacks.scratch()
       end,
       desc = "Toggle scratch buffer",
-    },
-    {
-      "<leader>S",
-      function()
-        Snacks.scratch.select()
-      end,
-      desc = "Select scratch buffer",
     },
 
     -- ── Git browse ──────────────────────────────────────────────────

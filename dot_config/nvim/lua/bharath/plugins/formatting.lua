@@ -1,39 +1,45 @@
 return {
   "stevearc/conform.nvim",
-  event = { "BufReadPre", "BufNewFile" },
-  config = function()
-    local conform = require("conform")
-
-    conform.setup({
-      formatters_by_ft = {
-        javascript = { "prettier" },
-        typescript = { "prettier" },
-        javascriptreact = { "prettier" },
-        typescriptreact = { "prettier" },
-        svelte = { "prettier" },
-        css = { "prettier" },
-        html = { "prettier" },
-        json = { "prettier" },
-        yaml = { "prettier" },
-        markdown = { "prettier" },
-        graphql = { "prettier" },
-        liquid = { "prettier" },
-        lua = { "stylua" },
-        python = { "isort", "black" },
+  event = { "BufWritePre" },
+  opts = {
+    formatters_by_ft = {
+      lua = { "stylua" },
+      python = { "ruff_format", "black", stop_after_first = true },
+      javascript = { "prettierd", "prettier", stop_after_first = true },
+      typescript = { "prettierd", "prettier", stop_after_first = true },
+      javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+      typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+      json = { "jq", "prettier", stop_after_first = true },
+      jsonc = { "prettier" },
+      yaml = { "prettier" },
+      markdown = { "prettier" },
+      sh = { "shfmt" },
+      bash = { "shfmt" },
+      rust = { "rustfmt" },
+      go = { "gofmt" },
+      c = { "clang_format" },
+      cpp = { "clang_format" },
+      java = { "google-java-format" },
+      sql = { "sql_formatter" },
+    },
+    formatters = {
+      ruff_format = {
+        command = "ruff",
+        args = { "format", "--stdin-filename", "$FILENAME", "-" },
+        stdin = true,
       },
-      format_on_save = {
-        lsp_fallback = true,
-        async = false,
-        timeout_ms = 3000,
+      sql_formatter = {
+        command = "sql-formatter",
+        args = { "-l", "postgresql" },
+        stdin = true,
       },
-    })
-
-    vim.keymap.set({ "n", "v" }, "<leader>mp", function()
-      conform.format({
-        lsp_fallback = true,
-        async = false,
-        timeout_ms = 1000,
-      })
-    end, { desc = "Format file or range (in visual mode)" })
-  end,
+    },
+    format_on_save = {
+      timeout_ms = 3000,
+      lsp_fallback = true,
+    },
+  },
+  keys = {
+    { "<leader>cf", function() require("conform").format({ async = true, lsp_fallback = true }) end, desc = "Format buffer" },
+  },
 }

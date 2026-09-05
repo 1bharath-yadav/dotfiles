@@ -1,20 +1,23 @@
 return {
   "folke/which-key.nvim",
   event = "VeryLazy",
-  init = function()
-    vim.o.timeout = true
-    vim.o.timeoutlen = 500
-  end,
   opts = {
+    preset = "modern",
+    delay = 300,
     spec = {
-      { "<leader>b", group = "Buffers" },
-      { "<leader>f", group = "Find / Picker" },
-      { "<leader>g", group = "Git" },
-      { "<leader>h", group = "Git Hunks" },
-      { "<leader>s", group = "Search / Replace" },
-      { "<leader>t", group = "Tabs" },
-      { "<leader>u", group = "UI Toggles" },
-      { "<leader>x", group = "Trouble / Diagnostics" },
+      { "<leader>c", group = "󰒓 Code" },
+      { "<leader>d", group = "󰃤 Debug" },
+      { "<leader>f", group = "󰱼 Find / Files" },
+      { "<leader>g", group = "󰊢 Git" },
+      { "<leader>h", group = "󱡅 Harpoon" },
+      { "<leader>m", group = "󰍔 Markdown" },
+      { "<leader>o", group = "󱞁 Obsidian" },
+      { "<leader>s", group = "󰱼 Search / Replace" },
+      { "<leader>t", group = "󰙨 Tests / Tabs" },
+      { "<leader>u", group = "󰔡 UI" },
+      { "<leader>w", group = "󱂬 Windows / Workspace" },
+      { "<leader>x", group = "󰒡 Diagnostics" },
+      { "<leader>?", desc = "󰋖 Keymap help" },
     },
   },
 }
