@@ -1,0 +1,16 @@
+[Unit]
+Description=Paperclip AI Agent Company
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/archer
+Environment=HOME=/home/archer
+Environment=PATH=/home/archer/.local/bin:/home/archer/.local/share/mise/installs/node/latest/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/archer/.local/bin/paperclipai run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

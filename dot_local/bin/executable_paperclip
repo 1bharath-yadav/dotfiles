@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="$HOME/.local/bin:$HOME/.local/share/mise/installs/node/latest/bin:/usr/local/bin:/usr/bin:/bin"
+
+CLI="$HOME/.local/bin/paperclipai"
+if [ ! -x "$CLI" ]; then
+  CLI="$HOME/.paperclip/cli/installs/npm/2026.824.1/node_modules/paperclipai/dist/index.js"
+  exec node "$CLI" "$@"
+fi
+exec "$CLI" "$@"
