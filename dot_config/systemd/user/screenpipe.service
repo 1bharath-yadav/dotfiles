@@ -1,0 +1,15 @@
+[Unit]
+Description=screenpipe — always-on capture/serve
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+ExecStart=/usr/bin/mise exec -- screenpipe record --disable-telemetry --audio-transcription-engine disabled
+Restart=always
+RestartSec=5
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
