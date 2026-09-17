@@ -29,7 +29,6 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- chezmoi: repository is the source of truth; generated config is refreshed from `.chezmoi.toml.tmpl`; backups/caches are excluded.
-- datui: power-user configuration, GitHub trending-repos workflow script, and schema template applied via chezmoi.
-- package-ownership: pacman system, mise global runtimes/CLIs, pnpm JS projects, uv Python projects, cargo Rust projects.
+- chezmoi: repository source of truth; applied changes to `dot_config/mise/config.toml`.
+- mise: added npm:@wonderwhy-er/desktop-commander@latest to tools and verified installation.
 - next update: overwrite current-state only, max 5 lines

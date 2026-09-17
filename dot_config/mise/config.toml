@@ -24,6 +24,8 @@ rust = "stable"
 "npm:@google/gemini-cli" = "latest"
 "npm:@googleworkspace/cli" = "latest"
 "npm:screenpipe" = "latest"
+"npm:@wonderwhy-er/desktop-commander" = "latest"
+
 
 
 "copilot-cli" = "latest"
