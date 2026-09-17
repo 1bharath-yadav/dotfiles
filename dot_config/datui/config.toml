@@ -1,0 +1,113 @@
+# datui configuration file
+# Managed by chezmoi — source: ~/.dotfiles/dot_config/datui/config.toml
+# Documentation: https://derekwisong.github.io/datui/latest/user-guide/configuration.html
+
+[file_loading]
+delimiter = null
+has_header = null
+parse_dates = true
+parse_strings = true
+parse_strings_sample_rows = 5000
+infer_schema_length = 10000
+ignore_errors = false
+single_spine_schema = true
+decompress_in_memory = false
+
+[display]
+unicode = "auto"
+row_numbers = true
+row_start_index = 1
+dtype_row = true
+column_colors = true
+align_numeric_right = true
+table_cell_padding = 2
+pages_lookahead = 4
+pages_lookback = 4
+max_buffered_rows = 200000
+max_buffered_mb = 1024
+
+[display.number_format]
+grouping = "thousands"
+group_separator = ","
+decimal_separator = "."
+floats = true
+exclude_columns = [
+    "*_id",
+    "*_code",
+    "year",
+    "date",
+    "port",
+    "zip*",
+    "status",
+    "version",
+]
+
+[performance]
+event_poll_interval_ms = 16
+polars_streaming = true
+sampling_threshold = 2000000
+
+[chart]
+row_limit = 50000
+
+[data]
+directories = ["~", "~/datasets", "~/Downloads", "~/Documents"]
+use_desktop_recents = true
+
+[data.search]
+enabled = true
+max_depth = 8
+max_results = 25000
+time_budget_ms = 2000
+cross_filesystems = false
+follow_gitignore = true
+skip_extra = [
+    ".cache",
+    ".local",
+    ".cargo",
+    ".rustup",
+    "node_modules",
+    "target",
+    "dist",
+    "build",
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+]
+
+[query]
+history_limit = 2000
+enable_history = true
+
+[templates]
+auto_apply = true
+
+[theme]
+mode = "dark"
+
+[theme.colors]
+keybind_hints = "cyan"
+keybind_labels = "indexed(252)"
+throbber = "cyan"
+primary_chart_series_color = "cyan"
+secondary_chart_series_color = "indexed(245)"
+success = "green"
+error = "red"
+warning = "yellow"
+dimmed = "dark_gray"
+background = "default"
+surface = "default"
+controls_bg = "indexed(236)"
+table_header = "white"
+table_header_bg = "indexed(237)"
+column_separator = "indexed(239)"
+alternate_row_color = "indexed(235)"
+table_selected = "reversed"
+
+str_col = "green"
+int_col = "cyan"
+float_col = "bright_cyan"
+bool_col = "yellow"
+temporal_col = "magenta"
+binary_col = "dark_gray"

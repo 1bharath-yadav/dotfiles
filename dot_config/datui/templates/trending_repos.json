@@ -1,0 +1,31 @@
+{
+  "id": "trending-repos",
+  "name": "Trending Repositories",
+  "description": "Optimized view for GitHub trending repositories: sorted by stars gained today with status and language locked",
+  "created": 1789645189,
+  "usage_count": 1,
+  "match_criteria": {
+    "filename_pattern": "*trending-repos*"
+  },
+  "settings": {
+    "query": null,
+    "sql_query": null,
+    "fuzzy_query": null,
+    "filters": [],
+    "sort_columns": [
+      "stars_today"
+    ],
+    "sort_ascending": false,
+    "column_order": [
+      "status",
+      "language",
+      "stars_today",
+      "stars",
+      "repository",
+      "date",
+      "description",
+      "notes"
+    ],
+    "locked_columns_count": 2
+  }
+}

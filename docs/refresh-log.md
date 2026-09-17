@@ -9,3 +9,4 @@
 2026-07-31 | mise | 2026.7.17 | agent: GPT-5.4 mini
 2026-08-04 | nvim | 0.12.4 | agent: config-refresh
 2026-08-30 | yazi | 26.8.15 | agent: GPT-5.6 Luna
+2026-09-17 | datui | 0.3.2 | agent: config-refresh

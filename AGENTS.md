@@ -30,6 +30,6 @@
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
 - chezmoi: repository is the source of truth; generated config is refreshed from `.chezmoi.toml.tmpl`; backups/caches are excluded.
-- screenpipe: user systemd service managed in chezmoi using `mise exec` to prevent version path rot.
+- datui: power-user configuration, GitHub trending-repos workflow script, and schema template applied via chezmoi.
 - package-ownership: pacman system, mise global runtimes/CLIs, pnpm JS projects, uv Python projects, cargo Rust projects.
 - next update: overwrite current-state only, max 5 lines
