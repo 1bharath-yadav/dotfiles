@@ -3,11 +3,10 @@
 # Documentation: https://derekwisong.github.io/datui/latest/user-guide/configuration.html
 
 [file_loading]
-parse_dates = true
-parse_strings = true
-parse_strings_sample_rows = 5000
-infer_schema_length = 10000
-ignore_errors = false
+parse_dates = false
+parse_strings = false
+infer_schema_length = 1000
+ignore_errors = true
 single_spine_schema = true
 decompress_in_memory = false
 
