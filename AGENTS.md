@@ -29,6 +29,6 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- chezmoi: repository source of truth; applied changes to `dot_config/mise/config.toml`.
-- mise: added npm:@wonderwhy-er/desktop-commander@latest to tools and verified installation.
+- desktop-commander: switched systemd service to `/usr/bin/mise exec -- desktop-commander remote --persist-session`.
+- systemd: reloaded daemon, restarted service, confirmed active and connected.
 - next update: overwrite current-state only, max 5 lines
