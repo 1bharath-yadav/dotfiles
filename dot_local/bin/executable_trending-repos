@@ -26,7 +26,7 @@ datui_args=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -r|--refresh)
+        -r|--r|--refresh)
             refresh=1
             shift
             ;;

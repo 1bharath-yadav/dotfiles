@@ -3,8 +3,6 @@
 # Documentation: https://derekwisong.github.io/datui/latest/user-guide/configuration.html
 
 [file_loading]
-delimiter = null
-has_header = null
 parse_dates = true
 parse_strings = true
 parse_strings_sample_rows = 5000
