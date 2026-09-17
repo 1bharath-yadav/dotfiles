@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 # Fetch, normalize, and display trending GitHub repositories in datui
-CACHE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/trending-repos.tsv"
-mkdir -p "${CACHE_FILE%/*}"
-curl -fsSL "https://raw.githubusercontent.com/sanand0/til/refs/heads/main/trending-repos.tsv" | awk -F'\t' 'BEGIN {OFS="\t"; print "status\tlanguage\tstars\tstars_today\tdate\trepository\tdescription\tnotes"} {print $1, $2, $3, $4, $5, $6, $7, $8}' > "$CACHE_FILE"
-exec datui "$CACHE_FILE" --format tsv "$@"
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/trending-repos.csv"
+mkdir -p "${CACHE%/*}"
+
+if [[ "${1:-}" =~ ^(-r|--r|--refresh)$ ]] || [[ ! -f "$CACHE" ]] || test "$(find "$CACHE" -mmin +360 2>/dev/null)"; then
+    [[ "${1:-}" =~ ^(-r|--r|--refresh)$ ]] && shift
+    curl -fsSL "https://raw.githubusercontent.com/sanand0/til/refs/heads/main/trending-repos.tsv" | python3 -c "
+import sys, csv
+reader = csv.reader(sys.stdin, delimiter='\t')
+with open('$CACHE', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerow(['status', 'language', 'stars', 'stars_today', 'date', 'repository', 'description', 'notes'])
+    for r in reader:
+        writer.writerow([r[i].strip() if i < len(r) else '' for i in range(8)])
+"
+fi
+
+exec datui "$CACHE" "$@"
