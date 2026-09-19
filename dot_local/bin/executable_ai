@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Multi-provider CDP CLI router for ChatGPT, Claude, Gemini, DeepSeek, and Z.ai
+# Multi-provider CDP CLI router for ChatGPT, Claude, Gemini, DeepSeek, Z.ai, MiniMax, Kimi, Grok, Qwen
 AGENTS_DIR=""
-if [[ -d "$HOME/.agents/skills/cdp-agents" ]]; then
+if [[ -d "$HOME/projects/cdp-agents" ]]; then
+    AGENTS_DIR="$HOME/projects/cdp-agents"
+elif [[ -d "$HOME/.agents/skills/cdp-agents" ]]; then
     AGENTS_DIR="$HOME/.agents/skills/cdp-agents"
 elif [[ -d "$HOME/.dotfiles/agents/skills/cdp-agents" ]]; then
     AGENTS_DIR="$HOME/.dotfiles/agents/skills/cdp-agents"
 else
-    echo "Error: cdp-agents directory not found in ~/.agents or ~/.dotfiles" >&2
+    echo "Error: cdp-agents directory not found in ~/projects, ~/.agents, or ~/.dotfiles" >&2
     exit 1
 fi
 
@@ -21,6 +23,10 @@ case "$BN" in
     gemini*|ai-gemini) PROVIDER="gemini" ;;
     deepseek*|ai-deepseek) PROVIDER="deepseek" ;;
     zai*|z-ai*|ai-zai) PROVIDER="zai" ;;
+    minimax*|ai-minimax) PROVIDER="minimax" ;;
+    kimi*|ai-kimi) PROVIDER="kimi" ;;
+    grok*|ai-grok) PROVIDER="grok" ;;
+    qwen*|ai-qwen) PROVIDER="qwen" ;;
 esac
 
 # Parse provider override flags
@@ -41,6 +47,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         --zai|--z-ai)
             PROVIDER="zai"
+            shift
+            ;;
+        --minimax)
+            PROVIDER="minimax"
+            shift
+            ;;
+        --kimi)
+            PROVIDER="kimi"
+            shift
+            ;;
+        --grok)
+            PROVIDER="grok"
+            shift
+            ;;
+        --qwen)
+            PROVIDER="qwen"
             shift
             ;;
         --chatgpt)
@@ -76,6 +98,18 @@ case "$PROVIDER" in
         ;;
     zai|z-ai)
         SCRIPT="$AGENTS_DIR/zai/zai.py"
+        ;;
+    minimax)
+        SCRIPT="$AGENTS_DIR/minimax/minimax.py"
+        ;;
+    kimi)
+        SCRIPT="$AGENTS_DIR/kimi/kimi.py"
+        ;;
+    grok)
+        SCRIPT="$AGENTS_DIR/grok/grok.py"
+        ;;
+    qwen)
+        SCRIPT="$AGENTS_DIR/qwen/qwen.py"
         ;;
     chatgpt|*)
         SCRIPT="$AGENTS_DIR/chatgpt/chatgpt.py"
