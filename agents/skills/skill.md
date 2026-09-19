@@ -1,8 +1,11 @@
 # skill.md — Master Agent Skill File
+
 # Stored at: ~/.dotfiles/agents/skill.md (public repo)
+
 # When a section outgrows this file, split into <name>.skill.md and reference here.
 
 ## Purpose
+
 Central skill registry for AI agents working with this dotfiles environment.
 Agents read this to understand available skills, delegation patterns, and operating rules.
 
@@ -11,6 +14,7 @@ Agents read this to understand available skills, delegation patterns, and operat
 ## Available Skills
 
 ### config-refresh
+
 - **File**: [config-refresh.skill.md](./config-refresh.skill.md)
 - **Trigger**: "refresh config for <pkg>" / "deep update <pkg>"
 - **Purpose**: Deep-research and apply optimized config updates for any CLI/TUI/desktop package
@@ -18,6 +22,7 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Output**: Updated config + `docs/packages/<pkg>/usage.md`
 
 ### gate-study
+
 - **File**: [gate-study.skill.md](./gate-study.skill.md)
 - **Trigger**: "optimize my GATE plan" / "what should I study today"
 - **Purpose**: Manage, optimize, and evolve GATE DA preparation — sprint scheduling, mock analysis, daily targets
@@ -25,24 +30,28 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Output**: Updated study plan, mock analysis, daily/weekly study targets
 
 ### health
+
 - **File**: [health.skill.md](./health.skill.md)
 - **Trigger**: "check my health routine" / "I'm feeling low energy"
 - **Purpose**: Track exercise, meditation, sleep, nutrition as capacity-creation activities
 - **Output**: Weekly health scores in `~/til/spaces/habits/`
 
 ### news-digest
+
 - **File**: [news-digest.skill.md](./news-digest.skill.md)
 - **Trigger**: "what happened this week" / "run news digest"
 - **Purpose**: 3 hrs/week curated news — AI/ML, job market, open source, science
 - **Output**: Weekly digest in `~/til/wiki/social/digest-YYYY-Www.md`
 
 ### ideas
+
 - **File**: [ideas.skill.md](./ideas.skill.md)
 - **Trigger**: "idea time" / "rate my idea" / "review my ideas"
 - **Purpose**: Daily 3-idea generation practice, weekly rating, monthly incubation review
 - **Output**: Ideas in `~/til/notelab/ideas.md`, promoted to `~/til/spaces/ideas.md`
 
 ### linux-control
+
 - **File**: [linux-control/SKILL.md](./linux-control/SKILL.md)
 - **Trigger**: "click button" / "type in app" / "move cursor" / "locate UI text" / "take screenshot" / "toggle scratchpad"
 - **Purpose**: Native Wayland input control and 5-tier element locators via CLI tools (`input.py`, `locator.py`, `capture.py`).
@@ -50,22 +59,34 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Output**: Input execution, screen captures, element coordinates, Hyprland dispatches.
 
 ### linux-automation
+
 - **File**: [linux-automation/SKILL.md](./linux-automation/SKILL.md)
 - **Trigger**: "start coding" / "open research environment" / "presentation mode" / "system maintenance" / "run desktop workflow"
 - **Purpose**: High-level workflow macro orchestration, flock resource locks (`scheduler.py`), and watchdog monitoring (`watchdog.py`).
 - **Reads**: `references/macros.md`, `evals/evals.json`
 - **Output**: Multi-step workspace automation routines, resource locking, hung app recovery.
+
+### cdp-agents
+
+- **File**: [cdp-agents.skill.md](./cdp-agents.skill.md)
+- **Trigger**: "run web ai" / "ask claude/gemini/deepseek/chatgpt" / "generate image with flux/imagen" / "generate video with hailuo"
+- **Purpose**: Direct WebSocket CDP router for 12 frontier AI web platforms with zero focus stealing, multimodal generation, and speech pipelines.
+- **Reads**: `~/projects/cdp-agents`, `~/.local/bin/ai`, `~/.config/xoy/routing.json`
+- **Output**: Model inferences, generated assets (images, videos), artifacts extraction, and duplex voice sessions.
+
 ---
 
 ## Delegation Patterns
 
 ### How Bharath delegates to agents
+
 1. Batches questions/thoughts during study blocks (writes them down)
 2. Processes batch in 10% time window
 3. Expects: quick summary of what was done, no manual reading required
 4. Prefers: discuss → plan → confirm → implement (for anything non-trivial)
 
 ### What agents should auto-handle (no confirmation needed)
+
 - Reading files for context
 - Searching documentation
 - Generating summaries
@@ -73,6 +94,7 @@ Agents read this to understand available skills, delegation patterns, and operat
 - Updating optima.md status log
 
 ### What requires confirmation
+
 - Any file write outside agents/, docs/
 - Git commits and pushes
 - Config changes to live dotfiles
@@ -84,30 +106,34 @@ Agents read this to understand available skills, delegation patterns, and operat
 ## Operating Rules
 
 ### File Locations
-| File | Path | Visibility | Purpose |
-|------|------|-----------|---------|
-| This file | `~/.dotfiles/agents/skill.md` | Public (GitHub) | Skill registry |
-| Sub-skills | `~/.dotfiles/agents/*.skill.md` | Public | Individual skill definitions |
-| USER.md | `~/til/wiki/schema/USER.md` | Private | Personal details, schedule, context |
-| MEMORY.md | `~/til/wiki/schema/MEMORY.md` | Private | Cross-agent shared memory |
-| SOUL.md | `~/til/wiki/schema/SOUL.md` | Private | Agent persona + routing rules |
-| optima.md | `~/til/optima.md` | Private | Long-term goals + current status |
-| study.md | `~/til/study.md` | Private | GATE study plan + schedule |
-| Agent docs | `~/.dotfiles/docs/skills/` | Public | Usage guides for future self |
+
+| File       | Path                            | Visibility      | Purpose                             |
+| ---------- | ------------------------------- | --------------- | ----------------------------------- |
+| This file  | `~/.dotfiles/agents/skill.md`   | Public (GitHub) | Skill registry                      |
+| Sub-skills | `~/.dotfiles/agents/*.skill.md` | Public          | Individual skill definitions        |
+| USER.md    | `~/til/wiki/schema/USER.md`     | Private         | Personal details, schedule, context |
+| MEMORY.md  | `~/til/wiki/schema/MEMORY.md`   | Private         | Cross-agent shared memory           |
+| SOUL.md    | `~/til/wiki/schema/SOUL.md`     | Private         | Agent persona + routing rules       |
+| optima.md  | `~/til/optima.md`               | Private         | Long-term goals + current status    |
+| study.md   | `~/til/study.md`                | Private         | GATE study plan + schedule          |
+| Agent docs | `~/.dotfiles/docs/skills/`      | Public          | Usage guides for future self        |
 
 ### Session Start Reads (for any agent)
+
 1. `~/.dotfiles/agents/skill.md` (this file) — what skills exist
 2. `~/til/wiki/schema/USER.md` — who is Bharath, current state
 3. `~/til/wiki/schema/MEMORY.md` — what happened recently
 4. `~/til/optima.md` — summary block (first 10 lines) for current priorities
 
 ### Chezmoi Rules
+
 - Dotfiles source is `~/.dotfiles/`, never edit live `~/.config/` directly
 - Branch: `chizmoi`
 - New root files not prefixed `dot_`/`private_` must be added to `.chezmoiignore`
 - `agents/` and `docs/` are already in `.chezmoiignore`
 
 ### Commit Convention
+
 ```
 git status --short
 git add <specific-files>
@@ -116,19 +142,11 @@ git push origin chizmoi
 ```
 
 ### Privacy Rules
+
 - `~/.dotfiles` is public on GitHub — NO private data in agents/ or docs/
 - Private data goes in `~/til/` (not pushed to GitHub)
 - Never commit plaintext secrets or private keys
 - Encrypt repo secrets as `*.age` (native age first, ssh fallback)
-
----
-
-## Tracking (planned)
-
-- **Anki stats**: via AnkiConnect (port 8765) — script to build
-- **Git commits**: `git log --oneline --since` on dotfiles and til repos
-- **Study time**: manual log in `~/til/notelab/capture.md`
-- **Config refresh**: logged in `~/.dotfiles/docs/refresh-log.md`
 
 ---
 
