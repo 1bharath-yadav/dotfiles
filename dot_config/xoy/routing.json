@@ -2,12 +2,10 @@
   "defaults": {
     "livemode": {
       "project": "assistant",
-      "fallback_project": "tmp",
       "max_turns": 50
     },
     "tts": {
       "project": "tts-stt",
-      "fallback_project": "tmp",
       "max_turns": 25
     },
     "stt": {
@@ -16,11 +14,10 @@
     },
     "imgen": {
       "project": "images",
-      "fallback_project": "tmp",
       "max_turns": 20
     },
     "adhoc": {
-      "default_project": "tmp"
+      "default_project": null
     }
   },
   "providers": {
