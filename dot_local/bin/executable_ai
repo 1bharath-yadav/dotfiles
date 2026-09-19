@@ -1,15 +1,90 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Shim for chatgpt.py CDP agent
-SCRIPT=""
-if [[ -f "$HOME/.agents/skills/cdp-agents/chatgpt/chatgpt.py" ]]; then
-    SCRIPT="$HOME/.agents/skills/cdp-agents/chatgpt/chatgpt.py"
-elif [[ -f "$HOME/.dotfiles/agents/skills/cdp-agents/chatgpt/chatgpt.py" ]]; then
-    SCRIPT="$HOME/.dotfiles/agents/skills/cdp-agents/chatgpt/chatgpt.py"
+# Multi-provider CDP CLI router for ChatGPT, Claude, Gemini, DeepSeek, and Z.ai
+AGENTS_DIR=""
+if [[ -d "$HOME/.agents/skills/cdp-agents" ]]; then
+    AGENTS_DIR="$HOME/.agents/skills/cdp-agents"
+elif [[ -d "$HOME/.dotfiles/agents/skills/cdp-agents" ]]; then
+    AGENTS_DIR="$HOME/.dotfiles/agents/skills/cdp-agents"
 else
-    echo "Error: chatgpt.py not found in ~/.agents or ~/.dotfiles" >&2
+    echo "Error: cdp-agents directory not found in ~/.agents or ~/.dotfiles" >&2
     exit 1
 fi
 
-exec python3 "$SCRIPT" "$@"
+BN="$(basename "$0")"
+PROVIDER="chatgpt"
+
+# Check invocation alias
+case "$BN" in
+    claude*|ai-claude) PROVIDER="claude" ;;
+    gemini*|ai-gemini) PROVIDER="gemini" ;;
+    deepseek*|ai-deepseek) PROVIDER="deepseek" ;;
+    zai*|z-ai*|ai-zai) PROVIDER="zai" ;;
+esac
+
+# Parse provider override flags
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --claude)
+            PROVIDER="claude"
+            shift
+            ;;
+        --gemini)
+            PROVIDER="gemini"
+            shift
+            ;;
+        --deepseek)
+            PROVIDER="deepseek"
+            shift
+            ;;
+        --zai|--z-ai)
+            PROVIDER="zai"
+            shift
+            ;;
+        --chatgpt)
+            PROVIDER="chatgpt"
+            shift
+            ;;
+        --provider|-P)
+            if [[ $# -ge 2 ]]; then
+                PROVIDER="$2"
+                shift 2
+            else
+                ARGS+=("$1")
+                shift
+            fi
+            ;;
+        *)
+            ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+SCRIPT=""
+case "$PROVIDER" in
+    claude)
+        SCRIPT="$AGENTS_DIR/claude/claude.py"
+        ;;
+    gemini)
+        SCRIPT="$AGENTS_DIR/gemini/gemini.py"
+        ;;
+    deepseek)
+        SCRIPT="$AGENTS_DIR/deepseek/deepseek.py"
+        ;;
+    zai|z-ai)
+        SCRIPT="$AGENTS_DIR/zai/zai.py"
+        ;;
+    chatgpt|*)
+        SCRIPT="$AGENTS_DIR/chatgpt/chatgpt.py"
+        ;;
+esac
+
+if [[ ! -f "$SCRIPT" ]]; then
+    echo "Error: Provider script not found: $SCRIPT" >&2
+    exit 1
+fi
+
+exec python3 "$SCRIPT" "${ARGS[@]}"

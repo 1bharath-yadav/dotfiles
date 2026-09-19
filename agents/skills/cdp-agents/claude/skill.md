@@ -3,55 +3,63 @@ name: cdp-claude
 description: Drive an already-authenticated Claude.ai tab through Chrome CDP.
 ---
 
-# Claude CDP agent
+# Claude CDP Agent
 
-Target: `https://claude.ai` through an existing Chrome CDP endpoint.
+Direct page-socket CDP adapter for `https://claude.ai` without `agent-browser` and zero window-focus stealing.
 
-## Required capabilities
-- Select project
-- Select attachments
-- Send prompt
-- Receive completed response
+## Capabilities
+- Select project container (`--project <name_or_uuid>`)
+- Attach local files via CDP `DOM.setFileInputFiles` (`--attach <path>`)
+- Send text prompts and stream responses to completion
+- Extract code artifacts from split-screen panel (`--artifacts`)
+- List discovered projects in sidebar (`--list-projects`)
+- Start fresh conversation (`--new`)
+- Health check and authentication verification (`--check`)
+- Note: Claude does **not** generate images or support live voice mode.
 
-## Verified DOM
-- Composer: semantic label `Write your prompt to Claude`
-- Project controls are exposed as buttons/links with visible project names.
-- Attachment control: `Add files, connectors, and more`
-- Current chat responses appear as `article` nodes with `Claude responded:` text.
+## Verified DOM Selectors
+- **Composer:** `div.ProseMirror[contenteditable="true"]` (focus-safe input via `document.execCommand('insertText')`)
+- **Send Button:** `button[aria-label="Send message"], button[data-testid="send-button"]`
+- **Stop Button:** `button[aria-label*="Stop response" i], button[data-testid="stop-button"]`
+- **Attachment Trigger:** `button[aria-label*="Add files" i]`
+- **File Input:** `input[type="file"]`
+- **Projects Links:** `a[href*="/project/"]` with project name in `span.min-w-0.truncate`
+- **Artifact Panel:** `div[data-testid="artifact-panel"], aside`
+- **Artifact Code Tab:** `button[role="tab"][aria-label*="Code" i]`
+- **Assistant Message:** `.font-claude-response, .font-claude-message, [data-testid="ai-message"]`
+- **Response Markdown:** `.standard-markdown, .progressive-markdown, .markdown, .prose`
+- **Streaming Indicator:** `[data-is-streaming="true"]` or stop button presence
+- **New Chat:** `a[href="/new"]` or navigate to `https://claude.ai/new`
 
-## Interaction rules
-Use fresh snapshots after UI changes. Prefer semantic locators over generated refs.
-Do not scrape credentials or cookies. The browser must already be authenticated.
+## Usage
+```bash
+# Check connectivity and login state
+ai --claude --check
+# or
+python3 ~/.agents/skills/cdp-agents/claude/claude.py --check
 
-## CLI backend
-`claude.py` wraps the installed `agent-browser` binary over CDP port 9222.
+# List available projects
+python3 ~/.agents/skills/cdp-agents/claude/claude.py --list-projects
 
-Example:
-`python3 ~/.agents/skills/cdp-agents/claude/claude.py "hello"`
+# Send prompt to Claude
+ai --claude "Analyze this codebase architecture"
+# or
+python3 ~/.agents/skills/cdp-agents/claude/claude.py "hello Claude"
 
-Health check:
-`python3 ~/.agents/skills/cdp-agents/claude/claude.py --check`
+# Send prompt within a specific Project
+ai --claude --project hisual "Refine the chapter draft"
 
-## Project selection
-Inspect the current snapshot for the project control and select by visible project name. Keep the selector isolated in the adapter so Claude UI changes do not affect other providers.
+# Attach files
+ai --claude --attach ./data.json "Summarize this data"
 
-## Attachments
-Open `Add files, connectors, and more`, then use the resulting file chooser control. Attachment handling must remain provider-specific.
+# Extract generated artifact code
+ai --claude --artifacts "Create a React timer component"
 
-## Response handling
-After send, resnapshot until a new assistant `article` appears and its content stabilizes. Strip UI chrome and return the assistant text only.
+# Start fresh conversation
+ai --claude --new "New topic prompt"
+```
 
-## Verified Claude selectors
-- Project navigation: `span.min-w-0.truncate` exact text inside an `<a>`; verified `hisual` href `/project/019fbc23-f1ce-73c9-bcb5-9ecadaebf983`.
-- Composer: semantic label `Write your prompt to Claude`; verified fill + Enter.
-- Attachments control: `Add files, connectors, and more`; file input should be discovered after opening it rather than hardcoded.
-- Response: `article` containing `Claude responded:`; ignore `Currently streaming message` until it disappears.
-
-## Project semantics
-Do not confuse a conversation title with a project name. A project is selected by clicking the project link after opening Projects.
-
-## Account switching
-Use the installed Claude Account Switcher as the session authority. The adapter does not read, print, or manage cookie values. It may use the extension bridge only for `GET_PROFILES` and `SWITCH_PROFILE` so it can rotate to the next saved account. The adapter detects Claude's visible quota message (`You are out of free messages`) and then switches and retries the original prompt once by default. Do not rotate based on an arbitrary response-time threshold.
-
-## Research
-`vercel-labs/agent-browser` recommends semantic locators/refs and fresh snapshots after DOM changes. A community Claude.ai adapter also uses fallback chains for prompt, send, stop, response, and file inputs; use it only as a hint, then revalidate selectors against the live DOM.
+## Architecture & Safety
+- Operates directly over page-level WebSockets via `cdp_page.py`.
+- Never calls `Page.bringToFront` or `Target.activateTarget`; safely runs in background or headless (`XOY_HEADLESS=1`).
+- Quota handling: Detects `You are out of free messages` and reports exhaustion immediately.

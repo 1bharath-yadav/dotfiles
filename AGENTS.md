@@ -29,10 +29,10 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- cdp-engine: direct page-socket CDP without agent-browser; headless UA spoofing.
+- cdp-engine: direct page-socket CDP for ChatGPT, Claude, Gemini, DeepSeek, Z.ai.
 - speech: Super+H live voice, Super+Alt+H stt (wtype+Quickshell HUD), and --tts narration.
-- routing: dual-tab CDP with project routing (assistant, tts-stt, tmp), auto-rotation.
-- cli: ~/.local/bin/ai shim with piped stdin support.
-- imgen: added --imgen with auto-download (-o) via in-browser authenticated fetch.
+- providers: projects (ChatGPT/Claude), gems (Gemini), reasoner/search (DeepSeek/Z.ai).
+- cli: ~/.local/bin/ai multi-provider router with dedicated shims.
+- imgen: --imgen with auto-download (-o) for ChatGPT (DALL-E) and Gemini (Imagen 3).
 
 

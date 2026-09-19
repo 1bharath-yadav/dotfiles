@@ -23,6 +23,26 @@
       "default_project": "tmp"
     }
   },
+  "providers": {
+    "claude": {
+      "default_project": null,
+      "max_turns": 30
+    },
+    "gemini": {
+      "default_gem": null,
+      "max_turns": 30
+    },
+    "deepseek": {
+      "default_think": false,
+      "default_search": false,
+      "max_turns": 30
+    },
+    "zai": {
+      "default_think": false,
+      "default_search": false,
+      "max_turns": 30
+    }
+  },
   "cached_urls": {
     "tmp": "https://chatgpt.com/g/g-p-6a6db113e49c819181613beaa56855f8-tmp/project",
     "linux": "https://chatgpt.com/g/g-p-68bc545907188191919da13283cb8970-linux/project",
