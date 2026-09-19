@@ -33,17 +33,35 @@ Attachment flow:
 4. Verify the filename chip appears before sending.
 
 Prompt flow:
-Use `find label "Chat with ChatGPT" fill <prompt>` and press Enter.
-Wait until generation finishes and extract the new assistant content.
+Uses `document.execCommand('insertText')` on `#prompt-textarea`, clicks `button[data-testid="send-button"]`, and polls for the new assistant response turn until generation completes.
+
+Voice / Dictation flow:
+Uses atomic `_voice_js` script via `Runtime.evaluate(..., {userGesture: true})` to toggle, start, stop, or query voice mode/dictation without window focus.
+
+TTS (Text-to-Speech) flow:
+Uses `build_tts_prompt()` to format text with the educator-narrator prompt template, sends to ChatGPT, and clicks `Read aloud` on the response to trigger audio playback.
+
+Image Generation flow:
+Uses `generate_image()` to route to project `images` (fallback `tmp`), submits prompt, waits for generation to complete, extracts the generated image from the assistant response, and downloads it in-browser via authenticated fetch to the specified output file (`-o`).
 
 Usage:
-`python3 ~/.agents/skills/cdp-agents/chatgpt/chatgpt.py --check`
-`python3 ~/.agents/skills/cdp-agents/chatgpt/chatgpt.py --project hisual "hello"`
-`python3 ~/.agents/skills/cdp-agents/chatgpt/chatgpt.py --project hisual --attach /absolute/file.txt "summarize this"`
+`ai --check`
+`ai --livemode toggle`
+`ai --livemode status`
+`ai --stt toggle`
+`ai --stt status`
+`ai --tts "Your phone buzzes twice..."`
+`ai --imgen "a neon cybernetic cat" -o cat.png`
+`ai --new "start fresh conversation"`
+`ai --list-projects`
+`ai "prompt"`
+`ai --project tmp "hello"`
+`ai --attach /absolute/file.txt "summarize this"`
 
 Safety:
 The browser must already be authenticated. Do not read or export cookies/tokens.
-Prefer semantic labels and live snapshots over generated refs because refs change.
+All actions run over page-level CDP WebSockets with zero window focus calls (`Page.bringToFront` is strictly forbidden).
 
-Research notes:
-`vercel-labs/agent-browser` documents CDP, semantic locators, and file upload support. Public ChatGPT browser automation projects use fallback selector strategies because the UI changes frequently. `DOM.setFileInputFiles` is the standard CDP mechanism for file inputs. 
+Architecture notes:
+Uses `cdp_page.py` directly for all operations without `agent-browser`. Operates seamlessly with both headed and headless (`XOY_HEADLESS=1`) Chrome browser instances.
+ 

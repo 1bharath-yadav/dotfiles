@@ -12,3 +12,4 @@ scripts/
 migrations/
 mkdocs.yml
 site/
+*.png

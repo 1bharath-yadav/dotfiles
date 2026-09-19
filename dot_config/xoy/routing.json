@@ -1,0 +1,33 @@
+{
+  "defaults": {
+    "livemode": {
+      "project": "assistant",
+      "fallback_project": "tmp",
+      "max_turns": 50
+    },
+    "tts": {
+      "project": "tts-stt",
+      "fallback_project": "tmp",
+      "max_turns": 25
+    },
+    "stt": {
+      "project": "tts-stt",
+      "use_scratch_composer": true
+    },
+    "imgen": {
+      "project": "images",
+      "fallback_project": "tmp",
+      "max_turns": 20
+    },
+    "adhoc": {
+      "default_project": "tmp"
+    }
+  },
+  "cached_urls": {
+    "tmp": "https://chatgpt.com/g/g-p-6a6db113e49c819181613beaa56855f8-tmp/project",
+    "linux": "https://chatgpt.com/g/g-p-68bc545907188191919da13283cb8970-linux/project",
+    "tts-stt": "https://chatgpt.com/g/g-p-6aaebc9600848191a0063913775ac111-tts-stt/project",
+    "assistant": "https://chatgpt.com/g/g-p-6aaebc609f4481919353ac5863244fa4-assistant/project",
+    "images": "https://chatgpt.com/g/g-p-6aaebf9969c48191bcde1a7f180d49cc-images/project"
+  }
+}

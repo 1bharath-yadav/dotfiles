@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Shim for chatgpt.py CDP agent
+SCRIPT=""
+if [[ -f "$HOME/.agents/skills/cdp-agents/chatgpt/chatgpt.py" ]]; then
+    SCRIPT="$HOME/.agents/skills/cdp-agents/chatgpt/chatgpt.py"
+elif [[ -f "$HOME/.dotfiles/agents/skills/cdp-agents/chatgpt/chatgpt.py" ]]; then
+    SCRIPT="$HOME/.dotfiles/agents/skills/cdp-agents/chatgpt/chatgpt.py"
+else
+    echo "Error: chatgpt.py not found in ~/.agents or ~/.dotfiles" >&2
+    exit 1
+fi
+
+exec python3 "$SCRIPT" "$@"

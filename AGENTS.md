@@ -29,6 +29,10 @@
 - agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
-- desktop-commander: switched systemd service to `/usr/bin/mise exec -- desktop-commander remote --persist-session`.
-- systemd: reloaded daemon, restarted service, confirmed active and connected.
-- next update: overwrite current-state only, max 5 lines
+- cdp-engine: direct page-socket CDP without agent-browser; headless UA spoofing.
+- speech: Super+H live voice, Super+Alt+H stt (wtype+Quickshell HUD), and --tts narration.
+- routing: dual-tab CDP with project routing (assistant, tts-stt, tmp), auto-rotation.
+- cli: ~/.local/bin/ai shim with piped stdin support.
+- imgen: added --imgen with auto-download (-o) via in-browser authenticated fetch.
+
+

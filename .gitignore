@@ -12,4 +12,4 @@ __pycache__/
 pre-*/
 backup-*/
 final-cleanup-*/
-
+*.png

@@ -13,6 +13,7 @@ Environment=XDG_RUNTIME_DIR=/run/user/%U
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus
 Environment=CDP_CHROME_PROFILE=%h/.config/xoy
 Environment=CDP_CHROME_PORT=9222
+Environment=XOY_HEADLESS=1
 ExecStart=%h/.local/bin/start-xoy-cdp.sh
 Restart=always
 RestartSec=5
