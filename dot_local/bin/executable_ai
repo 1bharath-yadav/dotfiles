@@ -27,6 +27,9 @@ case "$BN" in
     kimi*|ai-kimi) PROVIDER="kimi" ;;
     grok*|ai-grok) PROVIDER="grok" ;;
     qwen*|ai-qwen) PROVIDER="qwen" ;;
+    mistral*|ai-mistral) PROVIDER="mistral" ;;
+    meta*|ai-meta) PROVIDER="meta" ;;
+    copilot*|ai-copilot) PROVIDER="copilot" ;;
 esac
 
 # Parse provider override flags
@@ -63,6 +66,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         --qwen)
             PROVIDER="qwen"
+            shift
+            ;;
+        --mistral)
+            PROVIDER="mistral"
+            shift
+            ;;
+        --meta)
+            PROVIDER="meta"
+            shift
+            ;;
+        --copilot)
+            PROVIDER="copilot"
             shift
             ;;
         --chatgpt)
@@ -110,6 +125,15 @@ case "$PROVIDER" in
         ;;
     qwen)
         SCRIPT="$AGENTS_DIR/qwen/qwen.py"
+        ;;
+    mistral)
+        SCRIPT="$AGENTS_DIR/mistral/mistral.py"
+        ;;
+    meta)
+        SCRIPT="$AGENTS_DIR/meta/meta.py"
+        ;;
+    copilot)
+        SCRIPT="$AGENTS_DIR/copilot/copilot.py"
         ;;
     chatgpt|*)
         SCRIPT="$AGENTS_DIR/chatgpt/chatgpt.py"
