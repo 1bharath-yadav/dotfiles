@@ -66,6 +66,14 @@ Agents read this to understand available skills, delegation patterns, and operat
 - **Reads**: `references/macros.md`, `evals/evals.json`
 - **Output**: Multi-step workspace automation routines, resource locking, hung app recovery.
 
+### ai (Frontier AI Multi-Model Router)
+
+- **File**: [ai/SKILL.md](./ai/SKILL.md)
+- **Trigger**: "ask claude" / "ask gemini" / "ask deepseek" / "ask chatgpt" / "second opinion" / "verify with r1" / "generate image with flux/imagen" / "generate video with hailuo"
+- **Purpose**: Unified CLI router (`ai`) to query and delegate tasks to 12 frontier AI platforms (Claude 3.5 Sonnet, Gemini 2.0, DeepSeek R1, ChatGPT, Grok, Qwen, Mistral, Meta AI, Kimi, MiniMax, Z.ai, Copilot) with reasoning, search, image/video generation, and piping.
+- **Reads**: `ai --help`, `references/providers.md`, `references/recipes.md`
+- **Output**: Model responses, code reviews, deep reasoning chains, generated visual assets, and structured JSON.
+
 ### cdp-agents
 
 - **File**: [cdp-agents.skill.md](./cdp-agents.skill.md)

@@ -1,0 +1,48 @@
+{
+  "skill_name": "ai",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Ask Claude to review our local git diff for race conditions and return actionable feedback.",
+      "expected_output": "The agent routes the diff to Claude using `git diff | ai --claude -n '...'` or `ai --claude -n '...'` with fresh context flag.",
+      "files": [],
+      "expectations": [
+        "Uses the 'ai' CLI with '--claude' flag",
+        "Includes the '-n' flag to ensure a clean conversation thread",
+        "Pipes the git diff or passes it clearly to the prompt"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Verify this NP-hard scheduling proof using DeepSeek's deep thinking reasoning mode.",
+      "expected_output": "The agent uses `ai --deepseek --think '...'` to engage DeepSeek-R1's chain-of-thought.",
+      "files": [],
+      "expectations": [
+        "Uses the 'ai' CLI with '--deepseek' flag",
+        "Includes the '--think' flag to engage R1 reasoning",
+        "Avoids mention of internal WebSocket or CDP mechanics"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Generate a photorealistic cyberpunk street scene image and save it as cyberpunk.png.",
+      "expected_output": "The agent executes `ai --gemini --imgen '...' -o cyberpunk.png` or `ai --mistral --imgen '...' -o cyberpunk.png`.",
+      "files": [],
+      "expectations": [
+        "Uses '--imgen' to trigger image generation",
+        "Uses '-o cyberpunk.png' to specify the output path",
+        "Selects an image-capable provider such as Gemini, Mistral, Meta, or ChatGPT"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Check the health and readiness across all active frontier AI providers.",
+      "expected_output": "The agent executes `ai --all-check` to display the readiness status table.",
+      "files": [],
+      "expectations": [
+        "Executes 'ai --all-check'",
+        "Understands how to interpret READY vs OFFLINE statuses"
+      ]
+    }
+  ]
+}
