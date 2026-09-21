@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 REPO="${CODECAST_REPO:-$HOME/projects/1bharath-yadav}"
-CLAUDE_AGENT="${CDP_CLAUDE_AGENT:-$HOME/.agents/skills/cdp-agents/claude/claude.py}"
+CLAUDE_AGENT="${CDP_CLAUDE_AGENT:-$HOME/projects/cdp-agents/claude/claude.py}"
 cd "$REPO/week"
 [[ -f "$CLAUDE_AGENT" ]] || { echo "codecast-weekly: missing Claude CDP adapter: $CLAUDE_AGENT" >&2; exit 1; }
 export CODECAST_SCRIPT_PROVIDER=cdp-claude

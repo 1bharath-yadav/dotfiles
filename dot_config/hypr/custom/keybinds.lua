@@ -69,6 +69,6 @@ hl.bind("SUPER + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "M
 hl.bind("SUPER + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Move to left workspace" })
 
 -- ChatGPT live voice / dictation
-hl.bind("SUPER + H", hl.dsp.exec_cmd("python3 ~/.agents/skills/cdp-agents/chatgpt/chatgpt.py --livemode toggle"), { description = "ChatGPT live voice toggle" })
+hl.bind("SUPER + H", hl.dsp.exec_cmd("python3 ~/projects/cdp-agents/chatgpt/chatgpt.py --livemode toggle"), { description = "ChatGPT live voice toggle" })
 -- hl.bind("SUPER + ALT + H", hl.dsp.exec_cmd("~/.local/bin/transcribe --mode toggle"), { description = "Dictation toggle" })
-hl.bind("SUPER + ALT + H", hl.dsp.exec_cmd("python3 ~/.agents/skills/cdp-agents/chatgpt/chatgpt.py --stt toggle"), { description = "ChatGPT dictation / STT toggle" })
+hl.bind("SUPER + ALT + H", hl.dsp.exec_cmd("python3 ~/projects/cdp-agents/chatgpt/chatgpt.py --stt toggle"), { description = "ChatGPT dictation / STT toggle" })

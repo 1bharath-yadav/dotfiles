@@ -12,7 +12,7 @@ Environment="AGENT_BROWSER=%h/.local/share/mise/installs/node/latest/bin/agent-b
 Environment="CLAUDE_CDP_PORT=9222"
 Environment="XOY_DATA_DIR=%h/.config/xoy"
 Environment="CHROME_BIN=/usr/bin/google-chrome-stable"
-Environment="CDP_CLAUDE_AGENT=%h/.agents/skills/cdp-agents/claude/claude.py"
+Environment="CDP_CLAUDE_AGENT=%h/projects/cdp-agents/claude/claude.py"
 Environment="CDP_CLAUDE_PROJECT=hisual"
 Environment="CDP_CLAUDE_TIMEOUT=240"
 EnvironmentFile=-%h/.env
