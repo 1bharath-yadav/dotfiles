@@ -1,22 +1,16 @@
 [Unit]
-Description=Dedicated Google Chrome Stable CDP Browser (xoy)
+Description=xoy Chrome (CDP on :9222)
 After=graphical-session.target
 Wants=graphical-session.target
 
 [Service]
-Type=simple
-Environment=HOME=%h
-Environment=USER=%u
-Environment=DISPLAY=:1
-Environment=WAYLAND_DISPLAY=wayland-1
-Environment=XDG_RUNTIME_DIR=/run/user/%U
-Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus
-Environment=CDP_CHROME_PROFILE=%h/.config/xoy
-Environment=CDP_CHROME_PORT=9222
-Environment=XOY_HEADLESS=1
-ExecStart=%h/.local/bin/start-xoy-cdp.sh
-Restart=always
+Type=exec
+ExecStart=%h/.local/bin/start-xoy-cdp.sh --foreground
+ExecStop=%h/.local/bin/stop-xoy-cdp.sh --direct
+Restart=on-failure
 RestartSec=5
+KillMode=mixed
+TimeoutStopSec=40
 
 [Install]
 WantedBy=default.target

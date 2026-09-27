@@ -121,55 +121,10 @@ hl.window_rule({
 })
 
 --------------------------------------------------
--- CHATGPT SCRATCHPAD
---------------------------------------------------
-
-hl.window_rule({
-  match = { class = "^(chatgpt)$" },
-  float = true,
-})
-
-hl.window_rule({
-  match = { class = "^(chatgpt)$" },
-  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
-})
-
-hl.window_rule({
-  match = { class = "^(chatgpt)$" },
-  center = true,
-})
-
-hl.window_rule({
-  match = { class = "^(chatgpt)$" },
-  workspace = "special:chatgpt",
-})
-
---------------------------------------------------
--- WHATSAPP SCRATCHPAD
---------------------------------------------------
-
-hl.window_rule({
-  match = { class = "^(whatsapp)$" },
-  float = true,
-})
-
-hl.window_rule({
-  match = { class = "^(whatsapp)$" },
-  size = { "(monitor_w*0.80)", "(monitor_h*0.80)" },
-})
-
-hl.window_rule({
-  match = { class = "^(whatsapp)$" },
-  center = true,
-})
-
-hl.window_rule({
-  match = { class = "^(whatsapp)$" },
-  workspace = "special:whatsapp",
-})
-
---------------------------------------------------
 -- CHATGPT / WHATSAPP SCRATCHPADS
+-- (dedupe: was 3 separate blocks repeating the same
+-- float/size/center rules for chatgpt, whatsapp, and
+-- both together -- kept only the combined form)
 --------------------------------------------------
 
 hl.window_rule({
@@ -201,11 +156,23 @@ hl.window_rule({
 -- XOY CDP CHROME SCRATCHPAD
 --------------------------------------------------
 
--- hl.window_rule({
--- 	match = { class = "^(google-chrome)$", title = ".*" },
--- 	workspace = "special:xoy-cdp silent",
--- })
---
+hl.window_rule({
+  match = { class = "^(xoy-cdp)$" },
+  workspace = "special:xoy-cdp silent",
+})
+
+-- Fully deny keyboard/mouse focus: xoy-cdp is a headless-ish CDP
+-- automation target, it must never steal focus or react to hover.
+hl.window_rule({
+  match = { class = "^(xoy-cdp)$" },
+  no_focus = true,
+})
+
+hl.window_rule({
+  match = { class = "^(xoy-cdp)$" },
+  no_follow_mouse = true,
+})
+
 --------------------------------------------------
 -- GOOGLE CALENDAR
 --------------------------------------------------
