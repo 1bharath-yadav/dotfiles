@@ -5,10 +5,6 @@ set -euo pipefail
 AGENTS_DIR=""
 if [[ -d "$HOME/projects/cdp-agents" ]]; then
     AGENTS_DIR="$HOME/projects/cdp-agents"
-elif [[ -d "$HOME/.agents/skills/cdp-agents" ]]; then
-    AGENTS_DIR="$HOME/.agents/skills/cdp-agents"
-elif [[ -d "$HOME/.dotfiles/agents/skills/cdp-agents" ]]; then
-    AGENTS_DIR="$HOME/.dotfiles/agents/skills/cdp-agents"
 else
     echo "Error: cdp-agents directory not found in ~/projects, ~/.agents, or ~/.dotfiles" >&2
     exit 1

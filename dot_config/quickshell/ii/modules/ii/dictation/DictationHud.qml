@@ -9,9 +9,9 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// DictationHud.qml — floating real-time transcription overlay
-// Driven by ~/.local/bin/transcribe, which writes state to
-// ~/.cache/qs-dictation/{status,text} during a dictation session.
+// DictationHud.qml — floating STT status overlay (recording/transcribing).
+// Driven by cdp-agents/chatgpt/chatgpt.py's stt() (via SUPER+ALT+H), which
+// writes status to ~/.cache/qs-dictation/status during a dictation session.
 // Also reachable manually via: quickshell -c ii ipc call dictation show/hide/toggle
 
 Scope {
