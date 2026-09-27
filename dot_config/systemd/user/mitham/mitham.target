@@ -1,6 +1,5 @@
 [Unit]
-Description=Mitham Application Stack (API, Web, Cloudflare Tunnel)
-Wants=mitham-api.service mitham-web.service cloudflared-mitham.service
+Wants=cloudflared-mitham.service mitham-agy-worker.service
 After=network-online.target
 
 [Install]

@@ -1,0 +1,25 @@
+[Unit]
+Description=Mitham Agy persistent worker
+Wants=network-online.target
+After=network-online.target mitham.target
+PartOf=mitham.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/mitham
+Environment=HOME=%h
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin:%h/.local/share/mise/installs/agy/latest
+Environment=MITHAM_AGY_BIN=%h/.local/share/mise/installs/agy/latest/agy
+SyslogIdentifier=mitham-agy-worker
+ExecStart=/usr/bin/python3 %h/projects/mitham/tools/automation/agy/worker.py
+Restart=always
+RestartSec=10
+TimeoutStopSec=15
+NoNewPrivileges=yes
+PrivateTmp=yes
+UMask=0077
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=mitham.target

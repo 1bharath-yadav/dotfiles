@@ -1,13 +1,13 @@
 [Unit]
 Description=Cloudflare Tunnel for Mitham
-Wants=network-online.target mitham-api.service mitham-web.service
-After=network-online.target mitham-api.service mitham-web.service
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
 Environment=HOME=%h
 Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin
-ExecStart=/usr/bin/cloudflared tunnel run --config %h/.cloudflared/config.yml mitham
+ExecStart=/usr/bin/cloudflared tunnel --config %h/.cloudflared/config.yml run mitham
 Restart=always
 RestartSec=5
 TimeoutStopSec=15

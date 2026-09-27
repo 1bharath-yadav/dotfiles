@@ -36,3 +36,13 @@
 - imgen: --imgen with auto-download (-o) for ChatGPT, Gemini, Mistral, Meta, Copilot.
 
 
+
+## Mitham boot execution
+
+`~/.dotfiles/dot_config/systemd/user/mitham/mitham.target` is the canonical user-systemd source for Mitham services. Keep Mitham service units under `dot_config/systemd/user/mitham/`; do not add a repository-local `systemd-local/` service tree.
+
+`mitham-agy-worker.service` is an executor only. `Mitham Daily Agy` in ChatGPT remains the sole scheduler and prioritization authority. The boot worker may execute only durable lanes explicitly authorized by the control plane; it must not create queues, refill work, reprioritize tasks, or use Agy `/schedule`.
+
+Mitham production is phase-gated: continuously advance the canonical content pipeline across all configured subjects first (planning → teaching brief → concept/visualization → assessment → validation/publication). Do not begin the general video factory until the content completion gate is satisfied across the configured curriculum. After that gate, advance video work through script/narration → measured audio → director/scene/asset work → render/assembly → QA → publication. Both phases use the existing specialist roles and repository contracts; never invent duplicate workers or schedulers.
+
+For systemd changes, edit the chezmoi source under `dot_config/systemd/user/mitham/`, reload the user manager, and verify enablement/activation. Preserve unrelated dotfiles changes and never commit plaintext secrets.
