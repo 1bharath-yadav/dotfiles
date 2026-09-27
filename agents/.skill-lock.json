@@ -202,6 +202,24 @@
       "skillFolderHash": "acecb58d336e45cba5be328c7886b59c9ab36830",
       "installedAt": "2026-08-28T07:01:34.130Z",
       "updatedAt": "2026-08-28T07:01:34.130Z"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/obra/superpowers.git",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "skillFolderHash": "03d4c6657cd20ba0fce9d270fc688150bd191c3b",
+      "installedAt": "2026-09-20T09:20:23.092Z",
+      "updatedAt": "2026-09-20T09:20:23.092Z"
+    },
+    "screenpipe-cli": {
+      "source": "screenpipe/screenpipe",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/screenpipe/screenpipe.git",
+      "skillPath": ".claude/skills/screenpipe-cli/SKILL.md",
+      "skillFolderHash": "8b92254fcfe06c9c1d5a8a102d369896025d4794",
+      "installedAt": "2026-09-22T03:53:45.438Z",
+      "updatedAt": "2026-09-22T03:53:45.438Z"
     }
   },
   "dismissed": {
@@ -209,14 +227,13 @@
   },
   "lastSelectedAgents": [
     "amp",
-    "antigravity",
-    "antigravity-cli",
     "cline",
     "codex",
     "cursor",
-    "deepagents",
+    "droid",
     "gemini-cli",
     "github-copilot",
+    "kilo",
     "kimi-code-cli",
     "opencode",
     "warp",
