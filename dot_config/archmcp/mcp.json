@@ -1,0 +1,77 @@
+{
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander@latest"
+      ],
+      "enabled": true
+    },
+    "screenpipe": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "screenpipe-mcp@latest"
+      ],
+      "enabled": true
+    },
+    "blender": {
+      "command": "uvx",
+      "args": [
+        "mcp-for-blender"
+      ],
+      "enabled": true
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "enabled": false
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "enabled": false
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": false
+    },
+    "time": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time",
+        "--local-timezone",
+        "Asia/Kolkata"
+      ],
+      "enabled": false
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/archer"
+      ],
+      "enabled": false
+    },
+    "git": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "/home/archer/projects"
+      ],
+      "enabled": false
+    }
+  }
+}

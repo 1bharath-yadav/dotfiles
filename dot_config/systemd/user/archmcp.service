@@ -1,0 +1,17 @@
+[Unit]
+Description=archmcp — one OpenAI Secure MCP Tunnel for many MCP servers
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment=HOME=%h
+Environment=PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/bash -lc 'source "$HOME/.env" && exec "$HOME/.local/share/mise/shims/tunnel-client" run --profile-file "$HOME/.local/state/archmcp/tunnel-client/archmcp.yaml"'
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=default.target

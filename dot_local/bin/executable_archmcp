@@ -1,48 +1,114 @@
 #!/usr/bin/env bash
 set -euo pipefail
+CONFIG="${ARCHMCP_CONFIG:-$HOME/.config/archmcp/mcp.json}"
+PROFILE="${XDG_STATE_HOME:-$HOME/.local/state}/archmcp/tunnel-client/archmcp.yaml"
+UNIT=archmcp.service
+usage(){ cat <<'EOF'
+archmcp — manage MCP servers behind one OpenAI Secure MCP Tunnel
 
-command -v gum >/dev/null 2>&1 || { echo "archmcp: gum is required" >&2; exit 127; }
-[[ -f "$HOME/.env" ]] && source "$HOME/.env"
+  archmcp list | get NAME
+  archmcp add NAME --command CMD [--arg ARG]... [--env K=V]...
+  archmcp add NAME --url URL [--header 'K: V']...
+  archmcp remove NAME
+  archmcp enable NAME | disable NAME | toggle NAME | enable-all | disable-all
+  archmcp inspect NAME [--method METHOD] | inspect-ui
+  archmcp verify NAME | verify-all
+  archmcp restart | status
 
-declare -a LABELS=(
-  "Filesystem (/home/archer)"
-  "Desktop Commander (Remote)"
-  "Local Bash MCP (local_mcp)"
-)
-declare -a CMDS=(
-  "npx -y @modelcontextprotocol/server-filesystem /home/archer"
-  "npx -y @wonderwhy-er/desktop-commander@latest remote"
-  "local_mcp"
-)
-
-gum style --border rounded --padding '0 1' --bold 'archmcp · server launcher'
-selection="$(printf '%s\n' "${LABELS[@]}" | gum choose --no-limit --header 'Space select · Enter confirm' --cursor '▶ ')"
-[[ -n "$selection" ]] || { gum style --foreground 214 'No servers selected.'; exit 0; }
-
-pids=()
-cleanup() {
-  trap - EXIT INT TERM
-  for pid in "${pids[@]:-}"; do kill "$pid" 2>/dev/null || true; done
-  wait 2>/dev/null || true
+Each server has an enabled flag; disabling preserves its definition.
+EOF
 }
-trap cleanup EXIT INT TERM
-
-while IFS= read -r choice; do
-  [[ -n "$choice" ]] || continue
-  idx=-1
-  for i in "${!LABELS[@]}"; do
-    [[ "${LABELS[$i]}" == "$choice" ]] && idx="$i"
-  done
-  (( idx >= 0 )) || continue
-  gum style --foreground 82 "Starting: ${LABELS[$idx]}"
-  bash -lc "${CMDS[$idx]}" &
-  pids+=("$!")
-done <<< "$selection"
-
-if ((${#pids[@]} == 0)); then
-  gum style --foreground 196 'No valid servers selected.'
-  exit 1
-fi
-
-gum style --foreground 82 "${#pids[@]} server(s) started · Ctrl+C stops all"
-wait
+require_tools(){ command -v python3 >/dev/null || { echo 'archmcp: python3 required' >&2; exit 127; }; command -v tunnel-client >/dev/null || { echo 'archmcp: tunnel-client not found' >&2; exit 127; }; command -v systemctl >/dev/null || { echo 'archmcp: systemctl not found' >&2; exit 127; }; }
+ensure_config(){ mkdir -p "$(dirname "$CONFIG")" "$(dirname "$PROFILE")"; [[ -f "$CONFIG" ]] || printf '%s\n' '{"mcpServers":{}}' >"$CONFIG"; }
+load_env(){ [[ -r "$HOME/.env" ]] || { echo "archmcp: missing $HOME/.env" >&2; exit 1; }; source "$HOME/.env"; [[ ${CONTROL_PLANE_TUNNEL_ID:-} == tunnel_* ]] || { echo 'archmcp: invalid tunnel id' >&2; exit 1; }; [[ -n ${CONTROL_PLANE_API_KEY:-} ]] || { echo 'archmcp: missing control-plane api key' >&2; exit 1; }; }
+restart_runtime(){ require_tools; load_env; build_profile; systemctl --user daemon-reload; systemctl --user restart "$UNIT"; }
+build_profile(){
+  ensure_config; load_env
+  python3 - "$CONFIG" "$PROFILE" "$CONTROL_PLANE_TUNNEL_ID" <<'PY'
+import json,pathlib,sys,shlex
+src=json.load(open(sys.argv[1])); servers={n:s for n,s in src['mcpServers'].items() if s.get('enabled',True) is not False}
+out={'config_version':1,'control_plane':{'base_url':'https://api.openai.com','tunnel_id':sys.argv[3],'api_key':'env:CONTROL_PLANE_API_KEY'},'health':{'listen_addr':'127.0.0.1:0'},'admin_ui':{'open_browser':False},'log':{'level':'info','format':'json'},'mcp':{'server_urls':[],'commands':[]}}
+for n,s in servers.items():
+  if not isinstance(s,dict): raise SystemExit(f'archmcp: server {n!r} must be object')
+  if s.get('command'):
+    cmd=s['command']; args=s.get('args',[])
+    if not isinstance(cmd,str) or not isinstance(args,list) or not all(isinstance(x,str) for x in args): raise SystemExit(f'archmcp: invalid stdio server {n!r}')
+    channel='main' if not out['mcp']['commands'] and not out['mcp']['server_urls'] else n
+    item={'channel':channel,'command':' '.join(shlex.quote(x) for x in [cmd,*args])}
+    out['mcp']['commands'].append(item)
+  else:
+    url=s.get('url')
+    if not isinstance(url,str): raise SystemExit(f'archmcp: HTTP server {n!r} needs url')
+    item={'channel':n,'url':url}
+    if s.get('headers'): item['headers']={str(k):str(v) for k,v in s['headers'].items()}
+    item['channel']='main' if not out['mcp']['commands'] and not out['mcp']['server_urls'] else n
+    out['mcp']['server_urls'].append(item)
+if not out['mcp']['server_urls'] and not out['mcp']['commands']: out['mcp']['server_urls']=[{'channel':'main','url':'http://127.0.0.1:1/disabled'}]
+p=pathlib.Path(sys.argv[2]); p.parent.mkdir(parents=True,exist_ok=True); tmp=p.with_suffix('.tmp'); tmp.write_text(json.dumps(out,indent=2)+'\n'); tmp.replace(p)
+PY
+}
+inspect_server(){ ensure_config; npx -y @modelcontextprotocol/inspector --cli --config "$CONFIG" --server "$1" --method "${2:-tools/list}" --format json; }
+set_enabled(){ local name="$2"; ensure_config; NAME="$name" VALUE="$1" python3 - "$CONFIG" <<'PY'
+import json,os,sys
+p=sys.argv[1]; d=json.load(open(p)); n=os.environ['NAME']
+if n not in d['mcpServers']: raise SystemExit(f'archmcp: unknown server: {n}')
+d['mcpServers'][n]['enabled']=os.environ['VALUE']=='true'
+open(p+'.tmp','w').write(json.dumps(d,indent=2,ensure_ascii=False)+'\n'); os.replace(p+'.tmp',p)
+PY
+restart_runtime; echo "$name $([[ $1 == true ]] && echo enabled || echo disabled)"; }
+toggle_server(){ local n="$1"; local v; v=$(python3 - "$CONFIG" "$n" <<'PY'
+import json,sys
+s=json.load(open(sys.argv[1]))['mcpServers']; n=sys.argv[2]
+if n not in s: raise SystemExit(f'archmcp: unknown server: {n}')
+print('true' if not s[n].get('enabled',True) else 'false')
+PY
+); set_enabled "$v" "$n"; }
+verify_server(){ inspect_server "$1" initialize >/tmp/archmcp-init.json; inspect_server "$1" tools/list >/tmp/archmcp-tools.json; python3 - "$1" <<'PY'
+import json,sys
+a=json.load(open('/tmp/archmcp-init.json'))['result']['serverInfo']; t=json.load(open('/tmp/archmcp-tools.json')).get('result',{}).get('tools',[]); print(f"PASS\t{sys.argv[1]}\t{a.get('name','?')}@{a.get('version','?')}\t{len(t)} tools")
+PY
+}
+case "${1:-help}" in
+ help|-h|--help) usage;;
+ list) ensure_config; python3 - "$CONFIG" <<'PY'
+import json,sys
+for n,v in json.load(open(sys.argv[1]))['mcpServers'].items(): print(f"{n}\t{'stdio' if v.get('command') else v.get('type','http')}\t{'enabled' if v.get('enabled',True) else 'disabled'}")
+PY
+ ;;
+ get) ensure_config; (($#==2)) || exit 2; python3 - "$CONFIG" "$2" <<'PY'
+import json,sys
+s=json.load(open(sys.argv[1]))['mcpServers']; n=sys.argv[2]
+if n not in s: raise SystemExit(f'archmcp: unknown server: {n}')
+print(json.dumps({n:s[n]},indent=2))
+PY
+ ;;
+ add) ensure_config; (($#>=3)) || { usage; exit 2; }; name="$2"; shift 2; command=; url=; type=; args=(); envs=(); headers=(); while (($#)); do case "$1" in --command) command="$2"; shift 2;; --arg) args+=("$2"); shift 2;; --url) url="$2"; shift 2;; --type) type="$2"; shift 2;; --env) envs+=("$2"); shift 2;; --header) headers+=("$2"); shift 2;; *) echo "archmcp: unknown option $1" >&2; exit 2;; esac; done; NAME="$name" CMD="$command" URL="$url" TYPE="$type" ARGS="$(printf '%s\0' "${args[@]}" | python3 -c 'import sys,json; print(json.dumps([x for x in sys.stdin.buffer.read().split(b"\\0") if x]))')" ENVS="$(printf '%s\0' "${envs[@]}" | python3 -c 'import sys,json; d={x.split("=",1)[0]:x.split("=",1)[1] for x in sys.stdin.read().split("\\0") if "=" in x}; print(json.dumps(d))')" HEADERS="$(printf '%s\0' "${headers[@]}" | python3 -c 'import sys,json; d={x.split(":",1)[0].strip():x.split(":",1)[1].strip() for x in sys.stdin.read().split("\\0") if ":" in x}; print(json.dumps(d))')" python3 - "$CONFIG" <<'PY'
+import json,os,sys
+p=sys.argv[1]; d=json.load(open(p)); n=os.environ['NAME']; s={}
+if os.environ['CMD']: s={'command':os.environ['CMD'],'args':json.loads(os.environ['ARGS']),'enabled':True}; s['env']=json.loads(os.environ['ENVS']) if os.environ['ENVS']!='{}' else s.get('env')
+elif os.environ['URL']: s={'type':os.environ['TYPE'] or 'http','url':os.environ['URL'],'enabled':True}; s['headers']=json.loads(os.environ['HEADERS']) if os.environ['HEADERS']!='{}' else s.get('headers')
+else: raise SystemExit('archmcp: add requires --command or --url')
+s={k:v for k,v in s.items() if v is not None}; d['mcpServers'][n]=s; open(p+'.tmp','w').write(json.dumps(d,indent=2,ensure_ascii=False)+'\n'); os.replace(p+'.tmp',p)
+PY
+ restart_runtime; echo "attached $name";;
+ remove|detach) ensure_config; (($#==2)) || exit 2; NAME="$2" python3 - "$CONFIG" <<'PY'
+import json,os,sys
+p=sys.argv[1]; d=json.load(open(p)); n=os.environ['NAME']; d['mcpServers'].pop(n,None); open(p+'.tmp','w').write(json.dumps(d,indent=2)+'\n'); os.replace(p+'.tmp',p)
+PY
+ restart_runtime; echo "detached $2";;
+ enable) (($#==2)) && set_enabled true "$2" || { require_tools; build_profile; systemctl --user enable --now "$UNIT"; };;
+ disable) (($#==2)) && set_enabled false "$2" || systemctl --user disable --now "$UNIT";;
+ toggle) (($#==2)) || exit 2; toggle_server "$2";;
+ enable-all|disable-all) ensure_config; VALUE=$([[ $1 == enable-all ]] && echo true || echo false) python3 - "$CONFIG" <<'PY'
+import json,os,sys
+p=sys.argv[1]; d=json.load(open(p)); v=os.environ['VALUE']; [x.__setitem__('enabled',v=='true') for x in d['mcpServers'].values()]; open(p,'w').write(json.dumps(d,indent=2)+'\n')
+PY
+ restart_runtime;;
+ inspect) (($#>=2 && $#<=4)) || exit 2; m=tools/list; [[ ${3:-} == --method ]] && m="${4:-tools/list}"; inspect_server "$2" "$m";;
+ verify) (($#==2)) || exit 2; verify_server "$2";;
+ verify-all) ensure_config; rc=0; while IFS= read -r n; do verify_server "$n" || rc=1; done < <(python3 - "$CONFIG" -c '' 2>/dev/null || true); exit "$rc";;
+ inspect-ui) ensure_config; npx -y @modelcontextprotocol/inspector --config "$CONFIG";;
+ restart) restart_runtime;;
+ status) systemctl --user status "$UNIT" --no-pager || true;;
+ *) usage; exit 2;;
+esac
