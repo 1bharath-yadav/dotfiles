@@ -13,6 +13,7 @@ Environment="PATH=/home/archer/.local/bin:/usr/local/bin:/usr/bin:/bin"
 ExecStart=/usr/bin/mise exec -- desktop-commander remote --persist-session
 Restart=always
 RestartSec=5
+RestartSteps=5
 RestartMaxDelaySec=30
 
 [Install]
