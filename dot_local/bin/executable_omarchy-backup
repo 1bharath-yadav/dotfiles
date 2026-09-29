@@ -16,9 +16,11 @@ echo "Omarchy migration backup: $STAMP"
 echo "Full ~/.config: preserved from existing backup"
 find "$SRC/.config" -maxdepth 1 -mindepth 1 -printf '%f\n' | sort > "$ROOT/meta/config-top-level.txt"
 
-# Keep dotfiles and non-regeneratable user state.
+# Keep dotfiles and important non-regeneratable user state.
 rsync -a "$SRC/.dotfiles/" "$ROOT/home/dotfiles/"
-for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth          .desktop-commander .desktop-commander-device .cloudflared          .paperclip .screenpipe; do
+for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth \
+         .desktop-commander .desktop-commander-device .cloudflared \
+         .paperclip .screenpipe .antigravity_tools; do
   [ -e "$SRC/$p" ] && rsync -a "$SRC/$p" "$ROOT/home/"
 done
 for f in .bashrc .zshrc .zshenv .gitconfig .env .mcp.json AGENTS.md; do
@@ -49,7 +51,7 @@ find "$SRC/projects" -type d \(
 
 rsync -a "$SRC/projects/" "$ROOT/projects/"
 
-# Record git state; do not auto-commit/push.
+# Record Git state; do not auto-commit/push during the OS migration backup.
 while IFS= read -r repo; do
   name="${repo#$SRC/projects/}"
   safe="${name//\//__}"

@@ -13,7 +13,7 @@ for p in archive books Downloads gate journal linux Music Pictures projects til 
   [ -d "$SRC/home/$p" ] && rsync -a "$SRC/home/$p/" "$HOME_DIR/$p/"
 done
 [ -d "$SRC/home/dotfiles" ] && rsync -a "$SRC/home/dotfiles/" "$HOME_DIR/.dotfiles/"
-for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth .desktop-commander .desktop-commander-device .cloudflared .paperclip .screenpipe; do
+for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth .desktop-commander .desktop-commander-device .cloudflared .paperclip .screenpipe .antigravity_tools; do
   [ -e "$SRC/home/$p" ] && rsync -a "$SRC/home/$p" "$HOME_DIR/"
 done
 for f in .bashrc .zshrc .zshenv .gitconfig .env .mcp.json AGENTS.md; do
