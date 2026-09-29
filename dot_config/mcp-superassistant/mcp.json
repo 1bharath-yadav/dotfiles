@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@j0hanz/filesystem-mcp@latest",
+        "/home/archer/projects/mitham",
+        "/home/archer/archive"
+      ],
+      "enabled": true
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander@latest"
+      ],
+      "enabled": true
+    }
+  }
+}

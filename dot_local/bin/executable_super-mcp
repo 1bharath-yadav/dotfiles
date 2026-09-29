@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOST="${SUPER_MCP_HOST:-localhost}"
+PORT="${SUPER_MCP_PORT:-3006}"
+CONFIG_DIR="${SUPER_MCP_CONFIG_DIR:-$HOME/.config/mcp-superassistant}"
+
+usage() {
+  printf '%s\n' \
+    'Usage:' \
+    '  super-mcp fs   # Filesystem MCP' \
+    '  super-mcp dc   # Desktop Commander MCP'
+}
+
+case "${1:-}" in
+  fs)
+    SERVER_NAME="filesystem"
+    CONFIG="$CONFIG_DIR/filesystem-config.json"
+    ;;
+  dc)
+    SERVER_NAME="desktop-commander"
+    CONFIG="$CONFIG_DIR/dc-config.json"
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
+
+if [[ ! -f "$CONFIG" ]]; then
+  printf 'super-mcp: config not found: %s\n' "$CONFIG" >&2
+  exit 1
+fi
+
+printf 'super-mcp: server    = %s\n' "$SERVER_NAME"
+printf 'super-mcp: transport = streamableHttp\n'
+printf 'super-mcp: config    = %s\n' "$CONFIG"
+printf 'super-mcp: endpoint  = http://%s:%s/mcp\n' "$HOST" "$PORT"
+
+fuser -k "$PORT/tcp" >/dev/null 2>&1 || true
+
+exec npx -y @srbhptl39/mcp-superassistant-proxy@latest \
+  --config "$CONFIG" \
+  --outputTransport streamableHttp \
+  --host "$HOST" \
+  --port "$PORT" \
+  --streamableHttpPath /mcp \
+  --stateless

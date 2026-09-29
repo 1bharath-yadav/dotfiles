@@ -10,10 +10,6 @@
 - exclude: flake, nix, setup, libs
 - package-owners: pacman system, mise runtimes+global-clis, pnpm js-projects, uv python-projects, cargo rust-projects
 - prefer pnpm over npm
-- secrets: rage/age, sops+age for structured files
-- rage-key: ~/.config/rage/key.txt
-- ssh-private: ~/.ssh/\* 600
-- ssh-public: ~/.ssh/\*.pub 644
 - never commit plaintext secrets
 - never commit private keys
 - encrypt repo secrets as \*.age
@@ -34,8 +30,6 @@
 - providers: 12 web AI platforms (ChatGPT, Claude, Gemini, DeepSeek, Z.ai, MiniMax, Kimi, Grok, Qwen, Mistral, Meta, Copilot).
 - cli: ~/.local/bin/ai multi-provider router with dedicated shims.
 - imgen: --imgen with auto-download (-o) for ChatGPT, Gemini, Mistral, Meta, Copilot.
-
-
 
 ## Mitham boot execution
 

@@ -1,0 +1,21 @@
+[Unit]
+Description=Mitham continuous Agy content module orchestrator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/archer/projects/mitham
+ExecStart=/home/archer/projects/mitham/tools/operations/bin/module-auto.sh
+Restart=always
+RestartSec=30
+Environment=HOME=/home/archer
+Environment=PATH=/home/archer/.local/bin:/home/archer/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+Environment=TERM=xterm-256color
+StandardOutput=journal
+StandardError=journal
+KillMode=control-group
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target
