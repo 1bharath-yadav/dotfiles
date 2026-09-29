@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+SRC="${1:-/run/media/archer/Local Disk/Users/byadh/archer-backup}"
+HOME_DIR="$HOME"
+echo "Omarchy restore source: $SRC"
+
+[ -d "$SRC" ] || { echo "Backup not found: $SRC" >&2; exit 1; }
+
+# Restore user data, dotfiles, credentials, AI/tool state, and shell files.
+for p in archive books Downloads gate journal linux Music Pictures projects til var Videos; do
+  [ -d "$SRC/home/$p" ] && rsync -a "$SRC/home/$p/" "$HOME_DIR/$p/"
+done
+[ -d "$SRC/home/dotfiles" ] && rsync -a "$SRC/home/dotfiles/" "$HOME_DIR/.dotfiles/"
+for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth .desktop-commander .desktop-commander-device .cloudflared .paperclip .screenpipe; do
+  [ -e "$SRC/home/$p" ] && rsync -a "$SRC/home/$p" "$HOME_DIR/"
+done
+for f in .bashrc .zshrc .zshenv .gitconfig .env .mcp.json AGENTS.md; do
+  [ -e "$SRC/home/$f" ] && rsync -a "$SRC/home/$f" "$HOME_DIR/"
+done
+
+# Full ~/.config was backed up separately; restore it only explicitly.
+if [ "${RESTORE_FULL_CONFIG:-0}" = 1 ] && [ -d "$SRC/config" ]; then
+  rsync -a "$SRC/config/" "$HOME_DIR/.config/"
+fi
+
+# Restore user systemd unit definitions; reloading/enabling is intentionally manual.
+if [ -d "$SRC/system/user-systemd" ]; then
+  mkdir -p "$HOME_DIR/.config/systemd/user"
+  rsync -a "$SRC/system/user-systemd/" "$HOME_DIR/.config/systemd/user/"
+fi
+
+# Reinstall official repository packages captured from the old installation.
+if [ "${RESTORE_PACMAN:-0}" = 1 ] && [ -s "$SRC/system/pacman-explicit.txt" ]; then
+  sudo pacman -S --needed - < "$SRC/system/pacman-explicit.txt"
+fi
+
+echo "Restore completed."
+echo "Full ~/.config is NOT restored unless RESTORE_FULL_CONFIG=1."
+echo "Packages are NOT restored unless RESTORE_PACMAN=1."
+echo "Review user services before enabling them on Omarchy."

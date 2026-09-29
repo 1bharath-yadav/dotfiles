@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+DST='/run/media/archer/Local Disk/Users/byadh/archer-backup'
+SRC="$HOME"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+ROOT="$DST/omarchy-$STAMP"
+
+mkdir -p "$ROOT"/{home,config,projects,system,meta}
+exec > >(tee -a "$ROOT/meta/backup.log") 2>&1
+
+echo "Omarchy migration backup: $STAMP"
+
+# Full ~/.config was already backed up separately.
+echo "Full ~/.config: preserved from existing backup"
+find "$SRC/.config" -maxdepth 1 -mindepth 1 -printf '%f\n' | sort > "$ROOT/meta/config-top-level.txt"
+
+# Keep dotfiles and non-regeneratable user state.
+rsync -a "$SRC/.dotfiles/" "$ROOT/home/dotfiles/"
+for p in .ssh .gnupg .codex .claude .gemini .hermes .mcp-auth          .desktop-commander .desktop-commander-device .cloudflared          .paperclip .screenpipe; do
+  [ -e "$SRC/$p" ] && rsync -a "$SRC/$p" "$ROOT/home/"
+done
+for f in .bashrc .zshrc .zshenv .gitconfig .env .mcp.json AGENTS.md; do
+  [ -e "$SRC/$f" ] && rsync -a "$SRC/$f" "$ROOT/home/"
+done
+rsync -a "$SRC/.config/systemd/user/" "$ROOT/system/user-systemd/"
+
+# Personal data and project source. Regeneratable project artifacts stay out.
+for p in archive books Downloads gate journal linux Music Pictures til var Videos; do
+  [ -e "$SRC/$p" ] && rsync -a "$SRC/$p/" "$ROOT/home/$p/"
+done
+
+pacman -Qqe > "$ROOT/system/pacman-explicit.txt"
+pacman -Qm > "$ROOT/system/pacman-foreign.txt"
+(systemctl --user list-unit-files --no-legend 2>/dev/null || true) > "$ROOT/system/user-units.txt"
+(systemctl list-unit-files --state=enabled --no-legend 2>/dev/null || true) > "$ROOT/system/enabled-system-units.txt"
+(cat /etc/fstab 2>/dev/null || true) > "$ROOT/system/fstab.txt"
+
+find "$SRC/projects" -type d -name .git -prune -print |
+  sed 's#/.git$##' > "$ROOT/meta/project-repositories.txt"
+
+# Remove only reproducible dependency/build/cache directories.
+find "$SRC/projects" -type d \(
+  -name node_modules -o -name .venv -o -name venv -o -name __pycache__ \
+  -o -name .pytest_cache -o -name .ruff_cache -o -name .mypy_cache -o -name .tox \
+  -o -name .nox -o -name .next -o -name dist -o -name build -o -name target \
+  -o -name coverage \) -prune -exec rm -rf {} +
+
+rsync -a "$SRC/projects/" "$ROOT/projects/"
+
+# Record git state; do not auto-commit/push.
+while IFS= read -r repo; do
+  name="${repo#$SRC/projects/}"
+  safe="${name//\//__}"
+  {
+    echo "### $repo"
+    git -C "$repo" status --short
+    git -C "$repo" branch --show-current
+    git -C "$repo" remote -v
+  } > "$ROOT/meta/$safe.git-state.txt"
+done < "$ROOT/meta/project-repositories.txt"
+
+git -C "$SRC/.dotfiles" status --short > "$ROOT/meta/dotfiles-status.txt"
+date -Is > "$ROOT/meta/completed-at"
+
+echo "Backup completed: $(cat "$ROOT/meta/completed-at")"
+echo "Backup root: $ROOT"
