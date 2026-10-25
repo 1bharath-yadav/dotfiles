@@ -1,22 +1,23 @@
 [Unit]
-Description=screenpipe — always-on capture/serve
-After=network-online.target graphical-session.target
+Description=Screenpipe — always-on capture/serve
 Wants=network-online.target
+After=network-online.target graphical-session.target
 
 [Service]
 Type=simple
 WorkingDirectory=%h
-ExecStart=/usr/bin/mise exec -- screenpipe record --disable-telemetry --disable-audio --video-quality low --use-all-monitors=false --use-pii-removal=true --app-context memory --ignore-incognito-windows=true --capture-on-keystroke=false --capture-on-clipboard=false --capture-scroll=false --visual-check-interval-ms 5000 --visual-change-threshold 0.10 --min-capture-interval-ms 1000 --idle-capture-interval-ms 120000 --retention-days 7 --retention-mode lean --disable-meeting-detector --api-auth=true
+ExecStart=/usr/bin/mise exec -- screenpipe record --disable-audio --disable-meeting-detector --retention-days 30 --retention-mode media --min-capture-interval-ms 2000
 Restart=always
 RestartSec=5
+
 Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 Environment=WAYLAND_DISPLAY=wayland-1
-Environment=DISPLAY=:1
 Environment=XDG_SESSION_TYPE=wayland
 Environment=XDG_CURRENT_DESKTOP=Hyprland
 Environment=XDG_SESSION_DESKTOP=Hyprland
+Environment=SCREENPIPE_NO_REMINDERS=1
 
 [Install]
 WantedBy=default.target
