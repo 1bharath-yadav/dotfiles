@@ -1,9 +1,23 @@
 [mgr]
+# Three-panel layout: parent / current / preview.
 ratio = [1, 4, 3]
+show_hidden = true
+show_symlink = true
+sort_by = "natural"
+sort_sensitive = true
+sort_reverse = false
+sort_dir_first = true
 linemode = "size_and_mtime"
-show_hidden = false
+scrolloff = 5
+mouse_events = ["click", "scroll", "touch", "drag"]
+
+title_format = "yazi: {cwd}"
+
+[preview]
+tab_size = 4
 
 [tasks]
+# Keep large image previews bounded on a 16 GB desktop.
 image_alloc = 1073741824
 
 [spot]
@@ -12,19 +26,35 @@ tbl_col = { fg = "blue" }
 
 [opener]
 edit = [
-  { run = 'nvim %s', block = true, for = "unix" },
+  { run = 'nvim %s', block = true, for = "unix", desc = "Neovim" },
+  { run = 'code %s', block = true, for = "unix", desc = "VS Code" },
 ]
 play = [
-  { run = 'mpv %s', orphan = true, for = "unix" },
+  { run = 'mpv %s', orphan = true, for = "unix", desc = "MPV" },
 ]
 open = [
-  { run = 'xdg-open %s', orphan = true, for = "unix" },
+  { run = 'xdg-open %s', orphan = true, for = "unix", desc = "System default" },
 ]
 
 [open]
 rules = [
   { mime = "text/*", use = "edit" },
+  { mime = "application/json", use = "edit" },
+  { mime = "application/xml", use = "edit" },
   { mime = "video/*", use = "play" },
-  { url = "*.json", use = "edit" },
+  { mime = "audio/*", use = "play" },
+  { mime = "application/pdf", use = "open" },
+  { url = "*.md", use = ["open", "edit"] },
   { url = "*.html", use = ["open", "edit"] },
 ]
+
+# Git status is rendered by the installed official git.yazi plugin.
+[[plugin.prepend_fetchers]]
+url = "*"
+run = "git"
+group = "git"
+
+[[plugin.prepend_fetchers]]
+url = "*/"
+run = "git"
+group = "git"

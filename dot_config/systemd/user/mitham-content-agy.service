@@ -10,8 +10,12 @@ ExecStart=/home/archer/projects/mitham/tools/operations/bin/module-auto.sh
 Restart=always
 RestartSec=30
 Environment=HOME=/home/archer
-Environment=PATH=/home/archer/.local/bin:/home/archer/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=/home/archer/.local/bin:/home/archer/.local/share/mise/installs/agy/latest:/home/archer/.local/share/mise/installs/node/latest/bin:/home/archer/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
 Environment=TERM=xterm-256color
+Environment=XDG_CONFIG_HOME=/home/archer/.config
+Environment=XDG_DATA_HOME=/home/archer/.local/share
+Environment=XDG_STATE_HOME=/home/archer/.local/state
+Environment=GEMINI_HOME=/home/archer/.gemini
 StandardOutput=journal
 StandardError=journal
 KillMode=control-group

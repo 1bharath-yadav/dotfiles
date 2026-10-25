@@ -55,10 +55,13 @@ max_repos_to_scan = 50
 [sources.plan_input]
 enabled = true
 patterns = [
+    "~/til/{year}/{month}/plans/{date}_day_plan.md",
     "~/til/{year}/{month}/plans/{date}-day-plan.md",
+    "~/til/{year}/{month}/week{week}_plan.md",
+    "~/til/{year}/{month}/week_{week}_plan.md",
+    "~/til/{year}/month_{month}_plan.md",
     "~/til/tasks.json",
-    "~/til/daily-tasks.md",
-    "~/til/daily/{date}.md"
+    "~/til/daily-tasks.md"
 ]
 
 [sources.gws]
@@ -83,9 +86,12 @@ output_dir = "~/.local/share/dayline/reports/daily"
 
 [sinks.next_day_plan]
 enabled = true
-output_pattern = "~/til/{year}/{month}/plans/{date}-day-plan.md"
+output_pattern = "~/til/{year}/{month}/plans/{date}_day_plan.md"
+week_pattern = "~/til/{year}/{month}/week{week}_plan.md"
+month_pattern = "~/til/{year}/month_{month}_plan.md"
 json_pattern = "~/til/tasks.json"
 formats = ["markdown", "json"]
+plan_types = ["day", "week", "month"]
 exclude_repos = [
     "AltaCV",
     "1bharath-yadav.github.io"

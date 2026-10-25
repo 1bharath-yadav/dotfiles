@@ -2,7 +2,7 @@
 set -euo pipefail
 umask 077
 
-SRC="${1:-/run/media/archer/Local Disk/Users/byadh/archer-backup}"
+SRC="${1:-/mnt/windows/Users/byadh/archer-backup}"
 HOME_DIR="$HOME"
 echo "Omarchy restore source: $SRC"
 

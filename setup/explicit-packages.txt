@@ -1,5 +1,4 @@
 7zip
-accerciser
 acpi
 acpica
 age
@@ -20,7 +19,6 @@ bind
 blender
 bluez
 bluez-utils
-bookworm
 btop
 cage
 ccache
@@ -28,7 +26,6 @@ certbot
 certbot-nginx
 chaotic-keyring
 chaotic-mirrorlist
-chatgpt-desktop
 chezmoi
 claude-desktop-extra
 cloudflared
@@ -70,21 +67,6 @@ hyprland-guiutils
 hyprland-protocols
 hyprland-qt-support
 hyprpolkitagent
-illogical-impulse-audio
-illogical-impulse-backlight
-illogical-impulse-basic
-illogical-impulse-bibata-modern-classic-bin
-illogical-impulse-fonts-themes
-illogical-impulse-hyprland
-illogical-impulse-kde
-illogical-impulse-microtex-git
-illogical-impulse-microtex-git-debug
-illogical-impulse-portal
-illogical-impulse-python
-illogical-impulse-quickshell-git
-illogical-impulse-screencapture
-illogical-impulse-toolkit
-illogical-impulse-widgets
 intel-gpu-tools
 intel-ucode
 iwd
@@ -104,8 +86,6 @@ libfprint
 libpulse
 libva-utils
 linux-firmware
-linux-zen
-linux-zen-headers
 llama-cpp
 llmfit
 llvm
@@ -129,8 +109,6 @@ noto-fonts-emoji
 npm
 ntfs-3g
 obs-studio
-obsidian
-okular
 ollama-vulkan
 openblas
 opencode
@@ -146,7 +124,6 @@ plasma-browser-integration
 pnpm
 postgresql
 powertop
-proton-vpn-gtk-app
 python-pip
 python-ptrace
 python-pynvim
@@ -178,13 +155,10 @@ tmux
 trash-cli
 ttf-dejavu
 ttf-liberation
-tuned
-tuned-ppd
 ufw
 unrar
 unzip
 usbutils
-visual-studio-code-bin
 vulkan-headers
 vulkan-intel
 vulkan-mesa-layers

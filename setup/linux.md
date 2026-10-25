@@ -7,8 +7,6 @@
 sudo pacman -S --needed git base-devel gcc openssl zlib mise
 git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd .. && rm -rf yay
 
-git clone https://github.com/end-4/dots-hyprland ~/.local/share/dots-hyprland
-
 # 2. Restore dotfiles + apply
 git clone https://github.com/1bharath-yadav/dotfiles.git ~/.dotfiles
 chezmoi init --source ~/.dotfiles
@@ -20,7 +18,7 @@ ln -s ~/.dotfiles/agents ~/.agents
 pki                  # pacman packages from dot_config/pacman/Packages
 mise install         # runtimes + global CLIs from dot_config/mise/config.toml
 
-# 4. AUR packages(illogical-impulse-* are maintained by end-4):
+# 4. AUR packages are installed from the explicit package manifest.
 
 # 5. Shell
 chsh -s $(which zsh)
@@ -75,14 +73,12 @@ sudo systemctl enable --now hyprpolkitagent   # if not autostarted by Hyprland
 sudo timedatectl set-timezone Asia/Kolkata
 ```
 
-## AUR Backup
+## Package manifest backup
 
 Snapshot installed AUR packages (run periodically and commit):
 
 ```bash
-pacman -Qeq \
-| \grep -Ev '(^illogical-|.*-debug$)' \
-> ~/.dotfiles/setup/explicit-packages.txt
+pacman -Qqe | grep -Ev '(^illogical-|.*-debug$)' > ~/.dotfiles/setup/explicit-packages.txt
 ```
 
 search Pipewire in chrome://flags and enable it.

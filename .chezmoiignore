@@ -13,3 +13,7 @@ migrations/
 mkdocs.yml
 site/
 *.png
+
+# Omarchy-owned configuration: keep these out of chezmoi apply
+dot_config/quickshell
+# Omarchy generates this symlink dynamically for the active desktop theme

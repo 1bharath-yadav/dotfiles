@@ -21,11 +21,11 @@ rust = "stable"
 "npm:agent-browser" = "latest"
 # Existing development / AI tools.
 "npm:@openai/codex" = "latest"
-"npm:@google/gemini-cli" = "latest"
+# "npm:@google/gemini-cli" = "latest"
 "npm:@googleworkspace/cli" = "latest"
 "npm:screenpipe" = "latest"
-"npm:@wonderwhy-er/desktop-commander" = "latest"
 
+"npm:@wonderwhy-er/desktop-commander" = { version = "latest", trust_policy_excludes = ["chromium-bidi@157.0.8090-0"] }
 
 
 "copilot-cli" = "latest"
@@ -33,10 +33,17 @@ rust = "stable"
 "gh" = "latest"
 "vercel" = "latest"
 "azure-cli" = "latest"
+"claude" = "latest"
 # "github:mudler/LocalAI" = "latest"
 "github:openai/tunnel-client" = "latest"
 "github:jtroo/kanata" = "latest"
 # "github:iOfficeAI/OfficeCLI" = "latest"
+#
+"github:surrealdb/surrealdb" = "latest"
+
+[tasks.db]
+description = "Start local SurrealDB memory instance for AI Agent"
+run = "surreal start --user root --pass secret memory"
 
 [settings]
 experimental = true

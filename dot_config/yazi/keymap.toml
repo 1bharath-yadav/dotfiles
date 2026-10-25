@@ -2,50 +2,66 @@
 on = ["l"]
 run = "plugin smart-enter"
 desc = "Enter directory or open file"
+
 [[mgr.prepend_keymap]]
 on = ["<Enter>"]
 run = "plugin smart-enter"
 desc = "Enter directory or open file"
+
 [[mgr.prepend_keymap]]
 on = ["<Backspace>"]
 run = "leave"
 desc = "Go to parent directory"
+
 [[mgr.prepend_keymap]]
 on = ["<C-e>"]
 run = "seek 5"
 desc = "Seek preview down"
+
 [[mgr.prepend_keymap]]
 on = ["<C-y>"]
 run = "seek -5"
 desc = "Seek preview up"
+
 [[mgr.prepend_keymap]]
 on = ["f"]
 run = "plugin smart-filter"
 desc = "Smart filter"
+
 [[mgr.prepend_keymap]]
 on = ["C"]
 run = "plugin chmod"
 desc = "Change permissions"
+
 [[mgr.prepend_keymap]]
 on = ["D"]
 run = "plugin diff"
 desc = "Diff selected and hovered"
+
 [[mgr.prepend_keymap]]
 on = ["M"]
 run = "plugin mount"
 desc = "Mount manager"
+
 [[mgr.prepend_keymap]]
 on = ["g", "d"]
 run = "cd ~/Downloads"
 desc = "Go to Downloads"
+
 [[mgr.prepend_keymap]]
 on = ["g", "c"]
 run = "cd ~/.config"
 desc = "Go to config"
+
 [[mgr.prepend_keymap]]
 on = ["g", "h"]
 run = "cd ~"
 desc = "Go home"
+
+[[mgr.prepend_keymap]]
+on = ["!"]
+run = 'shell "$SHELL" --block'
+desc = "Open shell here"
 
 [[mgr.prepend_keymap]]
 on = ["?"]
