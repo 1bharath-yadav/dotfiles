@@ -63,8 +63,7 @@ patterns = [
 
 [sources.gws]
 enabled = true
-gws_bin = "/home/archer/.local/share/mise/installs/npm-googleworkspace-cli/latest/node_modules/.bin/gws"
-services = ["calendar"]
+services = ["calendar", "tasks", "gmail"]
 include_tomorrow = true
 
 # ─────────────────────────────────────────────────────────────
