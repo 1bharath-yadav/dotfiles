@@ -1,0 +1,16 @@
+[Unit]
+Description=Dayline Personal Data ETL Ingestion & Daily Synthesis
+Wants=network-online.target screenpipe.service
+After=network-online.target screenpipe.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h
+Environment="PATH=%h/.local/bin:%h/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin"
+EnvironmentFile=-%h/.env
+ExecStart=%h/.local/bin/dayline run
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

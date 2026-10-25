@@ -1,0 +1,12 @@
+[Unit]
+Description=Trigger Dayline daily ingestion and summary pipeline
+After=network-online.target
+
+[Timer]
+OnCalendar=*-*-* 23:45:00
+Persistent=true
+AccuracySec=1min
+Unit=dayline-daily.service
+
+[Install]
+WantedBy=timers.target
