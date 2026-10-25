@@ -63,7 +63,7 @@ patterns = [
 
 [sources.gws]
 enabled = true
-services = ["calendar", "tasks", "gmail"]
+services = ["calendar", "tasks"]
 include_tomorrow = true
 
 # ─────────────────────────────────────────────────────────────
