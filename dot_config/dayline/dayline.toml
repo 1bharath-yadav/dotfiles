@@ -109,7 +109,7 @@ allowed_repos = [
 # ─────────────────────────────────────────────────────────────
 
 [routing]
-git_local = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast"]
+git_local = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast", "next_day_plan"]
 screenpipe = ["jsonl_archive", "duckdb_store", "markdown_report"]
 github_remote = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast"]
 plan_input = ["jsonl_archive", "duckdb_store", "next_day_plan"]
