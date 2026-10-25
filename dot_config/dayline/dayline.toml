@@ -56,7 +56,7 @@ max_repos_to_scan = 50
 enabled = true
 patterns = [
     "~/til/{year}/{month}/plans/{date}-day-plan.md",
-    "~/til/{year}/{month}/plans/{date}-tasks.json",
+    "~/til/tasks.json",
     "~/til/daily-tasks.md",
     "~/til/daily/{date}.md"
 ]
@@ -84,7 +84,7 @@ output_dir = "~/.local/share/dayline/reports/daily"
 [sinks.next_day_plan]
 enabled = true
 output_pattern = "~/til/{year}/{month}/plans/{date}-day-plan.md"
-json_pattern = "~/til/{year}/{month}/plans/{date}-tasks.json"
+json_pattern = "~/til/tasks.json"
 formats = ["markdown", "json"]
 exclude_repos = [
     "AltaCV",
