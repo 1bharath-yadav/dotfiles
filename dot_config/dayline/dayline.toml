@@ -1,0 +1,117 @@
+# Dayline User Configuration
+# ~/.config/dayline/dayline.toml
+
+[dayline]
+data_dir = "~/.local/share/dayline"
+timezone = "Asia/Kolkata"
+day_boundary = "00:00"
+log_level = "info"
+lock_timeout_secs = 10
+
+# ─────────────────────────────────────────────────────────────
+# Sources Configuration
+# ─────────────────────────────────────────────────────────────
+
+[sources.git_local]
+enabled = true
+discovery_roots = ["~/projects"]
+# Exclude specific repos (exact names or glob patterns)
+exclude_repos = [
+    "AltaCV",
+    "1bharath-yadav.github.io"
+]
+track_commits = true
+track_working_tree = true
+max_diff_lines = 150
+
+[sources.screenpipe]
+enabled = true
+api_url = "http://localhost:3030"
+extract_frames = true
+extract_ui_events = true
+page_size = 100
+# Exclude sensitive or unwanted applications / windows
+exclude_apps = [
+    "1password",
+    "bitwarden",
+    "keepassxc"
+]
+exclude_windows = []
+
+[sources.github_remote]
+enabled = true
+# Token is auto-discovered via GITHUB_TOKEN or `gh auth token`
+exclude_repos = [
+    "AltaCV",
+    "1bharath-yadav.github.io"
+]
+include_forks = false
+track_commits = true
+track_pull_requests = true
+track_issues = true
+track_releases = true
+max_repos_to_scan = 50
+
+[sources.plan_input]
+enabled = true
+patterns = [
+    "~/til/{year}/{month}/plans/{date}-day-plan.md",
+    "~/til/{year}/{month}/plans/{date}-tasks.json",
+    "~/til/daily-tasks.md",
+    "~/til/daily/{date}.md"
+]
+
+[sources.gws]
+enabled = true
+gws_bin = "/home/archer/.local/share/mise/installs/npm-googleworkspace-cli/latest/node_modules/.bin/gws"
+services = ["calendar"]
+include_tomorrow = true
+
+# ─────────────────────────────────────────────────────────────
+# Sinks Configuration
+# ─────────────────────────────────────────────────────────────
+
+[sinks.jsonl_archive]
+enabled = true
+
+[sinks.duckdb_store]
+enabled = true
+path = "~/.local/share/dayline/store.duckdb"
+
+[sinks.markdown_report]
+enabled = true
+output_dir = "~/.local/share/dayline/reports/daily"
+
+[sinks.next_day_plan]
+enabled = true
+output_pattern = "~/til/{year}/{month}/plans/{date}-day-plan.md"
+json_pattern = "~/til/{year}/{month}/plans/{date}-tasks.json"
+formats = ["markdown", "json"]
+exclude_repos = [
+    "AltaCV",
+    "1bharath-yadav.github.io"
+]
+
+[sinks.codecast]
+enabled = true
+output_dir = "~/projects/1bharath-yadav/week/data"
+allowed_repos = [
+    "dotfiles",
+    "1bharath-yadav/dotfiles",
+    "focaltech-fte4800-linux-driver",
+    "dayline",
+    "hard-tools",
+    "garnet-firmware-update",
+    "sensvault"
+]
+
+# ─────────────────────────────────────────────────────────────
+# Routing Configuration
+# ─────────────────────────────────────────────────────────────
+
+[routing]
+git_local = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast"]
+screenpipe = ["jsonl_archive", "duckdb_store", "markdown_report"]
+github_remote = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast"]
+plan_input = ["jsonl_archive", "duckdb_store", "next_day_plan"]
+gws = ["jsonl_archive", "duckdb_store", "next_day_plan"]
