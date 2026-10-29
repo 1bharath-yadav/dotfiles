@@ -40,6 +40,10 @@ rust = "stable"
 # "github:iOfficeAI/OfficeCLI" = "latest"
 #
 "github:surrealdb/surrealdb" = "latest"
+"github:gradium-ai/xn-ptts[matching=ptts-0.5.0-x86_64-unknown-linux-gnu.tar.gz,rename_exe=ptts]" = "0.5.0"
+opencode = { version = "latest", allow_builds = ["@opencode/cli"] }
+codex = "latest"
+pi = "latest"
 
 [tasks.db]
 description = "Start local SurrealDB memory instance for AI Agent"
