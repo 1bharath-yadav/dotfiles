@@ -1,0 +1,14 @@
+[Unit]
+Description=TIL Notes Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/til
+ExecStart=/usr/bin/python3 -u server.py
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target
