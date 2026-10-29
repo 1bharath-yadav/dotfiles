@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Sync / link personal skills from ~/.dotfiles/agents/skills into ~/.agents/skills
-DOTFILES_SKILLS="$HOME/.dotfiles/agents/skills"
+# Sync personal skills and lockfile from ~/.dotfiles/agents into ~/.agents
+DOTFILES_AGENTS="$HOME/.dotfiles/agents"
+DOTFILES_SKILLS="$DOTFILES_AGENTS/skills"
 TARGET_DIR="$HOME/.agents/skills"
+TARGET_LOCK="$HOME/.agents/.skill-lock.json"
+DOTFILES_LOCK="$DOTFILES_AGENTS/.skill-lock.json"
 
 mkdir -p "$TARGET_DIR"
 
+# Link .skill-lock.json if dotfiles has one
+if [ -f "$DOTFILES_LOCK" ]; then
+  if [ -L "$TARGET_LOCK" ] || [ ! -e "$TARGET_LOCK" ]; then
+    rm -f "$TARGET_LOCK"
+    ln -s "$DOTFILES_LOCK" "$TARGET_LOCK"
+  fi
+fi
+
+# Link each personal skill into ~/.agents/skills
 for item in "$DOTFILES_SKILLS"/*; do
   [ -e "$item" ] || continue
   name="$(basename "$item")"

@@ -3,7 +3,7 @@
 - branch: chizmoi
 - mode: chezmoi-first
 - roots: dot*\*, private*\*
-- package-manifests: dot_config/pacman/Packages, dot_config/mise/config.toml
+- package-manifests: dot_config/pacman/Packages, dot_config/mise/config.toml, agents/.skill-lock.json
 - agent-workspace: dot_agen/
 - workflows: dot_local/bin
 - exclude: end4dots, quickshell, hyprland-base
