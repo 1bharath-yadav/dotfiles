@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "system",
+  "autoupdate": false,
+  "mcp": {
+    "agentmemory": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@agentmemory/mcp"
+      ],
+      "enabled": true
+    }
+  },
+  "plugins": [
+    "/home/archer/projects/opencode/packages/plugins/openui-render",
+    "/home/archer/projects/opencode-tts",
+    "opencode-antigravity-auth@2.1.2",
+    "@dietrichgebert/ponytail",
+    "@upstash/context7-opencode",
+    "superpowers@git+https://github.com/obra/superpowers.git"
+  ]
+}
