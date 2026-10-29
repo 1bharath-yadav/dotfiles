@@ -1,4 +1,6 @@
--- Personal window/workspace rules using Omarchy's current helpers.
+-- Window opacity and app-specific placement/workspace rules.
+-- Remove Omarchy's translucent default for every app, not only OpenCode.
+o.window(".*", { tag = "-default-opacity", opacity = "1.0 1.0" })
 
 o.window("^([Oo]bsidian)$", { float = true, size = { "(monitor_w*0.82)", "(monitor_h*0.82)" }, center = true, workspace = "special:obsidian" })
 o.window("^(yazi-sp)$", { float = true, size = { "(monitor_w*0.78)", "(monitor_h*0.78)" }, center = true, workspace = "special:yazi" })
@@ -28,6 +30,3 @@ hl.workspace_rule({ workspace = "special:keep", on_created_empty = "omarchy-laun
 hl.workspace_rule({ workspace = "special:tasks", on_created_empty = "omarchy-launch-webapp https://tasks.google.com" })
 hl.workspace_rule({ workspace = "special:gmail", on_created_empty = "omarchy-launch-webapp https://mail.google.com" })
 hl.workspace_rule({ workspace = "special:xoy-cdp", on_created_empty = "true" })
-
-
-

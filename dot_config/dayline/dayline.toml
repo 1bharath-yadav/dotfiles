@@ -69,6 +69,16 @@ enabled = true
 services = ["calendar", "tasks"]
 include_tomorrow = true
 
+[sources.immich]
+enabled = false
+api_url = "http://localhost:2283"
+api_key = "${IMMICH_API_KEY:}"
+timezone = "Asia/Kolkata"
+page_size = 100
+filter_field = "taken_at"
+include_archived = false
+include_favorites_only = false
+
 # ─────────────────────────────────────────────────────────────
 # Sinks Configuration
 # ─────────────────────────────────────────────────────────────
@@ -110,13 +120,22 @@ allowed_repos = [
     "sensvault"
 ]
 
+[sinks.immich_store]
+enabled = false
+api_url = "http://localhost:2283"
+api_key = "${IMMICH_API_KEY:}"
+album_name = "Dayline - {date}"
+create_album = true
+device_id = "dayline"
+
 # ─────────────────────────────────────────────────────────────
 # Routing Configuration
 # ─────────────────────────────────────────────────────────────
 
 [routing]
 git_local = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast", "next_day_plan"]
-screenpipe = ["jsonl_archive", "duckdb_store", "markdown_report"]
+screenpipe = ["jsonl_archive", "duckdb_store", "markdown_report", "immich_store"]
 github_remote = ["jsonl_archive", "duckdb_store", "markdown_report", "codecast"]
 plan_input = ["jsonl_archive", "duckdb_store", "next_day_plan"]
 gws = ["jsonl_archive", "duckdb_store", "next_day_plan"]
+immich = ["jsonl_archive", "duckdb_store", "markdown_report"]
