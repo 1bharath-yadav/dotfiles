@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Sync / link personal skills from ~/.dotfiles/agents/skills into ~/.agents/skills
+DOTFILES_SKILLS="$HOME/.dotfiles/agents/skills"
+TARGET_DIR="$HOME/.agents/skills"
+
+mkdir -p "$TARGET_DIR"
+
+for item in "$DOTFILES_SKILLS"/*; do
+  [ -e "$item" ] || continue
+  name="$(basename "$item")"
+  target="$TARGET_DIR/$name"
+
+  if [ -L "$target" ]; then
+    rm -f "$target"
+  fi
+
+  if [ ! -e "$target" ]; then
+    ln -s "$item" "$target"
+  fi
+done

@@ -22,7 +22,7 @@
 - git add <specific-files>
 - git commit -m "<type>: <why>"
 - git push origin chizmoi
-- agents-dir: ~/.dotfiles/agents/ (symlinked ~/.agents/) — .skill.md files only
+- agents-dir: ~/.dotfiles/agents/skills/ (personal skills only, symlinked into ~/.agents/skills/ alongside market skills)
 - chezmoiignore: any new root file/folder not prefixed dot*/private* must be added to .chezmoiignore
 - current-state:
 - cdp-engine: direct page-socket CDP for 12 frontier AI web platforms.
