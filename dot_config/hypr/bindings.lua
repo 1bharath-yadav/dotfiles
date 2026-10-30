@@ -47,8 +47,8 @@ hl.unbind("F9")
 o.bind("F9", "OSTT dictation (hold to speak)", "'/home/archer/.local/bin/ostt' launch --paste")
 o.bind("F9", "OSTT dictation (transcribe on release)", "'/home/archer/.local/bin/ostt' launch --paste", { release = true })
 
--- Passist voice: toggle recording with repeated presses; second press sends transcript to agent.
+-- Passist voice: toggle live realtime voice session.
 hl.unbind("SUPER + H")
-o.bind("SUPER + H", "Passist voice (toggle recording)", "'/home/archer/.local/bin/ostt' launch -p agent")
+o.bind("SUPER + H", "Passist live voice (toggle)", "'/home/archer/.local/bin/passist' live-toggle")
 
 
