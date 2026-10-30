@@ -16,6 +16,7 @@ o.window("^([Cc]hrome-tasks\\.google\\.com.*|webapp-tasks.*)$", { float = true, 
 o.window("^([Cc]hrome-mail\\.google\\.com.*|webapp-gmail.*)$", { float = true, size = { "(monitor_w*0.82)", "(monitor_h*0.82)" }, center = true, workspace = "special:gmail" })
 o.window({ class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" }, { float = true, size = { 520, 680 }, center = true })
 o.window("^(com\\.gabm\\.satty|satty)$", { float = true, size = { "(monitor_w*0.80)", "(monitor_h*0.80)" }, center = true })
+o.window("^(glint-overlay)$", { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override", suppress_event = "activate activatefocus fullscreen maximize" })
 
 -- Create each custom special workspace with its first window on demand.
 -- Commands use Omarchy's default terminal path (xdg-terminal-exec) for TUIs.
