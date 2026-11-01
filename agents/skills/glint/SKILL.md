@@ -1,218 +1,166 @@
 ---
 name: glint
-description: "Real-time transparent on-screen visual overlay for Linux/Wayland. Use this skill whenever the user asks to draw on screen, show in 3D, explain in 3D, visualize concepts (photosynthesis, physics, algorithms, circuits, engines), annotate the desktop, highlight UI buttons, or project diagrams over active windows. Covers glint_draw (HTML/SVG/Canvas/Three.js), glint_patch (real-time DOM/CSS updates without re-generating), glint_control (opacity, camera, highlight), and glint_point (temporary laser pointer)."
+description: "Real-time transparent on-screen visual overlay for Linux/Wayland (Hyprland). Use this skill whenever the user asks to draw on screen, show in 3D, explain in 3D, visualize concepts (photosynthesis, physics, algorithms, circuits, engines), annotate desktop UI, highlight buttons or code lines, display hardware schematics, pipeline flows, or run an interactive step-by-step tutorial over active windows. Always use glint for on-screen companion visuals rather than describing spatial concepts in pure text."
 ---
 
 # Glint: Real-Time Transparent Visual Overlay (`glint`)
 
-Glint provides a hardware-accelerated, transparent, click-through overlay window running on Linux/Wayland (Hyprland). It projects interactive 2D diagrams, animated SVG schematics, real-time 3D models (Three.js WebGL), and transient laser annotations directly over active workspace windows without disrupting desktop workflow.
+Glint provides a hardware-accelerated, transparent, click-through overlay window on Linux/Wayland (Hyprland). It projects interactive 2D HUD cards, animated hardware schematics, real-time 3D models (Three.js WebGL), and transient laser annotations directly over active workspace windows without disrupting workflow.
 
 ---
 
-## Architecture & Core Invariants
+## 1. Quick Adapter Decision Matrix
 
-1. **Click-Through Transparency by Default**:
-   - The overlay window is borderless, unmanaged, pinned, and covers the full monitor (`1.0 override` opacity, zero shadow).
-   - Empty/transparent space passes all mouse and pointer clicks straight through to underlying applications (`set-ignore-mouse-events: true, { forward: true }`).
-   - Cards, badges, buttons, canvas elements, and elements tagged with `.interactive` or `onclick` automatically capture cursor events.
-
-2. **Decoupled Daemon & IPC**:
-   - Glint overlay communicates with Passist and local agents over an NDJSON Unix domain socket (`$XDG_RUNTIME_DIR/glint.sock` or `/tmp/glint.sock`).
-   - If the overlay is not active when an agent invokes a Glint tool, Passist auto-spawns the Glint daemon and Electron host.
-
-3. **Incremental Evolution Over Re-generation**:
-   - **CRITICAL INVARIANT**: Never regenerate 50–100 lines of HTML or reload a 3D scene just to change a badge color, focus a camera, or show an arrow. Always use targeted incremental patches (`action: "style" | "append" | "patch"` or `glint_control`).
+| Request / Subject | Adapter | Input Shape | Deep Fallback If Needed |
+|---|---|---|---|
+| **Custom 2D Card, Math, Widget, or Tutorial** | `html` | `{ html: "..." }` | See [references/ui-components.md](references/ui-components.md) |
+| **Physical Machine, Engine, Hardware Anatomy** | `three-cutaway` | `{ primitives: [...], callouts: [...] }` | `~/.agents/skills/3dviz-pro-max/` |
+| **Pipeline, DAG, AST, Dataflow Trace** | `xyflow-flow` | `{ nodes: [...], edges: [...] }` | `https://reactflow.dev/llms-medium.txt` |
+| **Hardware Circuit, Wiring, Network Topology** | `drawio-diagram` | `{ xml: "<mxGraphModel>..." }` | `~/.agents/skills/drawio-skill/` |
+| **Transient Laser Pointer / Screen Highlight** | `glint_point` | `{ x, y, note }` or `{ app, target }` | See [references/tutor-mode.md](references/tutor-mode.md) |
 
 ---
 
-## The Four Operational Modes
+## 2. Core Architectural Invariants
 
-### Mode 1: Fresh Visual Creation (`glint_draw`)
+1. **Click-Through by Default**:
+   Empty and transparent space passes all mouse and pointer clicks straight through to windows beneath (`setIgnoreMouseEvents(true, { forward: true })`). Cards, buttons, and elements tagged `.interactive` or `onclick` automatically capture cursor events.
+2. **Docked Window Mode (`glint-corner`)**:
+   Interactive 3D scenes and tutorials default to right-docked window mode (`720×600` or `560×480`) so the user's terminal and editor on the left remain 100% unobstructed.
+3. **Incremental Mutation Over Redraw**:
+   Never tear down and regenerate entire scenes to change a color, focus a camera, or show a progress step. Use `glint_patch` or `glint_control`.
 
-Use when rendering a new scene, diagram, cutaway, or HUD from scratch.
+---
 
-Two authoring paths are supported:
+## 3. High-Velocity Recipes
 
-#### A. Freeform Live HTML / SVG / Canvas / Three.js (`adapter: "html"`)
-Inject raw HTML markup containing inline SVGs, CSS animations, or CDN-backed Three.js scripts. The overlay executes scripts, binds interactive elements, and enables pan, zoom, and drag automatically:
+### Recipe A: Zero-Boilerplate HTML Stepper (`adapter: "html"`)
+Use Glint's pre-styled semantic classes from `theme.css` (`.glint-card`, `.glint-step`, `.glint-badge`, `.glint-btn-accent`):
 
 ```json
 {
   "name": "glint_draw",
   "arguments": {
-    "action": "render",
     "adapter": "html",
-    "title": "Chloroplast Light Reactions",
-    "html": "<div id=\"stage\" style=\"position: fixed; right: 40px; top: 60px; width: 440px; background: rgba(15,23,42,0.88); backdrop-filter: blur(12px); border-radius: 14px; padding: 18px; border: 1px solid rgba(56,189,248,0.3); color: #f8fafc;\"><h3 style=\"margin: 0 0 8px 0; font-size: 16px; color: #38bdf8;\">Thylakoid Membrane</h3><p style=\"font-size: 13px; color: #cbd5e1; margin: 0 0 12px 0;\">Photons excite chlorophyll pigments, liberating electrons to split H₂O.</p><button class=\"interactive\" onclick=\"glint.ask('ATP Synthase')\" style=\"background: #0284c7; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer;\">Inspect ATP Synthase</button></div>"
+    "title": "ESP32 Flashing Guide",
+    "html": "<div class=\"glint-card\" style=\"width:340px;\"><div class=\"glint-badge glint-badge-emerald\">Tutor Mode</div><h3 class=\"glint-title\" style=\"margin-top:6px;\">Flash Firmware</h3><div class=\"glint-stepper\"><div class=\"glint-step active\" id=\"s1\"><div class=\"glint-step-num\">1</div><div class=\"glint-step-content\"><div class=\"glint-step-title\">Connect USB-C</div><div class=\"glint-step-desc\">Plug into /dev/ttyACM0</div></div></div><div class=\"glint-step\" id=\"s2\"><div class=\"glint-step-num\">2</div><div class=\"glint-step-content\"><div class=\"glint-step-title\">Hold Boot</div><div class=\"glint-step-desc\">Hold GPIO0 while resetting</div></div></div></div><button class=\"glint-btn glint-btn-accent\" onclick=\"glint.ask('ESP32 Flashing')\">Ask Voice Assistant</button></div>"
   }
 }
 ```
 
-#### B. Declarative 3D Cutaway (`adapter: "three-cutaway"`)
-For complex physical objects or machines (e.g. jet engines, planetary gears, leaf cross-sections). Passist or Glint normalizes primitives (`box`, `cylinder`, `sphere`, `cone`, `torus`, `lathe`, `tube`, `arrow_vector`) with camera framing, animated photon/fluid streams (`travel`), and 3D callout tracking:
+### Recipe B: Origin-Centered 3D Hardware Cutaway (`adapter: "three-cutaway"`)
+All 3D objects center around `[0, 0, 0]` for symmetrical rotation. Callouts use compact hover-to-reveal pills:
 
 ```json
 {
   "name": "glint_draw",
   "arguments": {
     "adapter": "three-cutaway",
-    "title": "F-35B STOVL Propulsion System",
-    "target": "F-35 engine cutaway with lift fan and 3BSD swivel nozzle"
-  }
-}
-```
-
----
-
-### Mode 2: Incremental DOM Patching (`glint_patch` / `action: "patch"|"style"|"append"|"remove"`)
-
-When a visual is already on screen, modify specific elements in place. Do not re-send the full HTML markup.
-
-| Action | Required Fields | Use Case |
-|---|---|---|
-| `style` | `selector`, `style` (object) | Update colors, opacity, stroke, transform, or visibility. |
-| `append` | `selector`, `html` | Add child cards, progress chips, flow nodes, or arrows. |
-| `patch` | `selector`, `html` | Replace inner HTML of an existing container without touching surroundings. |
-| `remove` | `selector` | Delete a completed step, dismissed card, or transient alert. |
-
-#### Example: Highlight Step via `style`
-```json
-{
-  "name": "glint_draw",
-  "arguments": {
-    "action": "style",
-    "selector": "#step-2",
-    "style": {
-      "border-color": "#22c55e",
-      "box-shadow": "0 0 16px rgba(34,197,94,0.4)",
-      "transform": "scale(1.03)"
+    "title": "Raspberry Pi 4 Model B",
+    "payload": {
+      "camera": { "position": [4.2, 5.5, 6.2], "target": [0, 0.4, 0], "fov": 42 },
+      "primitives": [
+        { "id": "pcb", "type": "box", "pos": [0, 0, 0], "size": [5.6, 0.09, 3.6], "color": "#15803d", "roughness": 0.85 },
+        { "id": "soc", "type": "box", "label": "Broadcom BCM2711", "pos": [-0.4, 0.11, -0.2], "size": [0.95, 0.15, 0.95], "color": "#cbd5e1", "metalness": 0.9, "roughness": 0.2 },
+        { "id": "eth", "type": "box", "label": "Gigabit Ethernet", "pos": [2.2, 0.48, -0.9], "size": [1.15, 0.88, 0.95], "color": "#94a3b8", "metalness": 0.85, "roughness": 0.25 }
+      ],
+      "callouts": [
+        { "id": "c_soc", "label": "BCM2711 SoC", "desc": "Quad-core Cortex-A72 @ 1.5GHz with 4Kp60 HEVC decode.", "tag": "Processor", "part": "soc", "anchor": [-0.4, 0.2, -0.2], "position": [-0.4, 1.8, -1.2] }
+      ]
     }
   }
 }
 ```
 
-#### Example: Append an Annotation Arrow via `append`
+### Recipe C: Interactive Pipeline Graph (`adapter: "xyflow-flow"`)
+Draggable nodes with animated cubic bezier curves. Clicking a node fires `glint.ask(node.title)`:
+
 ```json
 {
   "name": "glint_draw",
   "arguments": {
-    "action": "append",
-    "selector": "#stage",
-    "html": "<div id=\"warning-chip\" class=\"interactive\" style=\"margin-top: 10px; background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 6px 10px; border-radius: 6px; font-size: 12px;\">Peak thermal dissipation reached at nozzle throat.</div>"
+    "adapter": "xyflow-flow",
+    "title": "Multimodal Pipeline",
+    "payload": {
+      "nodes": [
+        { "id": "ingest", "type": "input", "position": { "x": 80, "y": 140 }, "data": { "label": "Screen Ingest", "desc": "Grim Wayland stream", "status": "active" } },
+        { "id": "gemini", "type": "default", "position": { "x": 380, "y": 140 }, "data": { "label": "Gemini 3.8 Core", "desc": "Bidi reasoning", "status": "running" } }
+      ],
+      "edges": [
+        { "from": "ingest", "to": "gemini", "animated": true, "label": "10 fps frames" }
+      ]
+    }
   }
 }
 ```
 
----
+### Recipe D: Circuit / Wiring Schematic (`adapter: "drawio-diagram"`)
+Clean mxGraph XML rendered to interactive SVG:
 
-### Mode 3: Real-Time Interaction & Click-to-Ask
-
-Glint injects a global `window.glint` JavaScript bridge into every rendered HTML scene:
-
-```javascript
-window.glint = {
-  // Dispatches HTTP POST to http://127.0.0.1:8765/v1/live/interact
-  ask: function(partName, metadata) { ... },
-
-  // Sets global overlay opacity (0.05 - 1.0)
-  setOpacity: function(val) { ... },
-
-  // Clears the visual stage
-  clear: function() { ... }
-};
-```
-
-#### Click-to-Ask Pattern:
-Tag interactive buttons, SVG nodes, or callouts with `onclick="glint.ask('Item Name')"`:
-```html
-<div class="interactive node" onclick="glint.ask('Compressor Stage 2', { stage: 2, temp: '420C' })">
-  <span>Compressor Core</span>
-</div>
-```
-When the user clicks the element, Passist receives an authentic user interaction event:
-> *"The user just clicked on the Compressor Stage 2 component on their screen. Explain its purpose and operation."*
-
-Passist's live voice assistant then speaks directly to that part without the user needing to type.
-
----
-
-### Mode 4: Spatial Placement in Free Desktop Space
-
-Visuals must never obscure the user's active code editor, terminal prompt, or reading material.
-
-1. **Window-Aware Placement**:
-   - Check the focused window geometry via `look_screen` or `hyprctl activewindow -j`.
-   - Default card positioning:
-     - **Side-by-side**: Anchor to the right edge (`right: 32px; top: 60px; width: 440px;`) or top-right quadrant if the user is working on the left half of the display.
-     - **Bottom HUD**: Anchor to `bottom: 40px; left: 50%; transform: translateX(-50%);` for horizontal pipelines or timelines.
-
-2. **Smart Opacity Rules**:
-   - **0.95 Opacity**: In empty desktop space or secondary monitor space. High contrast, sharp text.
-   - **0.65 Opacity with Backdrop Blur**: When hovering or overlapping existing open windows. Allows text behind the card to remain legible while keeping diagram elements visible:
-     ```css
-     background: rgba(15, 23, 42, 0.65);
-     backdrop-filter: blur(14px);
-     -webkit-backdrop-filter: blur(14px);
-     ```
-
----
-
-## Transient Laser Pointer & Screen Highlights (`glint_point`)
-
-To draw immediate user focus to an existing UI button, terminal error line, or graphic without mounting an entire visual stage:
-
-### 1. Laser Pointer (`xy`)
-Normalized coordinates `[0..1000]` representing screen X (0 = left, 1000 = right) and Y (0 = top, 1000 = bottom):
 ```json
 {
-  "name": "glint_point",
+  "name": "glint_draw",
   "arguments": {
-    "x": 840,
-    "y": 120,
-    "note": "Click Deploy here",
-    "ttl_ms": 4000
+    "adapter": "drawio-diagram",
+    "title": "I2C Sensor Bus",
+    "payload": {
+      "xml": "<mxGraphModel><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"mcu\" value=\"ESP32-S3 SoC\" vertex=\"1\" parent=\"1\" style=\"rounded=1;fillColor=#1e293b;strokeColor=#10b981;fontColor=#f8fafc;strokeWidth=2;\"><mxGeometry x=\"100\" y=\"100\" width=\"160\" height=\"80\" as=\"geometry\"/></mxCell><mxCell id=\"sensor\" value=\"BME280 Sensor\" vertex=\"1\" parent=\"1\" style=\"rounded=1;fillColor=#1e293b;strokeColor=#f59e0b;fontColor=#f8fafc;strokeWidth=1.5;\"><mxGeometry x=\"360\" y=\"100\" width=\"140\" height=\"80\" as=\"geometry\"/></mxCell><mxCell id=\"edge\" value=\"I2C (SDA/SCL)\" edge=\"1\" parent=\"1\" source=\"mcu\" target=\"sensor\" style=\"strokeColor=#f59e0b;strokeWidth=2;fontColor=#94a3b8;\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell></root></mxGraphModel>"
+    }
   }
 }
 ```
 
-### 2. Highlight Bounding Box (`rect` with `x, y, width, height`)
+---
+
+## 4. Real-Time Scene Control (`glint_control`)
+
+Drive the active scene without re-sending full payloads:
+
 ```json
-{
-  "name": "glint_point",
-  "arguments": {
-    "x": 200,
-    "y": 450,
-    "width": 320,
-    "height": 45,
-    "note": "Syntax error occurs on this line",
-    "ttl_ms": 6000
-  }
-}
+// Advance stepper to Step 2:
+{ "name": "glint_control", "arguments": { "action": "step", "value": 2 } }
+
+// Highlight a 3D part or HTML element:
+{ "name": "glint_control", "arguments": { "action": "highlight", "target_part": "soc" } }
+
+// Tween 3D camera to frame a specific part:
+{ "name": "glint_control", "arguments": { "action": "focus_camera", "target_part": "soc" } }
+
+// Explode 3D assembly outward:
+{ "name": "glint_control", "arguments": { "action": "explode", "value": 0.8 } }
+
+// Resize window bounds:
+{ "name": "glint_control", "arguments": { "action": "resize", "width": 720, "height": 600 } }
 ```
-*Note: Ghost annotations automatically fade out via CSS transition after `ttl_ms` (500ms–30000ms, default 5000ms) and never intercept mouse clicks.*
 
 ---
 
-## 3D Scene Controls (`glint_control`)
+## 5. Transient Pointers & Highlights (`glint_point`)
 
-When a 3D cutaway scene is active, control it in real time while continuing the voice conversation:
+Point laser annotations at on-screen UI buttons or code lines:
 
-| Action | Target Part | Value Range | Behavior |
-|---|---|---|---|
-| `highlight` | Primitive id / label | `0` (indefinite) or seconds (e.g. `4.0`) | Glows target part and dims rest of scene to 35% |
-| `focus_camera`| Primitive id / label | Zoom multiplier `0.5`–`4.0` (default `1.0`) | Tweens camera target directly to the part |
-| `explode` | *(Optional)* group | `0.0`–`1.0` (`0` = assembled, `1` = exploded) | Slides parts along their procedural explode vectors |
-| `opacity` | *(Optional)* part | `0.0`–`1.0` | Adjusts global scene opacity or target group opacity |
-| `reset` | None | None | Resets camera, exploded offsets, and highlights |
-| `clear` | None | None | Dismisses and unmounts the active visual scene |
+```json
+// Semantic target via desktop accessibility:
+{ "name": "glint_point", "arguments": { "app": "Code", "target": "Terminal", "note": "Type cargo build here", "ttl_ms": 5000 } }
+
+// Raw normalized coordinates [0..1000]:
+{ "name": "glint_point", "arguments": { "x": 850, "y": 140, "note": "Click Deploy", "ttl_ms": 4000 } }
+```
 
 ---
 
-## Reference Guides
+## 6. Deep Skill Fallback Guidelines
 
-- **Tool Schemas & NDJSON Payloads**: See [references/tools.md](references/tools.md) for parameter types, validation clamps, socket wire formats, and error handling.
-- **Production Recipes**: See [references/recipes.md](references/recipes.md) for copy-paste patterns:
-  1. 3D Mechanical Cutaway (Three.js + CSS2D callout tracking)
-  2. Scientific Biological Process (Photosynthesis with SVG sunbeams & chloroplasts)
-  3. Algorithmic Data Structure (Animated search tree & pipeline pulses)
-  4. Incremental Styling & Append Patching
+- **For Complex 3D Models / Blender Rigs**: If the user needs anatomical human/animal dissection kits, skeletal deformation, or Blender UV/baking pipelines, consult `~/.agents/skills/3dviz-pro-max/`.
+- **For Automated Cloud/IaC Schematics**: If the user needs automated Terraform, Kubernetes, SQL, or GraphQL schema parsing, consult `~/.agents/skills/drawio-skill/`.
+- **For Standalone React/Svelte Flow Apps**: If building custom React Flow components from scratch, fetch `https://reactflow.dev/llms-medium.txt`.
+
+---
+
+## 7. Reference Guides
+
+- [references/3d-cutaways.md](references/3d-cutaways.md): Origin-centered geometry, PBR calibration, pill callouts.
+- [references/schematics.md](references/schematics.md): Hardware wiring mxGraph XML templates.
+- [references/flow-pipelines.md](references/flow-pipelines.md): XYFlow DAG nodes, edges, status indicators.
+- [references/ui-components.md](references/ui-components.md): Semantic CSS classes (`.glint-card`, `.glint-step`, `.glint-badge`, `.glint-stat`).
+- [references/tutor-mode.md](references/tutor-mode.md): Step-by-step guidance workflow and Click-to-Ask loop.
