@@ -47,8 +47,8 @@ o.window({ class = "^(electron|glint-overlay|glint)$", title = "^(glint-overlay)
 o.window({ initialTitle = "^(glint-overlay)$" }, { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override 1.0 override", size = { "(monitor_w)", "(monitor_h)" }, move = { "0", "0" }, render_unfocused = true, suppress_event = "activate activatefocus fullscreen maximize" })
 o.window("^(glint-overlay)$", { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override 1.0 override", size = { "(monitor_w)", "(monitor_h)" }, move = { "0", "0" }, render_unfocused = true, suppress_event = "activate activatefocus fullscreen maximize" })
 
-o.window({ class = "^(electron|glint-corner|glint)$", title = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 540, 460 }, move = { "(monitor_w-window_w-16)", "(monitor_h-window_h-24)" } })
-o.window({ initialTitle = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 540, 460 }, move = { "(monitor_w-window_w-16)", "(monitor_h-window_h-24)" } })
+o.window({ class = "^(electron|glint-corner|glint)$", title = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 560, 480 }, move = { "(monitor_w - 580)", "42" } })
+o.window({ initialTitle = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 560, 480 }, move = { "(monitor_w - 580)", "42" } })
 
 -- Create each custom special workspace with its first window on demand.
 -- Commands use Omarchy's default terminal path (xdg-terminal-exec) for TUIs.
