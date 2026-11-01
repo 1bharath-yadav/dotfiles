@@ -16,7 +16,39 @@ o.window("^([Cc]hrome-tasks\\.google\\.com.*|webapp-tasks.*)$", { float = true, 
 o.window("^([Cc]hrome-mail\\.google\\.com.*|webapp-gmail.*)$", { float = true, size = { "(monitor_w*0.82)", "(monitor_h*0.82)" }, center = true, workspace = "special:gmail" })
 o.window({ class = "^(google-chrome)$", title = "^(Untitled - Google Chrome)$" }, { float = true, size = { 520, 680 }, center = true })
 o.window("^(com\\.gabm\\.satty|satty)$", { float = true, size = { "(monitor_w*0.80)", "(monitor_h*0.80)" }, center = true })
-o.window("^(glint-overlay)$", { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override", suppress_event = "activate activatefocus fullscreen maximize" })
+-- Hyprland 0.50+ normalizer for camelCase window rule properties/effects
+if not _G.__hypr_window_rule_normalized then
+  _G.__hypr_window_rule_normalized = true
+  local _orig_hl_window_rule = hl.window_rule
+  function hl.window_rule(rules)
+    if type(rules) == "table" then
+      if type(rules.match) == "table" then
+        if rules.match.initialTitle then
+          rules.match.initial_title = rules.match.initial_title or rules.match.initialTitle
+          rules.match.initialTitle = nil
+        end
+        if rules.match.initialClass then
+          rules.match.initial_class = rules.match.initial_class or rules.match.initialClass
+          rules.match.initialClass = nil
+        end
+      end
+      if rules.renderunfocused ~= nil then
+        if rules.render_unfocused == nil then
+          rules.render_unfocused = rules.renderunfocused
+        end
+        rules.renderunfocused = nil
+      end
+    end
+    return _orig_hl_window_rule(rules)
+  end
+end
+
+o.window({ class = "^(electron|glint-overlay|glint)$", title = "^(glint-overlay)$" }, { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override 1.0 override", size = { "(monitor_w)", "(monitor_h)" }, move = { "0", "0" }, render_unfocused = true, suppress_event = "activate activatefocus fullscreen maximize" })
+o.window({ initialTitle = "^(glint-overlay)$" }, { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override 1.0 override", size = { "(monitor_w)", "(monitor_h)" }, move = { "0", "0" }, render_unfocused = true, suppress_event = "activate activatefocus fullscreen maximize" })
+o.window("^(glint-overlay)$", { float = true, pin = true, no_anim = true, no_blur = true, no_shadow = true, no_initial_focus = true, border_size = 0, opacity = "1.0 override 1.0 override", size = { "(monitor_w)", "(monitor_h)" }, move = { "0", "0" }, render_unfocused = true, suppress_event = "activate activatefocus fullscreen maximize" })
+
+o.window({ class = "^(electron|glint-corner|glint)$", title = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 540, 460 }, move = { "(monitor_w-window_w-16)", "(monitor_h-window_h-24)" } })
+o.window({ initialTitle = "^(glint-corner.*|glint-window.*)$" }, { float = true, pin = true, no_anim = true, no_initial_focus = true, border_size = 0, size = { 540, 460 }, move = { "(monitor_w-window_w-16)", "(monitor_h-window_h-24)" } })
 
 -- Create each custom special workspace with its first window on demand.
 -- Commands use Omarchy's default terminal path (xdg-terminal-exec) for TUIs.
