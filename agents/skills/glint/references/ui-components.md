@@ -30,7 +30,7 @@ Glint provides pre-styled, GPU-accelerated component classes directly in `theme.
 | **Layout** | `.glint-grid-2` | 2-column grid |
 | | `.glint-grid-3` | 3-column grid |
 | **Code** | `.glint-code` | Monospace terminal/code snippet block |
-| **Buttons** | `.glint-btn-accent` | Emerald solid button for primary actions or Click-to-Ask |
+| **Buttons** | `.glint-btn-accent` | Emerald solid button for primary actions |
 | | `.glint-btn-outline` | Hairline border button |
 | **Animations**| `.glint-pulse` | Infinite gentle emerald glow animation |
 
@@ -67,7 +67,7 @@ Glint provides pre-styled, GPU-accelerated component classes directly in `theme.
   <p class="glint-desc">Cannot borrow <code>*self</code> as mutable more than once at a time.</p>
   <div class="glint-code">error[E0499]: cannot borrow `*self` as mutable</div>
   <div style="display:flex; gap:8px; margin-top:12px;">
-    <button class="glint-btn glint-btn-accent" onclick="glint.ask('Explain Rust E0499')">Explain Error</button>
+    <button class="glint-btn glint-btn-accent" onclick="glint.setStep(2)">Next Step</button>
     <button class="glint-btn glint-btn-outline" onclick="glint.clear()">Dismiss</button>
   </div>
 </div>

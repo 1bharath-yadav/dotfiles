@@ -247,7 +247,7 @@ Draws temporary screen-space laser pointers or bounding-box highlights over real
 
 ---
 
-## 5. Click-to-Ask Bridge (`POST /v1/live/interact`)
+## 5. Live Interaction Bridge (`POST /v1/live/interact`)
 
 When a user clicks any `.interactive` element, 3D mesh part, or callout card, the overlay executes:
 ```javascript
