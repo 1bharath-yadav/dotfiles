@@ -18,21 +18,32 @@ rust = "stable"
 "npm:markdownlint-cli2" = "latest"
 "npm:@mermaid-js/mermaid-cli" = "latest"
 "npm:sql-formatter" = "latest"
-"npm:agent-browser" = "latest"
+"npm:agent-desktop" = "latest"
 # Existing development / AI tools.
 "npm:@openai/codex" = "latest"
 # "npm:@google/gemini-cli" = "latest"
-"npm:@googleworkspace/cli" = "latest"
 "npm:screenpipe" = "latest"
 
 "npm:@wonderwhy-er/desktop-commander" = { version = "latest", trust_policy_excludes = ["chromium-bidi@157.0.8090-0"] }
 
+# AXI (Agent eXperience Interface) tooling - https://axi.md
+# Replaced normal CLIs with token-efficient, agent-ergonomic AXI packages:
+#   - agent-browser        -> chrome-devtools-axi (browser automation)
+#   - @googleworkspace/cli -> gws-axi (unified Google Workspace CLI)
+#   - gh                   -> gh-axi (GitHub CLI wrapper)
+#   - azure-cli            -> az-axi (Azure CLI wrapper)
+"npm:chrome-devtools-axi" = "latest"
+"npm:gws-axi" = { version = "latest", allow_low_downloads = true }
+"npm:gh-axi" = "latest"
+"npm:az-axi" = { version = "latest", allow_low_downloads = true }
+"npm:quota-axi" = "latest"
+"npm:lavish-axi" = "latest"
+"npm:tasks-axi" = "latest"
 
 "copilot-cli" = "latest"
 "agy" = "latest"
-"gh" = "latest"
 "vercel" = "latest"
-"azure-cli" = "latest"
+"azure-cli" = "latest" # Backing CLI engine required by az-axi
 "claude" = "latest"
 # "github:mudler/LocalAI" = "latest"
 "github:openai/tunnel-client" = "latest"
