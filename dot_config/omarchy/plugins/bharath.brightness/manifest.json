@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bharath.brightness",
+  "name": "Brightness Control",
+  "version": "1.0.0",
+  "author": "Bharath",
+  "description": "End4-style hardware brightness and Hyprsunset gamma control.",
+  "kinds": ["service"],
+  "entryPoints": {"service": "Service.qml"}
+}

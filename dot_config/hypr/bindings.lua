@@ -6,8 +6,12 @@
 -- Utilities and personal actions.
 o.bind("CTRL + SUPER + Slash", "Open default editor", "omarchy-default-editor")
 o.bind("CTRL + SUPER + ALT + Slash", "Edit Hyprland bindings", "omarchy-launch-editor ~/.config/hypr/bindings.lua")
-o.bind("ALT + BracketRight", nil, "brightnessctl s 2%+")
-o.bind("ALT + BracketLeft", nil, "brightnessctl s 2%-")
+-- End4 Brightness.qml behavior hosted as an Omarchy shell service.
+-- Alt+[ / Alt+] (no Super modifier).
+hl.unbind("SUPER + BracketLeft")
+hl.unbind("SUPER + BracketRight")
+o.bind("ALT + BracketLeft", "Decrease brightness (hardware then gamma)", "omarchy-shell brightness decrement")
+o.bind("ALT + BracketRight", "Increase brightness (gamma then hardware)", "omarchy-shell brightness increment")
 o.bind("SUPER + ALT + SHIFT + G", "Toggle Google Drive", "~/.local/bin/toggle-gdrive.sh")
 o.bind("SUPER + ALT + I", "Send file", "~/.local/bin/send_file.sh")
 -- Override Omarchy's Google Maps binding on this key.
@@ -37,18 +41,13 @@ o.bind("CTRL + SUPER + M", "Toggle Gmail scratchpad", hl.dsp.workspace.toggle_sp
 o.bind("SUPER + COMMA", "Toggle Hermes scratchpad", hl.dsp.workspace.toggle_special("hermes"))
 o.bind("SUPER + ALT + Y", "Toggle XOY CDP scratchpad", hl.dsp.workspace.toggle_special("xoy-cdp"))
 
--- Gamma brightness (hyprsunset): below hardware minimum.
-o.bind("SUPER + ALT + BracketLeft", "Gamma down", "hyprctl hyprsunset gamma -5")
-o.bind("SUPER + ALT + BracketRight", "Gamma up", "hyprctl hyprsunset gamma +5")
-o.bind("SUPER + ALT + 0", "Reset gamma", "hyprctl hyprsunset reset gamma")
-
--- OSTT dictation: F9 records while held; release finalizes transcription/paste.
+-- OSTT dictation: `ostt launch` is toggle-based (press once to record,
+-- press again to stop and transcribe). Never run it on key release.
 hl.unbind("F9")
-o.bind("F9", "OSTT dictation (hold to speak)", "'/home/archer/.local/bin/ostt' launch --paste")
-o.bind("F9", "OSTT dictation (transcribe on release)", "'/home/archer/.local/bin/ostt' launch --paste", { release = true })
+o.bind("F9", "OSTT dictation (toggle)", "/home/archer/.local/bin/ostt launch --paste")
 
--- Passist voice: toggle live realtime voice session.
+-- Passist voice: open/close the microphone for the always-running voice session.
 hl.unbind("SUPER + H")
-o.bind("SUPER + H", "Passist live voice (toggle)", "'/home/archer/.local/bin/passist' live-toggle")
+o.bind("SUPER + H", "Passist live voice (toggle)", "/home/archer/.local/bin/passist-ctl toggle-voice")
 
 
