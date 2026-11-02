@@ -1,23 +1,14 @@
 {
   "version": 3,
   "skills": {
-    "Browser Automation": {
-      "source": "claude-office-skills/skills",
+    "agent-desktop": {
+      "source": "vercel-labs/agent-desktop",
       "sourceType": "github",
-      "sourceUrl": "https://github.com/claude-office-skills/skills.git",
-      "skillPath": "browser-automation/SKILL.md",
-      "skillFolderHash": "093efef521d89ec9720038361e6e5429c85748bb",
-      "installedAt": "2026-08-02T18:08:13.499Z",
-      "updatedAt": "2026-08-02T18:08:13.499Z"
-    },
-    "agent-browser": {
-      "source": "vercel-labs/agent-browser",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
-      "skillPath": "skills/agent-browser/SKILL.md",
-      "skillFolderHash": "82def67855a0d2aad7794207951820fa5422fdb0",
-      "installedAt": "2026-08-01T19:10:56.192Z",
-      "updatedAt": "2026-09-02T11:22:44.248Z"
+      "sourceUrl": "https://github.com/vercel-labs/agent-desktop.git",
+      "skillPath": "skills/agent-desktop/SKILL.md",
+      "skillFolderHash": "106d618c482e1c851936db53dbff4a6c958ffb34",
+      "installedAt": "2026-11-02T03:34:11.031Z",
+      "updatedAt": "2026-11-02T03:34:11.031Z"
     },
     "algorithmic-art": {
       "source": "anthropics/skills",
@@ -56,6 +47,24 @@
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
     },
+    "axi": {
+      "source": "kunchenguid/axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/axi.git",
+      "skillPath": ".agents/skills/axi/SKILL.md",
+      "skillFolderHash": "b4294fa06402d65a8fce0528bd4bca9286d19fbcd9882717d0ebe8821c24a563",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
+    },
+    "az-axi": {
+      "source": "masyanru/az-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/masyanru/az-axi.git",
+      "skillPath": "skills/az-axi/SKILL.md",
+      "skillFolderHash": "21f199a119ba6f61aacc1a62d83a83322d474bd2311ebcd9731cb57cdf043753",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
+    },
     "brainstorming": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -71,15 +80,6 @@
       "sourceUrl": "https://github.com/obra/superpowers.git",
       "skillPath": "skills/brand-copy/SKILL.md",
       "skillFolderHash": "3de8342aadfb193e6c6c5e0f3e1e67902d4526e32a3904ad3860b8cfea48f667",
-      "installedAt": "2026-10-29T18:24:29.071160+00:00",
-      "updatedAt": "2026-10-29T18:24:29.071160+00:00"
-    },
-    "browser-automation": {
-      "source": "anthropics/claude-office-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/anthropics/claude-office-skills.git",
-      "skillPath": "skills/browser-automation/SKILL.md",
-      "skillFolderHash": "237d8356ed8211011cc1796eaf5b4200c6214a0abcd1b99ab37646fcf33bd825",
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
     },
@@ -128,14 +128,23 @@
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
     },
+    "chrome-devtools-axi": {
+      "source": "kunchenguid/chrome-devtools-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/chrome-devtools-axi.git",
+      "skillPath": "skills/chrome-devtools-axi/SKILL.md",
+      "skillFolderHash": "919144acfa8793f162bd2cc0edf87e87d7b1adc3c74881fb7787904532aa90c8",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
+    },
     "claude-handoff": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/claude-handoff/SKILL.md",
-      "skillFolderHash": "ec7518441dc3c8d3d1858ebb50885cdb36c982d94770c1d7645d02679c5d3f2a",
+      "skillPath": "skills/in-progress/claude-handoff/SKILL.md",
+      "skillFolderHash": "57d198aca08eddccb113632d52c6c13f1f3066ac",
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
-      "updatedAt": "2026-10-29T18:24:29.071160+00:00"
+      "updatedAt": "2026-11-02T08:49:46.202Z"
     },
     "clerk-nextjs-patterns": {
       "source": "clerk/skills",
@@ -346,6 +355,15 @@
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
     },
+    "gh-axi": {
+      "source": "kunchenguid/gh-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/gh-axi.git",
+      "skillPath": "skills/gh-axi/SKILL.md",
+      "skillFolderHash": "915a2eaef76bdc9d67767e9021c4f673e3e4109b16be6cb5e9837006e15fd9e2",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
+    },
     "git-guardrails-claude-code": {
       "source": "community/git-guardrails-claude-code",
       "sourceType": "community",
@@ -379,17 +397,19 @@
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
       "skillFolderHash": "3df14e2d3a89459bf300614be9247e3ce74798f8",
+      "pluginName": "mattpocock-skills",
       "installedAt": "2026-08-02T08:24:51.405Z",
-      "updatedAt": "2026-09-02T11:22:48.800Z"
+      "updatedAt": "2026-11-02T08:49:46.204Z"
     },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
-      "skillPath": "skills/grill-with-docs/SKILL.md",
-      "skillFolderHash": "9e8f732b806727978f1ad8d2fb9ce4467da68f7482d63c4bb5a73f2b1a0c797c",
+      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "skillFolderHash": "eedaf2562c83155115e9c649fa3ecaac2e10e81d",
+      "pluginName": "mattpocock-skills",
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
-      "updatedAt": "2026-10-29T18:24:29.071160+00:00"
+      "updatedAt": "2026-11-02T08:49:46.197Z"
     },
     "grilling": {
       "source": "mattpocock/skills",
@@ -441,9 +461,10 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/mattpocock/skills.git",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "skillFolderHash": "3d35cd438f4067b03c8b3792e038960e4ac11526",
+      "skillFolderHash": "587147dd230da299cc5e84971cb0a33f6676f8a6",
+      "pluginName": "mattpocock-skills",
       "installedAt": "2026-08-02T07:59:37.249Z",
-      "updatedAt": "2026-09-02T11:22:46.563Z"
+      "updatedAt": "2026-11-02T08:49:46.200Z"
     },
     "interview-coach": {
       "source": "office-skills",
@@ -490,6 +511,15 @@
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
     },
+    "lavish": {
+      "source": "kunchenguid/lavish-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/lavish-axi.git",
+      "skillPath": "skills/lavish/SKILL.md",
+      "skillFolderHash": "7a82385996353d525e181bbcef8d95c4d43bfdbc666cd4e91d073d32201c5dcd",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
+    },
     "lesson-plan": {
       "source": "office-skills",
       "sourceType": "community",
@@ -515,7 +545,7 @@
       "skillPath": "skills/manimce-best-practices/SKILL.md",
       "skillFolderHash": "12f05bc0b33394aa665dea9720e32ebb9b9dda92",
       "installedAt": "2026-08-10T03:43:16.152Z",
-      "updatedAt": "2026-08-10T03:43:16.152Z"
+      "updatedAt": "2026-11-02T08:49:51.029Z"
     },
     "meeting-minutes": {
       "source": "office-skills",
@@ -651,6 +681,15 @@
       "skillFolderHash": "9f5d1bab61c83f8371cb287212e1503a07e9f980f603ae7671852bfad6980559",
       "installedAt": "2026-10-29T18:24:29.071160+00:00",
       "updatedAt": "2026-10-29T18:24:29.071160+00:00"
+    },
+    "quota-axi": {
+      "source": "kunchenguid/quota-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/quota-axi.git",
+      "skillPath": "skills/quota-axi/SKILL.md",
+      "skillFolderHash": "dc5588532ce85909d0186bbc81aef74db2319810e77d5fd5482e731dfb17e9a6",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
     },
     "recipe-plan-weekly-schedule": {
       "source": "googleworkspace/cli",
@@ -841,6 +880,15 @@
       "skillFolderHash": "a2164c2d9785aada08dfe3f5e792657c9acafc52",
       "installedAt": "2026-08-02T07:49:25.804Z",
       "updatedAt": "2026-08-02T07:49:25.804Z"
+    },
+    "tasks-axi": {
+      "source": "kunchenguid/tasks-axi",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kunchenguid/tasks-axi.git",
+      "skillPath": "skills/tasks-axi/SKILL.md",
+      "skillFolderHash": "4de9371d7027da02ad03b50fb6151a8a37eae2501f77d4e6682ada3522adc0d2",
+      "installedAt": "2026-11-02T12:16:34.938703Z",
+      "updatedAt": "2026-11-02T12:16:34.938703Z"
     },
     "tdd": {
       "source": "obra/superpowers",
