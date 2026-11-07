@@ -137,64 +137,25 @@ hl.window_rule({
     center = true,
 })
 
--- Glint full-screen overlay windows.
+-- Glint overlay window (unified floating, pinned, borderless, unfocused-render)
 hl.window_rule({
     match = {
-        class = "^(electron|glint-overlay|glint)$",
-        title = "^glint-overlay$",
+        class = "^(electron|glint-overlay|glint-corner|glint)$",
+        title = "^(glint.*)$",
     },
     float = true,
     pin = true,
     no_anim = true,
-    no_blur = true,
-    no_shadow = true,
-    no_initial_focus = true,
     border_size = 0,
-    opacity = "1.0 override 1.0 override",
-    size = { "(monitor_w)", "(monitor_h)" },
-    move = { "0", "0" },
     render_unfocused = true,
-    suppress_event = "activate activatefocus fullscreen maximize",
 })
 hl.window_rule({
-    match = { initial_title = "^glint-overlay$" },
+    match = { initial_title = "^(glint.*)$" },
     float = true,
     pin = true,
     no_anim = true,
-    no_blur = true,
-    no_shadow = true,
-    no_initial_focus = true,
     border_size = 0,
-    opacity = "1.0 override 1.0 override",
-    size = { "(monitor_w)", "(monitor_h)" },
-    move = { "0", "0" },
     render_unfocused = true,
-    suppress_event = "activate activatefocus fullscreen maximize",
-})
-
--- Glint corner/window overlays.
-hl.window_rule({
-    match = {
-        class = "^(electron|glint-corner|glint)$",
-        title = "^(glint-corner.*|glint-window.*)$",
-    },
-    float = true,
-    pin = true,
-    no_anim = true,
-    no_initial_focus = true,
-    border_size = 0,
-    size = { 560, 480 },
-    move = { "(monitor_w - 580)", "42" },
-})
-hl.window_rule({
-    match = { initial_title = "^(glint-corner.*|glint-window.*)$" },
-    float = true,
-    pin = true,
-    no_anim = true,
-    no_initial_focus = true,
-    border_size = 0,
-    size = { 560, 480 },
-    move = { "(monitor_w - 580)", "42" },
 })
 
 -- Create each custom special workspace with its first window on demand.
