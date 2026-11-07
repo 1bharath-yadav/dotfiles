@@ -16,12 +16,10 @@ rust = "stable"
 "npm:prettier" = "latest"
 "npm:eslint_d" = "latest"
 "npm:markdownlint-cli2" = "latest"
-"npm:@mermaid-js/mermaid-cli" = "latest"
 "npm:sql-formatter" = "latest"
 "npm:agent-desktop" = "latest"
 # Existing development / AI tools.
 "npm:@openai/codex" = "latest"
-# "npm:@google/gemini-cli" = "latest"
 "npm:screenpipe" = "latest"
 
 "npm:@wonderwhy-er/desktop-commander" = { version = "latest", trust_policy_excludes = ["chromium-bidi@157.0.8090-0"] }
@@ -35,26 +33,40 @@ rust = "stable"
 "npm:chrome-devtools-axi" = "latest"
 "npm:gws-axi" = { version = "latest", allow_low_downloads = true }
 "npm:gh-axi" = "latest"
-"npm:az-axi" = { version = "latest", allow_low_downloads = true }
+# "npm:az-axi" = { version = "latest", allow_low_downloads = true }
 "npm:quota-axi" = "latest"
 "npm:lavish-axi" = "latest"
 "npm:tasks-axi" = "latest"
-
 "copilot-cli" = "latest"
 "agy" = "latest"
 "vercel" = "latest"
-"azure-cli" = "latest" # Backing CLI engine required by az-axi
-"claude" = "latest"
-# "github:mudler/LocalAI" = "latest"
+# "azure-cli" = "latest" # Backing CLI engine required by az-axi
 "github:openai/tunnel-client" = "latest"
 "github:jtroo/kanata" = "latest"
 # "github:iOfficeAI/OfficeCLI" = "latest"
-#
 "github:surrealdb/surrealdb" = "latest"
 "github:gradium-ai/xn-ptts[matching=ptts-0.5.0-x86_64-unknown-linux-gnu.tar.gz,rename_exe=ptts]" = "0.5.0"
 opencode = { version = "latest", allow_builds = ["@opencode/cli"] }
 codex = "latest"
 pi = "latest"
+gh = "latest"
+
+# Agent orchestration tooling (kunchenguid/* ecosystem) - evaluated 2026-11-03.
+#   - acpx     -> https://github.com/openclaw/acpx (headless ACP session runner;
+#                 required by backpass, used by gnhf's ACP targets)
+#   - gnhf     -> https://github.com/kunchenguid/gnhf (overnight autonomous agent
+#                 loop: git-worktree-isolated, bounded retries, resumable; supports
+#                 Pi natively via --agent pi)
+#   - backpass -> https://github.com/kunchenguid/backpass (evidence-gated
+#                 AGENTS.md/CLAUDE.md tuning from real local agent transcripts,
+#                 human-gated apply; reads Pi's own session store)
+# firstmate (https://github.com/kunchenguid/firstmate) is deliberately NOT listed
+# here: it ships no package or binary to install. It's a cloned "agent distro" you
+# launch a harness inside of. See ai-flow's design-decisions.md for the pending
+# call on how (or whether) it relates to ai-flow's own Control CLI/Workflow engine.
+"npm:acpx" = "latest"
+"npm:gnhf" = "latest"
+"npm:backpass" = "latest"
 
 [tasks.db]
 description = "Start local SurrealDB memory instance for AI Agent"

@@ -1,3 +1,18 @@
 {
-  "plugins": ["./herdr-opencode"]
+  "plugins": [
+    "./herdr-opencode"
+  ],
+  "theme": {
+    "name": "system"
+  },
+  "session": {
+    "sidebar": "hide",
+    "grouping": "auto"
+  },
+  "tabs": {
+    "mode": "on"
+  },
+  "prompt": {
+    "image_preview": true
+  }
 }

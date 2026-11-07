@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
+# tool-update — Canonical developer toolchain synchronization
 set -euo pipefail
 
-mise upgrade
-mise prune
-
-echo 'tool update complete'
+if command -v linux-agent >/dev/null 2>&1; then
+  exec linux-agent sync --tools "$@"
+elif [[ -x "$HOME/.local/bin/linux-agent" ]]; then
+  exec "$HOME/.local/bin/linux-agent" sync --tools "$@"
+else
+  exec "$HOME/.dotfiles/dot_local/bin/executable_linux-agent" sync --tools "$@"
+fi

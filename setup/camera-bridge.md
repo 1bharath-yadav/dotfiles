@@ -185,3 +185,69 @@ Remove the optional relay package if it is no longer wanted:
 ```bash
 sudo pacman -Rns v4l2-relayd
 ```
+
+
+--- 
+# Omarchy-Camera-Setup  
+
+```
+sudo python3 - <<'PY'
+from pathlib import Path
+import shutil
+
+# Backup original files
+paths = [
+    Path("/usr/bin/omarchy-capture-webcam-list"),
+    Path("/etc/systemd/system/ipU6-camera-bridge.service"),
+]
+
+for p in paths:
+    backup = Path(str(p) + ".pre-webcam-fix")
+    if not backup.exists():
+        shutil.copy2(p, backup)
+
+# Fix webcam detection: ignore raw Intel IPU6 ISYS nodes
+p = paths[0]
+s = p.read_text()
+
+needle = '    device="${line#"${line%%[![:space:]]*}"}"\n'
+replacement = '    [[ "$name" == ipu6* ]] && continue\n' + needle
+
+if replacement not in s:
+    if needle not in s:
+        raise SystemExit("Could not locate webcam detection insertion point")
+    p.write_text(s.replace(needle, replacement, 1))
+
+# Automatically create /dev/video33 before starting the camera bridge
+p = paths[1]
+s = p.read_text()
+
+pre = (
+    'ExecStartPre=/bin/sh -c '
+    '\'test -e /dev/video33 || '
+    '/usr/bin/v4l2loopback-ctl add '
+    '-n "IPU6 Webcam" -x 1 -o 16 /dev/video33\'\n'
+)
+
+if "ExecStartPre=" not in s:
+    s = s.replace(
+        "ExecStart=/usr/bin/gst-launch-1.0",
+        pre + "ExecStart=/usr/bin/gst-launch-1.0",
+        1
+    )
+    p.write_text(s)
+
+print("Webcam repair configuration installed.")
+PY
+
+sudo systemctl daemon-reload
+sudo systemctl restart ipU6-camera-bridge.service
+
+sleep 3
+
+echo "=== CAMERA BRIDGE ==="
+systemctl --no-pager status ipU6-camera-bridge.service
+
+echo "=== DETECTED WEBCAMS ==="
+omarchy-capture-webcam-list
+```

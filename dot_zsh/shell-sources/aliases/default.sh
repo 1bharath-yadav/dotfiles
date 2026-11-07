@@ -16,3 +16,8 @@ alias ports='netstat -tulan'
 alias dirserve='python3 -m http.server 8000 --bind 127.0.0.1'
 alias curl='curl --compressed'
 alias weather='curl -s "wttr.in/?format=3"'
+
+alias ls='eza --icons=auto'
+alias ll='eza -lah --icons=auto'
+alias la='eza -a --icons=auto'
+alias lt='eza --tree --icons=auto'

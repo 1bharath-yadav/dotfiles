@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "google/antigravity-gemini-3.8-flash-high",
   "theme": "system",
   "autoupdate": false,
   "mcp": {
@@ -11,14 +12,26 @@
         "@agentmemory/mcp"
       ],
       "enabled": true
+    },
+    "gitnexus": {
+      "type": "local",
+      "command": [
+        "/home/archer/.npm/_npx/5e786f48223a616c/node_modules/.bin/gitnexus",
+        "mcp"
+      ]
     }
   },
   "plugins": [
-    "/home/archer/projects/opencode/packages/plugins/openui-render",
-    "/home/archer/projects/opencode-tts",
     "opencode-antigravity-auth@2.1.2",
     "@dietrichgebert/ponytail",
     "@upstash/context7-opencode",
-    "superpowers@git+https://github.com/obra/superpowers.git"
-  ]
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "/home/archer/projects/opencode-plugins/egm",
+    "/home/archer/projects/opencode-plugins/knowledge-work",
+    "/home/archer/projects/opencode-plugins/anthropic-skills",
+    "/home/archer/projects/opencode-plugins/openui-render"
+  ],
+  "experimental": {
+    "subagent_depth": 2
+  }
 }

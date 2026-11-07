@@ -17,3 +17,8 @@ site/
 # Omarchy-owned configuration: keep these out of chezmoi apply
 dot_config/quickshell
 # Omarchy generates this symlink dynamically for the active desktop theme
+.config/opencode/cli.json
+.config/opencode/opencode.json
+README.md
+AGENTS.md
+hyprland.lua

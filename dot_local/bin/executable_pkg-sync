@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
+# pkg-sync — Canonical system and tooling synchronization
 set -euo pipefail
 
-sudo pacman -Syu
-mise upgrade
-mise prune
-
-echo 'system + tooling sync complete'
+if command -v linux-agent >/dev/null 2>&1; then
+  exec linux-agent sync "$@"
+elif [[ -x "$HOME/.local/bin/linux-agent" ]]; then
+  exec "$HOME/.local/bin/linux-agent" sync "$@"
+else
+  exec "$HOME/.dotfiles/dot_local/bin/executable_linux-agent" sync "$@"
+fi

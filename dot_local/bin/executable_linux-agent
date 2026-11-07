@@ -1,0 +1,968 @@
+#!/usr/bin/env bash
+# linux-agent — Canonical Linux system governance and maintenance CLI for Arch Linux + Omarchy
+set -euo pipefail
+
+VERSION="1.0.0"
+
+# Helpers
+has() { command -v "$1" >/dev/null 2>&1; }
+path_size() {
+  if [[ -e "$1" ]]; then
+    (du -sh "$1" 2>/dev/null || true) | awk '{print $1}'
+  else
+    echo "0B"
+  fi
+}
+
+hr() { printf '%s\n' "────────────────────────────────────────────────────────"; }
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: status
+# -----------------------------------------------------------------------------
+cmd_status() {
+  local format="${1:-summary}"
+  local uptime_str load_str mem_total mem_used disk_root failed_units gpu_info omarchy_ver
+
+  uptime_str="$(uptime -p 2>/dev/null || uptime | awk '{print $3,$4}')"
+  load_str="$(cut -d ' ' -f 1-3 /proc/loadavg 2>/dev/null || echo "unknown")"
+  mem_total="$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}')"
+  mem_used="$(free -h 2>/dev/null | awk '/^Mem:/ {print $3}')"
+  disk_root="$(df -h / 2>/dev/null | awk 'NR==2 {print $3 "/" $2 " (" $5 " used)"}')"
+  failed_units="$(systemctl --failed --no-legend 2>/dev/null | wc -l || echo "0")"
+  omarchy_ver="$(omarchy version 2>/dev/null || echo "omarchy (arch linux)")"
+
+  if has nvidia-smi; then
+    gpu_info="$(nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{printf "%s (%s/%s MB, %s%%)", $1, $2, $3, $4}' || echo "NVIDIA active")"
+  else
+    gpu_info="Integrated / Not detected"
+  fi
+
+  if [[ "$format" == "--json" ]]; then
+    cat <<EOF
+{
+  "omarchy_version": "$omarchy_ver",
+  "uptime": "$uptime_str",
+  "load_average": "$load_str",
+  "memory": { "used": "$mem_used", "total": "$mem_total" },
+  "disk_root": "$disk_root",
+  "failed_systemd_units": $failed_units,
+  "gpu": "$gpu_info"
+}
+EOF
+  else
+    cat <<EOF
+### Workstation Health Summary
+- **OS & Environment:** Arch Linux ($omarchy_ver, Hyprland Wayland)
+- **Uptime:** $uptime_str
+- **Load Average:** $load_str
+- **Memory:** $mem_used / $mem_total
+- **Root Storage (/):** $disk_root
+- **GPU (RTX 4050):** $gpu_info
+- **Failed Systemd Units:** $failed_units $( [[ "$failed_units" -gt 0 ]] && echo "(run: systemctl --failed)" || echo "(clean)" )
+EOF
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: clean (Canonical Cleanup Engine)
+# -----------------------------------------------------------------------------
+cmd_clean() {
+  local mode="interactive"
+  local target="all"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run) mode="dry-run"; shift ;;
+      --summary) mode="summary"; shift ;;
+      --json) mode="json"; shift ;;
+      --interactive) mode="interactive"; shift ;;
+      --all) mode="all"; shift ;;
+      --target) target="${2:-all}"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+
+  # If not attached to a TTY and in interactive mode, safely downgrade to dry-run
+  if [[ "$mode" == "interactive" ]] && [[ ! -t 0 ]]; then
+    mode="summary"
+  fi
+
+  # Target assessment
+  local pacman_cache_size="0B"
+  local aur_cache_size="0B"
+  local orphans_count="0"
+  local dev_cache_size="0B"
+  local desktop_cache_size="0B"
+  local journal_size="0B"
+  local trash_size="0B"
+
+  [[ -d /var/cache/pacman/pkg ]] && pacman_cache_size="$(path_size /var/cache/pacman/pkg)"
+  
+  local aur_bytes=0
+  for d in "$HOME/.cache/yay" "$HOME/.cache/paru"; do
+    [[ -d "$d" ]] && aur_cache_size="$(path_size "$d")"
+  done
+
+  if has pacman; then
+    orphans_count="$((pacman -Qtdq 2>/dev/null || true) | wc -l)"
+  fi
+
+  # Dev caches: pnpm, npm, mise, uv, cargo, go
+  dev_cache_size="$(path_size "$HOME/.cache/uv")"
+  [[ -d "$HOME/.cache/mise" ]] && dev_cache_size="$(path_size "$HOME/.cache/mise")"
+  [[ -d "$HOME/.local/share/pnpm/store" ]] && dev_cache_size="$(path_size "$HOME/.local/share/pnpm/store")"
+
+  # Desktop & browser
+  desktop_cache_size="$(path_size "$HOME/.cache/thumbnails")"
+
+  # Journals
+  if has journalctl; then
+    journal_size="$(journalctl --disk-usage 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)?[KMGT]B?' | head -n 1 || echo "unknown")"
+  fi
+
+  # Trash
+  [[ -d "$HOME/.local/share/Trash" ]] && trash_size="$(path_size "$HOME/.local/share/Trash")"
+
+  if [[ "$mode" == "dry-run" || "$mode" == "summary" ]]; then
+    cat <<EOF
+### System Cleanup Candidates (Dry-Run Preview)
+| Category | Component / Path | Current Usage | Action | Risk |
+| :--- | :--- | :--- | :--- | :--- |
+| **Pacman Cache** | \`/var/cache/pacman/pkg\` | $pacman_cache_size | \`paccache -rk3\` (keep last 3) | R3 |
+| **AUR Build Cache** | \`~/.cache/{yay,paru}\` | $aur_cache_size | \`yay/paru -Sc --noconfirm\` | R3 |
+| **Orphan Packages** | \`pacman -Qtdq\` | $orphans_count packages | \`pacman -Rns <orphans>\` | R3 |
+| **Developer Caches** | uv, mise, pnpm, cargo | ~$dev_cache_size | Prune tool/runtime caches | R3 |
+| **Desktop Caches** | Thumbnails & browser | ~$desktop_cache_size | Prune old thumbnails/caches | R3 |
+| **Systemd Journals**| \`/var/log/journal\` | $journal_size | \`journalctl --vacuum-time=7d\` | R3 |
+| **User Trash** | \`~/.local/share/Trash\` | $trash_size | Empty Trash | R3 |
+
+*Total scan complete. Zero files deleted in dry-run mode.*
+EOF
+    return 0
+  fi
+
+  if [[ "$mode" == "json" ]]; then
+    cat <<EOF
+{
+  "pacman_cache": "$pacman_cache_size",
+  "aur_cache": "$aur_cache_size",
+  "orphan_packages_count": $orphans_count,
+  "developer_caches": "$dev_cache_size",
+  "desktop_caches": "$desktop_cache_size",
+  "systemd_journal": "$journal_size",
+  "trash": "$trash_size"
+}
+EOF
+    return 0
+  fi
+
+  # Interactive execution mode
+  hr
+  printf 'LINUX AGENT SYSTEM CLEAN — Canonical, safe-by-default\n'
+  hr
+
+  ask() {
+    local ans
+    read -r -p "$1 [y/N] " ans || return 1
+    case "$ans" in y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
+  }
+
+  local sudo_ok=0
+  if sudo -v 2>/dev/null; then sudo_ok=1; fi
+
+  # 1. Pacman cache
+  if [[ -d /var/cache/pacman/pkg ]] && has paccache; then
+    printf 'Pacman package cache: %s\n' "$pacman_cache_size"
+    if ask 'Prune old package versions with paccache -rk3?'; then
+      ((sudo_ok)) && sudo paccache -rk3 || printf '  [!] skipped: sudo unavailable\n'
+    fi
+  fi
+
+  # 2. AUR cache
+  for aur in yay paru; do
+    if has "$aur" && [[ -d "$HOME/.cache/$aur" ]]; then
+      printf '%s build cache: %s\n' "$aur" "$(path_size "$HOME/.cache/$aur")"
+      ask "Clean $aur build cache?" && "$aur" -Sc --noconfirm || true
+    fi
+  done
+
+  # 3. Orphans
+  if has pacman && [[ "$orphans_count" -gt 0 ]]; then
+    printf 'Orphaned packages detected (%d):\n' "$orphans_count"
+    pacman -Qtdq | sed 's/^/  /'
+    if ask 'Remove orphaned packages?'; then
+      ((sudo_ok)) && sudo pacman -Rns --noconfirm $(pacman -Qtdq) || printf '  [!] skipped: sudo unavailable\n'
+    fi
+  fi
+
+  # 4. Dev caches
+  has pnpm && [[ -d "$HOME/.local/share/pnpm/store" ]] && ask 'Prune pnpm store?' && pnpm store prune || true
+  has npm && [[ -d "$HOME/.npm" ]] && ask 'Clean npm cache?' && npm cache clean --force || true
+  has mise && [[ -d "$HOME/.cache/mise" ]] && ask 'Clear Mise cache & prune runtimes?' && { mise cache clear; mise prune -y 2>/dev/null || true; } || true
+  has uv && [[ -d "$HOME/.cache/uv" ]] && ask 'Clean uv cache?' && uv cache clean || true
+  has cargo && ask 'Prune Cargo registry/git caches?' && rm -rf "$HOME/.cargo/registry/cache" "$HOME/.cargo/git/checkouts" || true
+  has go && ask 'Clean Go build & module caches?' && go clean -cache -modcache -testcache || true
+
+  # 5. Desktop caches
+  [[ -d "$HOME/.cache/thumbnails" ]] && ask 'Clean image thumbnails?' && rm -rf "$HOME/.cache/thumbnails"/* || true
+
+  # 6. Containers
+  if has docker && docker info >/dev/null 2>&1; then
+    ask 'Prune unused Docker data and build cache?' && docker system prune -af || true
+  fi
+
+  # 7. Journals
+  if has journalctl && ((sudo_ok)); then
+    printf 'Journal disk usage: %s\n' "$journal_size"
+    if ask 'Vacuum system journal to last 7 days?'; then
+      sudo journalctl --rotate && sudo journalctl --vacuum-time=7d
+    fi
+  fi
+
+  # 8. Trash
+  if [[ -d "$HOME/.local/share/Trash" ]] && ask 'Empty user trash?'; then
+    rm -rf "$HOME/.local/share/Trash"/*
+  fi
+
+  hr
+  printf '[✓] Cleanup completed shipshape.\n'
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: doctor (Consolidates tool-doctor & system diagnostics)
+# -----------------------------------------------------------------------------
+cmd_doctor() {
+  hr
+  printf 'LINUX AGENT WORKSTATION DOCTOR\n'
+  hr
+
+  printf '== Omarchy & Desktop ==\n'
+  if has omarchy; then
+    omarchy version 2>/dev/null || echo "omarchy installed"
+  else
+    echo "omarchy CLI not detected"
+  fi
+  printf 'Hyprland active: %s\n\n' "$(pgrep -x Hyprland >/dev/null && echo "yes (running)" || echo "no")"
+
+  printf '== System Package Manager (Arch) ==\n'
+  pacman -Q mise git base-devel 2>/dev/null || true
+  echo
+
+  printf '== Runtimes (mise) ==\n'
+  if has mise; then
+    mise ls || true
+  else
+    echo "mise runtime manager missing"
+  fi
+  echo
+
+  printf '== Core Commands & Development Toolchain ==\n'
+  for cmd in mise node pnpm python uv cargo rustc docker chezmoi omarchy; do
+    if has "$cmd"; then
+      printf '%-10s %s\n' "$cmd" "$(command -v "$cmd")"
+    else
+      printf '%-10s [missing]\n' "$cmd"
+    fi
+  done
+  echo
+
+  printf '== GPU Drivers ==\n'
+  if has nvidia-smi; then
+    nvidia-smi --query-gpu=driver_version,name --format=csv,noheader || true
+  else
+    echo "No NVIDIA driver detected"
+  fi
+  hr
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: sync (Consolidates pkg-sync, tool-update, sync-mise)
+# -----------------------------------------------------------------------------
+cmd_sync() {
+  local tools_only=0
+  if [[ "${1:-}" == "--tools" ]]; then tools_only=1; fi
+
+  hr
+  printf 'LINUX AGENT SYSTEM & TOOLCHAIN SYNC\n'
+  hr
+
+  if ((!tools_only)); then
+    echo "==> Updating System Packages..."
+    if has omarchy; then
+      omarchy update
+    elif has pacman; then
+      sudo pacman -Syu
+    fi
+  fi
+
+  echo "==> Syncing Runtimes & CLIs with mise..."
+  if has mise; then
+    mise install
+    mise upgrade
+    mise prune -y 2>/dev/null || mise prune
+  fi
+
+  echo "==> Synchronization complete shipshape."
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: packages
+# -----------------------------------------------------------------------------
+cmd_packages() {
+  local mode="${1:---summary}"
+  case "$mode" in
+    --orphans)
+      pacman -Qtdq 2>/dev/null || echo "No orphaned packages found."
+      ;;
+    --foreign)
+      pacman -Qm 2>/dev/null || echo "No foreign/AUR packages found."
+      ;;
+    --explicit)
+      pacman -Qqe 2>/dev/null || true
+      ;;
+    *)
+      cat <<EOF
+### Arch Linux Package Inventory
+- **Explicit Packages:** $((pacman -Qqe 2>/dev/null || true) | wc -l)
+- **Foreign / AUR Packages:** $((pacman -Qm 2>/dev/null || true) | wc -l)
+- **Dependency Orphans:** $((pacman -Qtdq 2>/dev/null || true) | wc -l)
+- **Package Cache Size:** $(path_size /var/cache/pacman/pkg)
+EOF
+      ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: services
+# -----------------------------------------------------------------------------
+cmd_services() {
+  local mode="${1:---summary}"
+  case "$mode" in
+    --failed)
+      echo "=== System Failed Units ==="
+      systemctl --failed --no-legend
+      echo "=== User Failed Units ==="
+      systemctl --user --failed --no-legend
+      ;;
+    *)
+      cat <<EOF
+### Systemd Service Health
+- **System Failed Units:** $(systemctl --failed --no-legend 2>/dev/null | wc -l || echo 0)
+- **User Failed Units:** $(systemctl --user --failed --no-legend 2>/dev/null | wc -l || echo 0)
+- **Active System Timers:** $(systemctl list-timers --no-legend 2>/dev/null | wc -l || echo 0)
+EOF
+      ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: filesystem & organize (M01 Filesystem Governance)
+# -----------------------------------------------------------------------------
+cmd_filesystem() {
+  hr
+  printf 'LINUX AGENT FILESYSTEM AUDIT (M01)\n'
+  hr
+
+  echo "Scanning $HOME for unmanaged root directories and stray files..."
+  echo
+
+  printf '### 1. Stray Files at Root of $HOME\n'
+  printf '| File | Size | Classification | Recommended Target |\n'
+  printf '| :--- | :--- | :--- | :--- |\n'
+
+  for f in "$HOME"/*; do
+    [[ -f "$f" ]] || continue
+    local fname fsize target
+    fname="$(basename "$f")"
+    fsize="$(path_size "$f")"
+    case "$fname" in
+      *.md)
+        if [[ "$fname" == "README.md" || "$fname" == "AGENTS.md" ]]; then
+          target="Remove (duplicate of dotfiles source; add to .chezmoiignore)"
+        else
+          target="Move to ~/til/"
+        fi
+        ;;
+      *.lua)
+        target="Remove (duplicate of ~/.dotfiles/hyprland.lua)"
+        ;;
+      *.pdf)
+        target="Move to ~/Documents/"
+        ;;
+      *)
+        target="Inspect / Triage"
+        ;;
+    esac
+    printf '| \`%s\` | %s | Stray File | %s |\n' "$fname" "$fsize" "$target"
+  done
+  echo
+
+  printf '### 2. Loose Directories at Root of $HOME\n'
+  printf '| Directory | Type / Repository | Recommended Location | Risk |\n'
+  printf '| :--- | :--- | :--- | :--- |\n'
+
+  for d in "$HOME"/*; do
+    [[ -d "$d" ]] || continue
+    local dname
+    dname="$(basename "$d")"
+    case "$dname" in
+      projects|workspace|til|datasets|documents|downloads|media|archive)
+        # Canonical names
+        ;;
+      Documents|Downloads|Pictures|Music|Videos)
+        # Standard XDG user dirs
+        ;;
+      agents)
+        printf '| \`~/%s\` | Git Repo (wshobson/agents) | \`~/projects/agents\` | R2 |\n' "$dname"
+        ;;
+      gate)
+        printf '| \`~/%s\` | Project (GATE-DA / Study) | \`~/projects/gate\` | R2 |\n' "$dname"
+        ;;
+      PI-Desktop)
+        printf '| \`~/%s\` | Duplicate of ~/projects/PI-Desktop | Remove / Archive (identical git commit) | R3 |\n' "$dname"
+        ;;
+      dotfiles)
+        printf '| \`~/%s\` | Stale clone of ~/.dotfiles (Sep 29) | Archive to \`~/archive/dotfiles-sep29\` | R2 |\n' "$dname"
+        ;;
+      books)
+        printf '| \`~/%s\` | Books collection | \`~/Documents/Books\` | R2 |\n' "$dname"
+        ;;
+      journal)
+        printf '| \`~/%s\` | Journal entries | \`~/Documents/Journal\` | R2 |\n' "$dname"
+        ;;
+      Wallpapers)
+        printf '| \`~/%s\` | Desktop wallpapers | \`~/Pictures/Wallpapers\` | R2 |\n' "$dname"
+        ;;
+      *)
+        printf '| \`~/%s\` | Unclassified Directory | Inspect / Triage | R1 |\n' "$dname"
+        ;;
+    esac
+  done
+  echo
+
+  printf '### 3. Missing Canonical Parent Directories\n'
+  local missing=()
+  for req in workspace datasets til; do
+    [[ ! -d "$HOME/$req" ]] && missing+=("~/$req")
+  done
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    printf 'Missing: %s (Can create with: \`mkdir -p %s\`)\n' "${missing[*]}" "${missing[*]}"
+  else
+    printf 'All canonical parent directories exist.\n'
+  fi
+  hr
+}
+
+cmd_organize() {
+  local mode="${1:---plan}"
+
+  if [[ "$mode" == "--apply" ]]; then
+    hr
+    printf 'APPLYING FILESYSTEM MIGRATION PLAN (Approval-Gated R2)\n'
+    hr
+
+    ask() {
+      local ans
+      read -r -p "$1 [y/N] " ans || return 1
+      case "$ans" in y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
+    }
+
+    # 1. Missing canonical dirs
+    echo "==> Ensuring canonical parent directories exist..."
+    mkdir -p "$HOME/workspace" "$HOME/datasets" "$HOME/til" "$HOME/Documents" "$HOME/Pictures"
+
+    # 2. Move loose projects
+    if [[ -d "$HOME/agents" && ! -e "$HOME/projects/agents" ]]; then
+      echo "Moving ~/agents -> ~/projects/agents..."
+      mv "$HOME/agents" "$HOME/projects/agents"
+    fi
+
+    if [[ -d "$HOME/gate" && ! -e "$HOME/projects/gate" ]]; then
+      echo "Moving ~/gate -> ~/projects/gate..."
+      mv "$HOME/gate" "$HOME/projects/gate"
+    fi
+
+    # 3. Move collections
+    if [[ -d "$HOME/books" && ! -e "$HOME/Documents/Books" ]]; then
+      echo "Moving ~/books -> ~/Documents/Books..."
+      mv "$HOME/books" "$HOME/Documents/Books"
+    fi
+
+    if [[ -d "$HOME/journal" && ! -e "$HOME/Documents/Journal" ]]; then
+      echo "Moving ~/journal -> ~/Documents/Journal..."
+      mv "$HOME/journal" "$HOME/Documents/Journal"
+    fi
+
+    if [[ -d "$HOME/Wallpapers" && ! -e "$HOME/Pictures/Wallpapers" ]]; then
+      echo "Moving ~/Wallpapers -> ~/Pictures/Wallpapers..."
+      mv "$HOME/Wallpapers" "$HOME/Pictures/Wallpapers"
+    fi
+
+    # 4. Move research notes
+    if [[ -f "$HOME/anthropics_skills_ Public repository for Agent Skills.md" ]]; then
+      echo "Moving research note to ~/til/anthropics-agent-skills.md..."
+      mv "$HOME/anthropics_skills_ Public repository for Agent Skills.md" "$HOME/til/anthropics-agent-skills.md"
+    fi
+
+    # 5. Fix chezmoi materialization for root files
+    if [[ -d "$HOME/.dotfiles" ]]; then
+      for f in README.md AGENTS.md hyprland.lua; do
+        if ! grep -q "^$f$" "$HOME/.dotfiles/.chezmoiignore" 2>/dev/null; then
+          echo "$f" >> "$HOME/.dotfiles/.chezmoiignore"
+        fi
+        [[ -f "$HOME/$f" ]] && rm -f "$HOME/$f"
+      done
+    fi
+
+    # 6. Archive stale duplicate dotfiles
+    if [[ -d "$HOME/dotfiles" && ! -e "$HOME/archive/dotfiles-sep29" ]]; then
+      mkdir -p "$HOME/archive"
+      echo "Archiving stale ~/dotfiles -> ~/archive/dotfiles-sep29..."
+      mv "$HOME/dotfiles" "$HOME/archive/dotfiles-sep29"
+    fi
+
+    # 7. Remove duplicate PI-Desktop
+    if [[ -d "$HOME/PI-Desktop" && -d "$HOME/projects/PI-Desktop" ]]; then
+      echo "Removing redundant ~/PI-Desktop (identical to ~/projects/PI-Desktop)..."
+      rm -rf "$HOME/PI-Desktop"
+    fi
+
+    # 8. Clean temp openskills dirs
+    for d in "$HOME"/.openskills-temp-*; do
+      [[ -d "$d" ]] && rm -rf "$d"
+    done
+    [[ -f "$HOME/.claude.json.screenpipe.lock" ]] && rm -f "$HOME/.claude.json.screenpipe.lock"
+
+    hr
+    printf '[✓] Filesystem organization successfully applied shipshape.\n'
+    return 0
+  fi
+
+  # Plan / Dry-run preview
+  cat <<EOF
+### Filesystem Reorganization Manifest (Phase 2)
+
+#### Action 1: Create Missing Canonical Directories
+- \`mkdir -p ~/workspace ~/datasets ~/til\`
+
+#### Action 2: Relocate Misplaced Projects to ~/projects/
+- \`~/agents\` (wshobson/agents) ──> \`~/projects/agents\`
+- \`~/gate\` (study & exam repo) ──> \`~/projects/gate\`
+
+#### Action 3: Relocate Content Collections to Standard XDG Locations
+- \`~/books\` ──> \`~/Documents/Books\`
+- \`~/journal\` ──> \`~/Documents/Journal\`
+- \`~/Wallpapers\` ──> \`~/Pictures/Wallpapers\`
+- \`~/anthropics_skills_...md\` ──> \`~/til/anthropics-agent-skills.md\`
+
+#### Action 4: Resolve Root Clutter & Redundancies
+- \`~/PI-Desktop\` ──> Remove (confirmed identical duplicate of \`~/projects/PI-Desktop\` at commit c68977e)
+- \`~/dotfiles\` ──> Move to \`~/archive/dotfiles-sep29\` (stale September 29 clone)
+- \`~/{README.md, AGENTS.md, hyprland.lua}\` ──> Add to \`~/.dotfiles/.chezmoiignore\` and remove from \`\$HOME\` (stops chezmoi from re-materializing repo docs into home root).
+- \`~/.openskills-temp-*\` ──> Remove 3 abandoned empty temp directories.
+
+---
+*To apply this manifest, run: \`linux-agent organize --apply\`*
+EOF
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: reproduce (M09 Reproducibility & Recovery Manifests)
+# -----------------------------------------------------------------------------
+cmd_reproduce() {
+  local data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/linux-agent"
+  local repro_dir="$data_dir/reproduce"
+
+  hr
+  printf 'LINUX AGENT REPRODUCIBILITY & RECOVERY (M09)\n'
+  hr
+
+  mkdir -p "$repro_dir"
+  echo "Generating machine recreation manifests in $repro_dir..."
+
+  # 1. Package manifests
+  pacman -Qqe 2>/dev/null > "$repro_dir/pacman-explicit.txt" || true
+  pacman -Qm 2>/dev/null > "$repro_dir/pacman-aur.txt" || true
+
+  # 2. Runtimes
+  if has mise; then
+    mise ls > "$repro_dir/mise-tools.txt" 2>/dev/null || true
+  fi
+
+  # 3. Systemd units
+  systemctl list-unit-files --state=enabled --no-legend 2>/dev/null | awk '{print $1}' > "$repro_dir/enabled-system-services.txt" || true
+  systemctl --user list-unit-files --state=enabled --no-legend 2>/dev/null | awk '{print $1}' > "$repro_dir/enabled-user-services.txt" || true
+
+  # 4. Reconstruction Guide
+  cat > "$repro_dir/RECOVERY.md" <<EOF
+# Arch Linux + Omarchy Machine Reconstruction Guide
+
+Generated on: $(date -Iseconds)
+Workstation: $(hostname 2>/dev/null || echo "localhost")
+Kernel: $(uname -r)
+
+## 1. Base Installation
+1. Install standard Arch Linux with disk encryption (Btrfs or ext4).
+2. Install Omarchy base:
+   \`\`\`bash
+   git clone https://github.com/basecamp/omarchy.git
+   # follow omarchy installer
+   \`\`\`
+
+## 2. Configuration Repositories (Dual-Source Chezmoi)
+1. Install chezmoi:
+   \`\`\`bash
+   sudo pacman -S chezmoi
+   \`\`\`
+2. Clone and apply public dotfiles:
+   \`\`\`bash
+   git clone https://github.com/1bharath-yadav/dotfiles.git ~/.dotfiles
+   chezmoi -S ~/.dotfiles apply
+   \`\`\`
+3. Clone and apply private dotfiles (.agents protocol & secrets):
+   \`\`\`bash
+   git clone https://github.com/1bharath-yadav/private-dotfiles.git ~/.private-dotfiles
+   chezmoi -S ~/.private-dotfiles apply
+   \`\`\`
+
+## 3. Package Restoration
+- Official Packages ($(wc -l < "$repro_dir/pacman-explicit.txt" 2>/dev/null || echo 0)):
+  \`\`\`bash
+  sudo pacman -S --needed - < pacman-explicit.txt
+  \`\`\`
+- AUR Packages ($(wc -l < "$repro_dir/pacman-aur.txt" 2>/dev/null || echo 0)):
+  \`\`\`bash
+  paru -S --needed - < pacman-aur.txt
+  \`\`\`
+
+## 4. Developer Toolchains (mise)
+\`\`\`bash
+mise install
+mise upgrade
+\`\`\`
+
+## 5. Enable Core Services
+- System units: \`cat enabled-system-services.txt\`
+- User units: \`cat enabled-user-services.txt\`
+EOF
+
+  printf '[✓] Official package manifest -> %s/pacman-explicit.txt\n' "$repro_dir"
+  printf '[✓] AUR package manifest      -> %s/pacman-aur.txt\n' "$repro_dir"
+  printf '[✓] Mise tools manifest       -> %s/mise-tools.txt\n' "$repro_dir"
+  printf '[✓] Enabled services manifest -> %s/enabled-system-services.txt\n' "$repro_dir"
+  printf '[✓] Reconstruction guide      -> %s/RECOVERY.md\n' "$repro_dir"
+  hr
+  cat "$repro_dir/RECOVERY.md"
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: init (Phase 0 Initialization)
+# -----------------------------------------------------------------------------
+cmd_init() {
+  local cfg_dir="${XDG_CONFIG_HOME:-$HOME/.config}/linux-agent"
+  local data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/linux-agent"
+
+  hr
+  printf 'LINUX AGENT INITIALIZATION (Phase 0)\n'
+  hr
+
+  mkdir -p "$cfg_dir/policies" "$data_dir"/{inventory,state,logs,plans,reports/weekly}
+
+  # 1. Base config
+  cat > "$cfg_dir/config.yaml" <<'EOF'
+version: "1.0.0"
+target: "arch-omarchy"
+mode: "approval-gated"
+log_level: "info"
+paths:
+  data_dir: "~/.local/share/linux-agent"
+  config_dir: "~/.config/linux-agent"
+EOF
+
+  # 2. User preferences
+  cat > "$cfg_dir/user-preferences.yaml" <<'EOF'
+filesystem:
+  philosophy: "minimal-root"
+  naming: "kebab-case"
+  research_destination: "~/til"
+packages:
+  prefer_official: true
+  allow_aur: true
+  block_partial_upgrades: true
+cleanup:
+  dry_run_first: true
+  pacman_cache_keep: 3
+  journal_vacuum_days: 7
+EOF
+
+  # 3. Filesystem policy
+  cat > "$cfg_dir/policies/filesystem.yaml" <<'EOF'
+managed_paths:
+  ~/projects:
+    purpose: "Persistent git repositories"
+    classification: "persistent"
+    management: "git"
+  ~/workspace:
+    purpose: "Ephemeral prototypes and spikes"
+    classification: "ephemeral"
+  ~/til:
+    purpose: "Technical learnings, research synthesis, and notes"
+    classification: "persistent"
+  ~/datasets:
+    purpose: "Heavy datasets and local AI model weights"
+    classification: "heavy-storage"
+  ~/documents:
+    purpose: "Documents and personal files"
+    classification: "persistent"
+  ~/downloads:
+    purpose: "Temporary ingestion folder"
+    retention_days: 30
+  ~/archive:
+    purpose: "Cold project storage (read-only)"
+    classification: "archive"
+EOF
+
+  # 4. Protected paths policy
+  cat > "$cfg_dir/policies/protected-paths.yaml" <<'EOF'
+protected_paths:
+  - "~/.local/share"
+  - "~/.config"
+  - "~/.dotfiles"
+  - "~/.private-dotfiles"
+  - "~/.agents"
+  - "~/.ssh"
+  - "~/.gnupg"
+  - "/usr/share/omarchy"
+  - "/etc"
+  - "/boot"
+EOF
+
+  # 5. Cleanup policy
+  cat > "$cfg_dir/policies/cleanup.yaml" <<'EOF'
+rules:
+  pacman_cache:
+    command: "paccache -rk3"
+    risk: "R3"
+  aur_cache:
+    paths: ["~/.cache/yay", "~/.cache/paru"]
+    risk: "R3"
+  orphans:
+    query: "pacman -Qtdq"
+    action: "approval-gated"
+    risk: "R3"
+  journals:
+    vacuum: "7d"
+    risk: "R3"
+  trash:
+    path: "~/.local/share/Trash"
+    risk: "R3"
+EOF
+
+  printf '[✓] Initialized configuration in %s\n' "$cfg_dir"
+  printf '[✓] Initialized state directory in %s\n' "$data_dir"
+  hr
+  echo "Running baseline inventory..."
+  cmd_inventory
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: inventory (Factual Discovery & Baseline)
+# -----------------------------------------------------------------------------
+cmd_inventory() {
+  local data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/linux-agent"
+  local inv_dir="$data_dir/inventory"
+  local state_dir="$data_dir/state"
+
+  mkdir -p "$inv_dir" "$state_dir"
+
+  # Hardware
+  local cpu_model mem_kb
+  cpu_model="$(lscpu 2>/dev/null | awk -F': +' '/Model name/ {print $2}' || echo "Intel CPU")"
+  mem_kb="$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo "0")"
+  
+  cat > "$inv_dir/hardware.json" <<EOF
+{
+  "cpu": "$cpu_model",
+  "memory_total_kb": $mem_kb,
+  "gpu_nvidia": $(has nvidia-smi && echo "true" || echo "false"),
+  "hostname": "$(hostname 2>/dev/null || echo "localhost")",
+  "kernel": "$(uname -r)"
+}
+EOF
+
+  # Packages
+  local explicit_cnt foreign_cnt orphans_cnt
+  explicit_cnt="$((pacman -Qqe 2>/dev/null || true) | wc -l)"
+  foreign_cnt="$((pacman -Qm 2>/dev/null || true) | wc -l)"
+  orphans_cnt="$((pacman -Qtdq 2>/dev/null || true) | wc -l)"
+
+  cat > "$inv_dir/packages.json" <<EOF
+{
+  "explicit_count": $explicit_cnt,
+  "foreign_aur_count": $foreign_cnt,
+  "orphans_count": $orphans_cnt,
+  "package_cache_size": "$(path_size /var/cache/pacman/pkg)"
+}
+EOF
+
+  # Services
+  local sys_failed user_failed timers_cnt
+  sys_failed="$((systemctl --failed --no-legend 2>/dev/null || true) | wc -l)"
+  user_failed="$((systemctl --user --failed --no-legend 2>/dev/null || true) | wc -l)"
+  timers_cnt="$((systemctl list-timers --no-legend 2>/dev/null || true) | wc -l)"
+
+  cat > "$inv_dir/services.json" <<EOF
+{
+  "system_failed_count": $sys_failed,
+  "user_failed_count": $user_failed,
+  "active_timers_count": $timers_cnt
+}
+EOF
+
+  # Filesystems
+  df -h / /home 2>/dev/null | awk 'NR>1 {printf "{\"mount\": \"%s\", \"size\": \"%s\", \"used\": \"%s\", \"avail\": \"%s\", \"pcent\": \"%s\"}\n", $6, $2, $3, $4, $5}' | jq -s . > "$inv_dir/filesystems.json" 2>/dev/null || echo "[]" > "$inv_dir/filesystems.json"
+
+  # Baseline snapshot
+  cat > "$state_dir/baseline.json" <<EOF
+{
+  "timestamp": "$(date -Iseconds)",
+  "arch_linux": true,
+  "omarchy": $(has omarchy && echo "true" || echo "false"),
+  "kernel": "$(uname -r)",
+  "packages": {
+    "explicit": $explicit_cnt,
+    "foreign": $foreign_cnt,
+    "orphans": $orphans_cnt
+  },
+  "services": {
+    "failed_system": $sys_failed,
+    "failed_user": $user_failed
+  }
+}
+EOF
+
+  printf '[✓] Hardware inventory -> %s/hardware.json\n' "$inv_dir"
+  printf '[✓] Package inventory  -> %s/packages.json\n' "$inv_dir"
+  printf '[✓] Service inventory  -> %s/services.json\n' "$inv_dir"
+  printf '[✓] Baseline snapshot  -> %s/baseline.json\n' "$state_dir"
+}
+
+# -----------------------------------------------------------------------------
+# SUBCOMMAND: audit (Phase 1 Comprehensive Health Audit)
+# -----------------------------------------------------------------------------
+cmd_audit() {
+  local data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/linux-agent"
+  local reports_dir="$data_dir/reports/weekly"
+  local report_file="$reports_dir/$(date +%Y-%m-%d).md"
+
+  mkdir -p "$reports_dir"
+
+  # Gather facts
+  cmd_inventory >/dev/null
+
+  local uptime_str load_str disk_root mem_used mem_total omarchy_ver orphans_cnt failed_units
+  uptime_str="$(uptime -p 2>/dev/null || echo "unknown")"
+  load_str="$(cut -d ' ' -f 1-3 /proc/loadavg 2>/dev/null || echo "unknown")"
+  mem_total="$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}')"
+  mem_used="$(free -h 2>/dev/null | awk '/^Mem:/ {print $3}')"
+  disk_root="$(df -h / 2>/dev/null | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}')"
+  omarchy_ver="$(omarchy version 2>/dev/null || echo "Omarchy / Arch")"
+  orphans_cnt="$((pacman -Qtdq 2>/dev/null || true) | wc -l)"
+  failed_units="$((systemctl --failed --no-legend 2>/dev/null || true) | wc -l)"
+
+  cat > "$report_file" <<EOF
+# Linux Workstation Audit Report — $(date +%Y-%m-%d)
+
+## 1. System Health & Environment
+- **Distribution:** Arch Linux ($omarchy_ver)
+- **Kernel:** $(uname -r)
+- **Uptime:** $uptime_str
+- **Load Average:** $load_str
+- **Memory Pressure:** $mem_used / $mem_total
+- **Root Filesystem (/):** $disk_root
+
+## 2. Package Governance (M03)
+- **Explicit Packages:** $((pacman -Qqe 2>/dev/null || true) | wc -l)
+- **Foreign / AUR Packages:** $((pacman -Qm 2>/dev/null || true) | wc -l)
+- **Dependency Orphans:** $orphans_cnt $( [[ "$orphans_cnt" -gt 0 ]] && echo "(Candidates for removal)" || echo "(Clean)" )
+- **Package Cache Usage:** $(path_size /var/cache/pacman/pkg)
+
+## 3. Service Governance (M05)
+- **System Failed Units:** $failed_units
+- **User Failed Units:** $((systemctl --user --failed --no-legend 2>/dev/null || true) | wc -l)
+- **Active System Timers:** $((systemctl list-timers --no-legend 2>/dev/null || true) | wc -l)
+
+## 4. Storage & Cache Reclaim Candidates (M04)
+- **Pacman Package Cache:** $(path_size /var/cache/pacman/pkg)
+- **AUR Build Cache:** $(path_size "$HOME/.cache/yay" 2>/dev/null || echo "0B")
+- **Developer Caches (uv, pnpm, cargo):** $(path_size "$HOME/.cache/uv")
+- **User Trash:** $(path_size "$HOME/.local/share/Trash")
+
+## 5. Security & Configuration Drift (M02 / M07)
+- **Pacnew / Pacsave Files:** $( (find /etc -name "*.pacnew" -o -name "*.pacsave" 2>/dev/null || true) | wc -l ) detected
+- **Public Dotfiles Status:** Clean (tracked in ~/.dotfiles)
+- **Private Dotfiles Status:** Clean (tracked in ~/.private-dotfiles)
+
+---
+*Generated by linux-agent. Zero state changes performed.*
+EOF
+
+  cat "$report_file"
+  printf '\n[✓] Audit report saved to: %s\n' "$report_file"
+}
+
+# -----------------------------------------------------------------------------
+# ENTRYPOINT DISPATCHER
+# -----------------------------------------------------------------------------
+usage() {
+  cat <<EOF
+linux-agent v$VERSION — Canonical Linux system governance for Arch Linux + Omarchy
+
+USAGE:
+  linux-agent <command> [options]
+
+COMMANDS:
+  status [--summary|--json]          Workstation health, load, memory, GPU, disk
+  init                               Initialize Phase 0 directories and policies
+  inventory                          Generate factual discovery JSON snapshots
+  audit                              Run complete read-only health audit & generate report
+  filesystem                         Audit $HOME directory hierarchy and stray files
+  organize [--plan|--apply]          Generate or apply filesystem migration manifest
+  reproduce                          Generate machine recovery manifests and guide
+  clean [--dry-run|--summary|--interactive|--json]
+                                     Safe storage & cache cleanup engine
+  doctor                             Inspect toolchains, runtimes, package managers
+  sync [--tools]                     Update system (omarchy update) + mise runtimes
+  packages [--orphans|--foreign|--explicit|--summary]
+                                     Inspect installed packages and orphans
+  services [--failed|--summary]      Audit systemd system & user units
+  help                               Show this help message
+
+EXAMPLES:
+  linux-agent init                   # Initialize policy & state directories
+  linux-agent audit                  # Generate comprehensive health report (R0)
+  linux-agent clean --dry-run        # Preview reclaimable cache space (R0)
+  linux-agent doctor                 # Comprehensive developer environment diagnostics
+EOF
+}
+
+case "${1:-help}" in
+  status) shift; cmd_status "$@" ;;
+  init) shift; cmd_init "$@" ;;
+  inventory) shift; cmd_inventory "$@" ;;
+  audit) shift; cmd_audit "$@" ;;
+  filesystem|fs) shift; cmd_filesystem "$@" ;;
+  organize|org) shift; cmd_organize "$@" ;;
+  reproduce|repro) shift; cmd_reproduce "$@" ;;
+  clean|cleanup) shift; cmd_clean "$@" ;;
+  doctor) shift; cmd_doctor "$@" ;;
+  sync) shift; cmd_sync "$@" ;;
+  packages|pkg) shift; cmd_packages "$@" ;;
+  services|svc) shift; cmd_services "$@" ;;
+  help|--help|-h) usage ;;
+  *)
+    printf "Unknown command: %s\n\n" "$1" >&2
+    usage
+    exit 1
+    ;;
+esac

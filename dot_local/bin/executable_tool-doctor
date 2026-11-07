@@ -1,19 +1,11 @@
 #!/usr/bin/env bash
+# tool-doctor — Canonical developer toolchain and environment diagnostics
 set -euo pipefail
 
-echo '== pacman =='
-command -v pacman >/dev/null 2>&1 && pacman -Q mise git base-devel gcc openssl zlib 2>/dev/null || true
-
-echo
-printf '== runtimes ==\n'
-command -v mise >/dev/null 2>&1 && mise ls || true
-
-echo
-printf '== commands ==\n'
-for cmd in mise node pnpm python uv cargo rustc; do
-  if command -v "$cmd" >/dev/null 2>&1; then
-    printf '%-8s %s\n' "$cmd" "$(command -v "$cmd")"
-  else
-    printf '%-8s missing\n' "$cmd"
-  fi
-done
+if command -v linux-agent >/dev/null 2>&1; then
+  exec linux-agent doctor "$@"
+elif [[ -x "$HOME/.local/bin/linux-agent" ]]; then
+  exec "$HOME/.local/bin/linux-agent" doctor "$@"
+else
+  exec "$HOME/.dotfiles/dot_local/bin/executable_linux-agent" doctor "$@"
+fi

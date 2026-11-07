@@ -41,7 +41,7 @@ hl.config({
         rounding_power = 2.5,
         rounding = 18,
         blur = {
-            enabled = false,
+            enabled = true,
             popups = false,
             input_methods = false,
             special = false,

@@ -15,9 +15,28 @@ require("hypr.omacontrol")
 require("default.hypr.toggles")
 require("hypr.omasettings")
 
+--- Passist is a compact floating assistant window; geometry changes are driven by its UI.
+o.window({ class = "^org[.]quickshell$", title = "^Passist$" }, {
+  float = true,
+  no_anim = true,
+  size = { 420, 240 },
+  move = { "(monitor_w-window_w-10)", "42" },
+})
+
+
+
+
 -- Keep OSTT's popup above every workspace.
 o.window({ title = "^ostt$" }, {
   float = true,
   move = { "((monitor_w*0.5)-(window_w*0.5))", "(monitor_h*0.85)" },
+  pin = true,
+})
+
+
+-- Foot/Alacritty OSTT popups use this class instead of the `ostt` title.
+o.window({ class = "^ostt-popup$" }, {
+  float = true,
+  move = { "(monitor_w-window_w-10)", "42" },
   pin = true,
 })
